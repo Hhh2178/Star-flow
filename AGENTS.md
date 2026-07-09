@@ -14,15 +14,18 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 
 1. `AGENTS.md`
 2. `README.md`
-3. `docs/specs/2026-07-09-stars-flow-toonflow-rebase-design.md`
-4. `docs/decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md`
-5. `docs/references/server-context.md`
-6. `upstream/toonflow-notes.md`
-7. `legacy-reference/xinghuan-notes.md`
+3. `docs/INDEX.md`
+4. `docs/specs/2026-07-09-stars-flow-toonflow-rebase-design.md`
+5. `docs/decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md`
+6. `docs/references/server-context.md`
+7. 最新 `docs/logbooks/daily/*.md`
+8. `upstream/toonflow-notes.md`
+9. `legacy-reference/xinghuan-notes.md`
 
 ## Current Direction
 
 - 以 Toonflow-app 作为代码和产品底座。
+- Toonflow fork 仓库为 `https://github.com/Hhh2178/Starflow`。
 - 保留 Toonflow 的小说/剧本、Agent、Skill、分镜、素材、视频工作台和 Electron 可封装能力。
 - 视觉风格在保留 Toonflow 功能密度的基础上，向星环漫剧的生产中台、项目工作台、后台控制台方向调整。
 - 第一阶段优先做十人团队内部服务器版，通过浏览器统一访问。
@@ -46,6 +49,25 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 - 不要打印、提交或记录密钥、私钥、API Key、服务器凭据、真实 Provider Key。
 - 不要读取、打印、复制或提交根目录中的 `Tencent_Cloud_Server.pem`。
 - 在正式确认迁移计划前，不要修改旧 `星环漫剧` 仓库。
+
+## Branch Rules
+
+- 只使用 `main` 和 `dev` 作为长期分支。
+- `main` 是稳定可部署分支。
+- `dev` 是日常集成分支。
+- 短期任务可以使用 `feature/<name>`，合并后删除。
+- 不创建长期模块分支。
+- 官方 Toonflow 只作为 `app` 仓库的 `upstream` remote，不直接作为 Stars Flow 开发主线。
+
+## Verification Commands
+
+在提交 Stars Flow 外层治理仓库前运行：
+
+```powershell
+npm run harness:verify:project
+```
+
+在修改 Toonflow app 代码后，还需要进入 `app/` 运行对应 Toonflow 检查。
 
 ## Documentation Rules
 

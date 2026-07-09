@@ -8,7 +8,8 @@ Stars Flow 是新的 AI 漫剧/短剧生产工具主线，计划以 Toonflow-app
 
 ## Project Direction
 
-- 代码基础：Toonflow-app。
+- 代码基础：Toonflow-app fork。
+- fork 仓库：`https://github.com/Hhh2178/Starflow`。
 - 参考项目：`D:\codex\服务器\星环漫剧`。
 - 第一阶段形态：十人团队内部服务器版，浏览器访问。
 - 第二阶段形态：Electron 客户端连接云端中控。
@@ -26,6 +27,7 @@ Stars Flow 是新的 AI 漫剧/短剧生产工具主线，计划以 Toonflow-app
 ## Documentation Map
 
 - `AGENTS.md`：项目规则和工作入口。
+- `docs/INDEX.md`：文档路由和权威来源。
 - `docs/specs/2026-07-09-stars-flow-toonflow-rebase-design.md`：新主线迁移设计。
 - `docs/decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md`：第一条架构决策。
 - `docs/references/server-context.md`：共享服务器上下文和 Stars Flow 部署注意事项。
@@ -46,6 +48,21 @@ Stars Flow 是新的 AI 漫剧/短剧生产工具主线，计划以 Toonflow-app
 8. 人工复核视频。
 9. 对失败或不满意节点执行重跑。
 10. 记录任务状态和基础成本。
+
+## Branch Model
+
+长期只保留两条主线：
+
+- `main`：稳定可部署版本。
+- `dev`：日常集成版本。
+
+需要时可以开短期 `feature/<name>` 分支，但合并后删除。官方 Toonflow 通过 `app` 仓库的 `upstream` remote 同步，不作为长期开发分支。
+
+## Harness Commands
+
+```powershell
+npm run harness:verify:project
+```
 
 ## Non-Goals For Phase 1
 

@@ -1,0 +1,8 @@
+{
+  "name": "stars-flow-harness",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "harness:verify:project": "node scripts/verify-harness.mjs"
+  }
+}
