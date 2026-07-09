@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Runtime data
+data/
+oss/
+uploads/
+storage/
+logs/
+*.log
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Future upstream app checkout artifacts
+app/node_modules/
+app/data/oss/
+app/data/database/
+app/data/*.db
+app/data/*.sqlite
