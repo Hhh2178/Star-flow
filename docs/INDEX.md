@@ -23,6 +23,9 @@ Read in order:
 | Human overview and commands | `../README.md` | Setup, command, or current direction changes |
 | Documentation routing | `docs/INDEX.md` | New doc family or canonical source changes |
 | Toonflow rebase strategy | `specs/2026-07-09-stars-flow-toonflow-rebase-design.md` | Product or architecture direction changes |
+| Visual migration requirements | `specs/2026-07-09-stars-flow-visual-requirements.md` | Visual boundary, UI migration scope, or Xinghuan visual direction changes |
+| Frontend visual system | `systems/frontend/frontend-design/stars-flow-visual-system.md` | Theme token, component style, or motion rules change |
+| Toonflow/Xinghuan feature comparison | `systems/frontend/frontend-design/toonflow-xinghuan-feature-comparison.md` | Feature scope or migration priority changes |
 | Deployment shape decision | `decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md` | Deployment target or app/client boundary changes |
 | Server facts | `references/server-context.md` | Server host, ports, service constraints, or deploy path changes |
 | Deployment evidence | `references/deployment-assessment-2026-07-09.md` and `logbooks/validations/` | New deployment validation or incident |

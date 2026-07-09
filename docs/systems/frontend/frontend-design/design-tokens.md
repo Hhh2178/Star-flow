@@ -1,16 +1,27 @@
 # Frontend Design Tokens
 
+The canonical implementation entry is `web/src/assets/starsflow-theme.scss`.
+
 | Token | Value | Usage |
 | --- | --- | --- |
-| page.background | `#0f1115` | Main production workspace background |
-| panel.background | `#171a21` | Tool panels and inspectors |
-| panel.border | `#2a2f3a` | Panel and canvas item borders |
-| text.primary | `#f4f6fb` | Primary labels and titles |
-| text.secondary | `#a8b0bf` | Secondary metadata and hints |
-| accent.primary | `#4f8cff` | Primary actions and active states |
-| status.success | `#2fbf71` | Successful generation and pass states |
-| status.warning | `#f5b84b` | Pending review and budget warnings |
-| status.danger | `#ef5b5b` | Failed jobs and destructive actions |
-| radius.panel | `8px` | Panels, drawers, repeated cards |
-| control.height | `36px` | Buttons, inputs, compact controls |
-| motion.fast | `120ms ease-out` | Hover and state transitions |
+| page.background | `#f7f8fa` | Main production workspace background |
+| panel.background | `#ffffff` | Tool panels, dialogs, cards, and inspectors |
+| panel.muted | `#f1f5f4` | Table headers and secondary panels |
+| panel.border | `#dfe6e4` | Panel and canvas item borders |
+| text.primary | `#111827` | Primary labels and titles |
+| text.secondary | `#64748b` | Secondary metadata and hints |
+| accent.primary | `#0f766e` | Primary actions and active states |
+| accent.primary.hover | `#115e59` | Primary action hover |
+| accent.primary.subtle | `#ccfbf1` | Soft selected backgrounds |
+| status.success | `#16a34a` | Successful generation and pass states |
+| status.warning | `#d97706` | Pending review, budget, and cost warnings |
+| status.danger | `#dc2626` | Failed jobs and destructive actions |
+| status.running | `#2563eb` | Running jobs |
+| status.ai | `#7c3aed` | AI suggestion/status accents only |
+| radius.panel | `8px` | Panels, dialogs, repeated cards |
+| radius.control | `6px` | Buttons, inputs, tags, menu items |
+| motion.fast | `140ms ease-out` | Hover and state transitions |
+
+## Rule
+
+Do not add new hard-coded colors to Vue components. Add a semantic token in `starsflow-theme.scss` first, then consume the token from the component.
