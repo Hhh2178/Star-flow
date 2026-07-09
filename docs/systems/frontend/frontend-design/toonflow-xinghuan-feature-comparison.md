@@ -25,7 +25,7 @@ Toonflow is the runnable product base. Xinghuan Manju is the product requirement
 | Editing/export | Planned cutting/export flow | Video workbench and clip tooling exists | Preserve Toonflow; document later export gaps |
 | Provider/model admin | Provider-first admin, model catalog, probes, cost rules | Setting center vendor config, model map, model tests | Style setting center as admin console now; deeper admin later |
 | Prompt/Skill admin | Prompt templates, Agent strategy versions | Prompt management and Skill management exist | Preserve and style |
-| Users/roles | Super Admin/Admin/Creator User | Basic login/user password config | Later backend phase |
+| Users/roles | Super Admin/Admin/Creator User | Basic login/user password config; no role enforcement | Implement as three fixed roles: `super_admin`, `admin`, `creator`; no Viewer/Reviewer |
 | Quota/cost | Star power, budgets, model price rules, cost logs | Basic model/provider operation; no Xinghuan quota system | Later backend phase |
 | Audit/security | Audit logs, tenant fields, internal service token | Local app style auth and config | Later backend phase |
 | Deployment | Internal team server first, local client later | App can run as local/Electron/server | Continue local plus server staging route |
@@ -44,7 +44,7 @@ Toonflow is the runnable product base. Xinghuan Manju is the product requirement
 
 | Backlog Item | Suggested Phase |
 | --- | --- |
-| Role-based team permissions | Server/internal team phase |
+| Three-level account permissions | Server/internal team phase; design source is `docs/specs/2026-07-09-stars-flow-account-permission-design.md` |
 | Provider-first admin page outside dialog | Admin console phase |
 | Quota and star power ledger | Cost governance phase |
 | AI video precheck and manual review workflow | Production QC phase |
