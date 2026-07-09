@@ -25,7 +25,7 @@
 
 ### Task 1: Extend the user model
 
-- [ ] **Step 1: Update schema**
+- [x] **Step 1: Update schema**
 
 Add these fields to `o_user` in `initDB.ts`:
 
@@ -39,7 +39,7 @@ table.integer("lastLoginAt");
 table.boolean("mustChangePassword").defaultTo(false);
 ```
 
-- [ ] **Step 2: Update default account**
+- [x] **Step 2: Update default account**
 
 Default seed should create one enabled Super Admin. Keep `password` only for migration compatibility during R1; use `passwordHash` for new auth.
 
@@ -59,13 +59,13 @@ await knex("o_user").insert([
 ]);
 ```
 
-- [ ] **Step 3: Add migration repair**
+- [x] **Step 3: Add migration repair**
 
 In `fixDB.ts`, add missing columns if an existing database was created before R1. Existing user `id=1` must become `super_admin`.
 
 ### Task 2: Add auth types and helpers
 
-- [ ] **Step 1: Create role types**
+- [x] **Step 1: Create role types**
 
 In `types/auth.ts`:
 
@@ -79,11 +79,11 @@ export interface AuthUser {
 }
 ```
 
-- [ ] **Step 2: Create password helpers**
+- [x] **Step 2: Create password helpers**
 
 In `middleware/auth.ts`, add `hashPassword` and `verifyPassword` using Node crypto `scryptSync` or `pbkdf2Sync`. The stored value must include salt and derived hash.
 
-- [ ] **Step 3: Create role helpers**
+- [x] **Step 3: Create role helpers**
 
 Add:
 
@@ -94,15 +94,15 @@ export function requireRole(...roles: UserRole[]): express.RequestHandler;
 
 ### Task 3: Update login
 
-- [ ] **Step 1: Verify by hash first**
+- [x] **Step 1: Verify by hash first**
 
 Login must validate `passwordHash` first. If an old row only has `password`, accept it once and write `passwordHash`.
 
-- [ ] **Step 2: Enforce account status**
+- [x] **Step 2: Enforce account status**
 
 If `status !== "enabled"`, return 403 with a clear message.
 
-- [ ] **Step 3: Sign role into JWT**
+- [x] **Step 3: Sign role into JWT**
 
 JWT payload must include:
 
@@ -114,34 +114,34 @@ JWT payload must include:
 }
 ```
 
-- [ ] **Step 4: Update last login**
+- [x] **Step 4: Update last login**
 
 Set `lastLoginAt = Date.now()` after successful login.
 
 ### Task 4: Centralize auth middleware
 
-- [ ] **Step 1: Move token verification into helper**
+- [x] **Step 1: Move token verification into helper**
 
 Create `requireAuth` in `middleware/auth.ts` and use it from `app.ts`.
 
-- [ ] **Step 2: Preserve login whitelist**
+- [x] **Step 2: Preserve login whitelist**
 
 Only `/api/login/login` remains public.
 
-- [ ] **Step 3: Preserve static assets behavior**
+- [x] **Step 3: Preserve static assets behavior**
 
 Do not change `/oss`, `/skills`, `/assets`, or static web serving in this ring.
 
 ### Task 5: Verify
 
-- [ ] **Step 1: Build app**
+- [x] **Step 1: Build app**
 
 ```powershell
 cd "D:\codex\服务器\Stars flow\app"
 yarn build
 ```
 
-- [ ] **Step 2: Smoke login**
+- [x] **Step 2: Smoke login**
 
 Start the app locally and verify:
 
@@ -151,11 +151,11 @@ Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:10588/api/login/login" -Bo
 
 Expected: response includes token and user role `super_admin`. Do not print real tokens in docs or chat.
 
-- [ ] **Step 3: Smoke protected API**
+- [x] **Step 3: Smoke protected API**
 
 Call one protected API without a token and confirm 401. Call with the token and confirm success.
 
-- [ ] **Step 4: Update status**
+- [x] **Step 4: Update status**
 
 Set R1 to `Done` in `functional-reform-status.md`, append daily log evidence, and commit.
 
