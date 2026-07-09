@@ -19,6 +19,14 @@ ssh -i Tencent_Cloud_Server.pem -p 728 ubuntu@101.33.75.38
 
 Do not print, copy, commit, or upload the private key.
 
+Project scripts should reference the key by path instead of copying it into this repository. The non-secret path convention is recorded in `.env.example`:
+
+```env
+STARS_FLOW_SSH_KEY_PATH=D:\codex\服务器\Tencent_Cloud_Server.pem
+```
+
+Local `.env` files remain untracked.
+
 ## Local Network Note
 
 This workstation has a persistent host route so traffic to `101.33.75.38` bypasses the local proxy tunnel and uses the physical Ethernet gateway. If SSH suddenly fails, first verify local routing and current trusted public IP before changing server configuration.
