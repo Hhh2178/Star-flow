@@ -250,7 +250,7 @@ onUnmounted(() => {
         }
       }
       .active {
-        background-color: #000 !important;
+        background-color: var(--stars-nav-active-bg) !important;
         border-radius: 16px;
       }
     }

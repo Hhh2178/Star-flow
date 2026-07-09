@@ -19,6 +19,7 @@ import "md-editor-v3/lib/style.css";
 import "splitpanes/dist/splitpanes.css";
 
 import "./assets/main.scss";
+import "./assets/starsflow-theme.scss";
 
 import { imageOptimizer } from '@/utils/imageOptimizer'
 

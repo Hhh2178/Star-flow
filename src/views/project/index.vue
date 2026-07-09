@@ -273,7 +273,7 @@ function delProjcer(projectId: string | undefined) {
         .removeBtn {
           cursor: pointer;
           &:hover {
-            color: red;
+            color: var(--stars-danger);
           }
         }
       }

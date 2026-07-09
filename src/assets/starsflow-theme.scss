@@ -1,0 +1,204 @@
+:root,
+:root[theme-mode="light"] {
+  --stars-brand: #0f766e;
+  --stars-brand-hover: #115e59;
+  --stars-brand-active: #134e4a;
+  --stars-brand-subtle: #ccfbf1;
+  --stars-brand-soft: #ecfdf5;
+  --stars-page-bg: #f7f8fa;
+  --stars-surface: #ffffff;
+  --stars-surface-muted: #f1f5f4;
+  --stars-surface-hover: #f8fbfa;
+  --stars-border: #dfe6e4;
+  --stars-border-strong: #b7c8c4;
+  --stars-text: #111827;
+  --stars-text-muted: #64748b;
+  --stars-text-subtle: #94a3b8;
+  --stars-success: #16a34a;
+  --stars-warning: #d97706;
+  --stars-danger: #dc2626;
+  --stars-running: #2563eb;
+  --stars-ai: #7c3aed;
+  --stars-radius-sm: 4px;
+  --stars-radius-md: 6px;
+  --stars-radius-lg: 8px;
+  --stars-shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+  --stars-shadow-hover: 0 14px 34px rgba(15, 23, 42, 0.11);
+  --stars-motion-fast: 140ms ease-out;
+  --stars-nav-active-bg: var(--stars-brand);
+
+  --bgc: var(--stars-page-bg);
+  --page: var(--stars-surface);
+
+  --td-brand-color-1: #ecfdf5;
+  --td-brand-color-2: #ccfbf1;
+  --td-brand-color-3: #99f6e4;
+  --td-brand-color-4: #5eead4;
+  --td-brand-color-5: #2dd4bf;
+  --td-brand-color-6: #14b8a6;
+  --td-brand-color-7: #0f766e;
+  --td-brand-color-8: #115e59;
+  --td-brand-color-9: #134e4a;
+  --td-brand-color-10: #042f2e;
+  --td-brand-color: var(--stars-brand);
+  --td-brand-color-hover: var(--stars-brand-hover);
+  --td-brand-color-active: var(--stars-brand-active);
+  --td-brand-color-focus: var(--stars-brand-subtle);
+  --td-brand-color-light: var(--stars-brand-soft);
+  --td-brand-color-light-hover: var(--stars-brand-subtle);
+
+  --td-bg-color-page: var(--stars-page-bg);
+  --td-bg-color-container: var(--stars-surface);
+  --td-bg-color-container-hover: var(--stars-surface-hover);
+  --td-bg-color-container-active: var(--stars-surface-muted);
+  --td-bg-color-container-select: var(--stars-brand-soft);
+  --td-bg-color-secondarycontainer: var(--stars-surface-muted);
+  --td-bg-color-secondarycontainer-hover: #e8f1ef;
+  --td-bg-color-secondarycontainer-active: #dbe8e5;
+  --td-bg-color-component: #edf3f2;
+  --td-bg-color-component-hover: #e2ece9;
+  --td-bg-color-component-active: #d4e3df;
+
+  --td-text-color-primary: var(--stars-text);
+  --td-text-color-secondary: var(--stars-text-muted);
+  --td-text-color-placeholder: var(--stars-text-subtle);
+  --td-text-color-disabled: #b8c4c0;
+  --td-text-color-brand: var(--stars-brand);
+  --td-text-color-link: var(--stars-brand-hover);
+
+  --td-border-level-1-color: var(--stars-border);
+  --td-border-level-2-color: var(--stars-border-strong);
+  --td-component-stroke: var(--stars-border);
+  --td-component-border: var(--stars-border);
+
+  --td-success-color: var(--stars-success);
+  --td-warning-color: var(--stars-warning);
+  --td-error-color: var(--stars-danger);
+
+  --td-radius-small: var(--stars-radius-sm);
+  --td-radius-default: var(--stars-radius-md);
+  --td-radius-medium: var(--stars-radius-md);
+  --td-radius-large: var(--stars-radius-lg);
+  --td-radius-extraLarge: 10px;
+
+  --td-shadow-1: 0 1px 2px rgba(15, 23, 42, 0.05), 0 1px 8px rgba(15, 23, 42, 0.04);
+  --td-shadow-2: var(--stars-shadow-soft);
+  --td-shadow-3: 0 18px 50px rgba(15, 23, 42, 0.13);
+  --td-scrollbar-color: rgba(15, 118, 110, 0.22);
+  --td-scrollbar-hover-color: rgba(15, 118, 110, 0.42);
+  --td-scroll-track-color: transparent;
+}
+
+html,
+body,
+#app {
+  background: var(--stars-page-bg);
+}
+
+* {
+  transition-property: background-color, border-color, box-shadow, color, opacity, transform;
+  transition-duration: var(--stars-motion-fast);
+  transition-timing-function: ease-out;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--td-scrollbar-color);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--td-scrollbar-hover-color);
+}
+
+.t-button {
+  border-radius: var(--stars-radius-md);
+}
+
+.t-button--theme-primary {
+  border-color: var(--stars-brand);
+  background-color: var(--stars-brand);
+}
+
+.t-button--theme-primary:not(.t-is-disabled):hover {
+  border-color: var(--stars-brand-hover);
+  background-color: var(--stars-brand-hover);
+}
+
+.t-card {
+  border-color: var(--stars-border);
+  border-radius: var(--stars-radius-lg);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.t-card:hover {
+  border-color: var(--stars-border-strong);
+  box-shadow: var(--stars-shadow-hover);
+}
+
+.t-dialog {
+  border: 1px solid var(--stars-border);
+  border-radius: var(--stars-radius-lg);
+  box-shadow: var(--td-shadow-3);
+}
+
+.t-dialog__header {
+  border-bottom: 1px solid var(--stars-border);
+}
+
+.t-drawer__content-wrapper {
+  box-shadow: var(--td-shadow-3);
+}
+
+.t-menu__item {
+  border-radius: var(--stars-radius-md);
+}
+
+.t-menu__item.t-is-active {
+  color: var(--stars-brand);
+  background-color: var(--stars-brand-soft);
+}
+
+.t-tag {
+  border-radius: var(--stars-radius-md);
+}
+
+.t-table th {
+  background-color: var(--stars-surface-muted);
+}
+
+.t-table tr:hover td {
+  background-color: var(--stars-surface-hover);
+}
+
+.t-input,
+.t-textarea,
+.t-select__wrap {
+  border-radius: var(--stars-radius-md);
+}
+
+.t-input:focus-within,
+.t-textarea:focus-within,
+.t-select__wrap:focus-within {
+  border-color: var(--stars-brand);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+.t-tabs__nav-item.t-is-active {
+  color: var(--stars-brand);
+}
+
+.t-tabs__bar {
+  background-color: var(--stars-brand);
+}
+
+.t-message,
+.t-notification {
+  border-radius: var(--stars-radius-lg);
+  box-shadow: var(--stars-shadow-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}
