@@ -36,3 +36,6 @@ app/data/oss/
 app/data/database/
 app/data/*.db
 app/data/*.sqlite
+
+# Local frontend fork clone. Register as a submodule after Starflow-web push is confirmed.
+/web/

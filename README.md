@@ -64,6 +64,25 @@ Stars Flow 是新的 AI 漫剧/短剧生产工具主线，计划以 Toonflow-app
 npm run harness:verify:project
 ```
 
+## Visual Development
+
+Visual and UI work uses the Toonflow-web fork as a local `web/` working copy. During local visual development, run:
+
+```powershell
+.\scripts\start-local-visual-dev.ps1
+```
+
+This starts:
+
+- App backend: `http://localhost:10588`
+- Web dev server: `http://localhost:50188`
+
+To build the web UI and copy the compiled single-file output into the app runtime:
+
+```powershell
+.\scripts\build-web-to-app.ps1
+```
+
 ## Non-Goals For Phase 1
 
 - 不做公开注册。
