@@ -16,8 +16,9 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 2. `README.md`
 3. `docs/specs/2026-07-09-stars-flow-toonflow-rebase-design.md`
 4. `docs/decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md`
-5. `upstream/toonflow-notes.md`
-6. `legacy-reference/xinghuan-notes.md`
+5. `docs/references/server-context.md`
+6. `upstream/toonflow-notes.md`
+7. `legacy-reference/xinghuan-notes.md`
 
 ## Current Direction
 
@@ -27,6 +28,15 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 - 第一阶段优先做十人团队内部服务器版，通过浏览器统一访问。
 - 第二阶段再考虑 Electron 客户端连接云端中控。
 - 旧星环漫剧只作为参考，不直接搬运其现有前后端实现。
+
+## Server Context
+
+- 共享服务器上下文已整理到 `docs/references/server-context.md`。
+- 服务器操作必须使用 `ubuntu@101.33.75.38` 和 SSH 端口 `728`。
+- 不要使用 `root@101.33.75.38`。
+- 不要读取、打印或提交 SSH 私钥。
+- Stars Flow 部署不能修改内部代理、画布、广告监控或其他既有项目的 Nginx 路由和服务。
+- 正式部署前必须重新确认服务器端口、磁盘、内存、Node.js、PostgreSQL、Redis、Nginx 和 Docker 状态。
 
 ## Safety Rules
 

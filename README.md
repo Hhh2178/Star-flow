@@ -28,6 +28,7 @@ Stars Flow 是新的 AI 漫剧/短剧生产工具主线，计划以 Toonflow-app
 - `AGENTS.md`：项目规则和工作入口。
 - `docs/specs/2026-07-09-stars-flow-toonflow-rebase-design.md`：新主线迁移设计。
 - `docs/decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md`：第一条架构决策。
+- `docs/references/server-context.md`：共享服务器上下文和 Stars Flow 部署注意事项。
 - `upstream/toonflow-notes.md`：Toonflow 上游分析摘要。
 - `legacy-reference/xinghuan-notes.md`：旧星环漫剧参考范围。
 
