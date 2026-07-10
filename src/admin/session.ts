@@ -122,6 +122,7 @@ export const useAdminSessionStore = defineStore("admin-session", () => {
 
   const api = createApiClient({
     getToken: () => token.value,
+    shouldHandleUnauthorized: (error) => error.config?.url !== "/login/login",
     onUnauthorized: (error) => {
       const generation = requestGeneration(error);
       const requestToken = requestAuthorization(error);
@@ -186,7 +187,7 @@ export const useAdminSessionStore = defineStore("admin-session", () => {
       if (status === 403 && sessionRequestStarted && requestToken) {
         throw denyAccess(generation, requestToken);
       }
-      if (status === 401) {
+      if (status === 401 && sessionRequestStarted) {
         clearUnauthorizedOperation(generation, requestToken);
       }
       if (generation === operationGeneration) {

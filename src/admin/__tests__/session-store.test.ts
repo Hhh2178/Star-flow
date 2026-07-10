@@ -4,7 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const api = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
-  options: null as null | { onUnauthorized?: (error: unknown) => void | Promise<void> },
+  options: null as null | {
+    onUnauthorized?: (error: unknown) => void | Promise<void>;
+    shouldHandleUnauthorized?: (error: { config?: { url?: string } }) => boolean;
+  },
 }));
 
 vi.mock("../../shared/api", () => ({
@@ -167,6 +170,20 @@ describe("admin session store", () => {
     expect(store.errorMessage).toBe("账号已停用，请联系管理员");
     expect(localStorage.getItem("token")).toBe("Bearer creator-token");
     expect(store.token).toBe("Bearer creator-token");
+  });
+
+  it("keeps an existing Creator token when Admin login returns 401", async () => {
+    localStorage.setItem("token", "Bearer creator-token");
+    api.post.mockRejectedValue({ status: 401, message: "账号或密码错误" });
+    const store = useAdminSessionStore();
+
+    await expect(store.login({ username: "wrong", password: "wrong" })).rejects.toThrow(
+      "账号或密码错误",
+    );
+
+    expect(api.options?.shouldHandleUnauthorized?.({ config: { url: "/login/login" } })).toBe(false);
+    expect(store.token).toBe("Bearer creator-token");
+    expect(localStorage.getItem("token")).toBe("Bearer creator-token");
   });
 
   it("clears the session when restore receives 401", async () => {

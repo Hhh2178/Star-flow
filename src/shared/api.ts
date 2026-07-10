@@ -7,6 +7,7 @@ export interface ApiClientOptions {
   getTimeout?: () => number | undefined;
   getToken?: () => string | null;
   unwrapResponse?: boolean;
+  shouldHandleUnauthorized?: (error: AxiosError) => boolean;
   onUnauthorized?: (error: AxiosError) => void | Promise<void>;
   onError?: (error: AxiosError) => void | Promise<void>;
 }
@@ -43,7 +44,10 @@ export function createApiClient(options: ApiClientOptions = {}): AxiosInstance {
   client.interceptors.response.use(
     (response) => options.unwrapResponse ? response.data : response,
     async (error: AxiosError) => {
-      if (error.response?.status === 401) {
+      if (
+        error.response?.status === 401
+        && (options.shouldHandleUnauthorized?.(error) ?? true)
+      ) {
         await options.onUnauthorized?.(error);
       }
       await options.onError?.(error);

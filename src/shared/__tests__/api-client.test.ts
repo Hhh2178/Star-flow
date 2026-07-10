@@ -65,6 +65,23 @@ describe("createApiClient", () => {
     );
   });
 
+  it("can skip unauthorized handling for a public login request", async () => {
+    const onUnauthorized = vi.fn();
+    const shouldHandleUnauthorized = vi.fn((error: AxiosError) => (
+      error.config?.url !== "/login/login"
+    ));
+    const client = createApiClient({ onUnauthorized, shouldHandleUnauthorized });
+    client.defaults.adapter = async (config) => {
+      const unauthorized = response(config, 401);
+      throw new AxiosError("Unauthorized", "ERR_BAD_REQUEST", config, undefined, unauthorized);
+    };
+
+    await expect(client.post("/login/login")).rejects.toMatchObject({ status: 401 });
+
+    expect(shouldHandleUnauthorized).toHaveBeenCalledTimes(1);
+    expect(onUnauthorized).not.toHaveBeenCalled();
+  });
+
   it("reads the base URL and timeout for every request", async () => {
     let baseURL = "http://localhost:10588/api";
     let timeout = 600_000;

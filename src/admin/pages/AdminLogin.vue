@@ -16,21 +16,28 @@
 
       <form class="login-form" @submit.prevent="submit">
         <label for="admin-username">账号</label>
-        <t-input
-          ref="usernameInput"
-          id="admin-username"
-          v-model="form.username"
-          size="large"
-          autocomplete="username"
-          placeholder="请输入账号"
-          :disabled="loading"
-          :aria-invalid="Boolean(errors.username)"
-          :aria-describedby="errors.username ? 'admin-username-error' : undefined"
-          :status="errors.username ? 'error' : 'default'"
-          @input="errors.username = ''"
+        <div
+          class="input-control"
+          :class="{
+            'input-control--error': errors.username,
+            'input-control--disabled': loading,
+          }"
         >
-          <template #prefix-icon><i-user theme="outline" /></template>
-        </t-input>
+          <i-user class="input-control__icon" theme="outline" aria-hidden="true" />
+          <input
+            id="admin-username"
+            ref="usernameInput"
+            v-model="form.username"
+            class="login-input"
+            type="text"
+            autocomplete="username"
+            placeholder="请输入账号"
+            :disabled="loading"
+            :aria-invalid="Boolean(errors.username)"
+            :aria-describedby="errors.username ? 'admin-username-error' : undefined"
+            @input="errors.username = ''"
+          />
+        </div>
         <span
           v-if="errors.username"
           id="admin-username-error"
@@ -39,22 +46,28 @@
         >{{ errors.username }}</span>
 
         <label for="admin-password">密码</label>
-        <t-input
-          ref="passwordInput"
-          id="admin-password"
-          v-model="form.password"
-          type="password"
-          size="large"
-          autocomplete="current-password"
-          placeholder="请输入密码"
-          :disabled="loading"
-          :aria-invalid="Boolean(errors.password)"
-          :aria-describedby="errors.password ? 'admin-password-error' : undefined"
-          :status="errors.password ? 'error' : 'default'"
-          @input="errors.password = ''"
+        <div
+          class="input-control"
+          :class="{
+            'input-control--error': errors.password,
+            'input-control--disabled': loading,
+          }"
         >
-          <template #prefix-icon><i-lock theme="outline" /></template>
-        </t-input>
+          <i-lock class="input-control__icon" theme="outline" aria-hidden="true" />
+          <input
+            id="admin-password"
+            ref="passwordInput"
+            v-model="form.password"
+            class="login-input"
+            type="password"
+            autocomplete="current-password"
+            placeholder="请输入密码"
+            :disabled="loading"
+            :aria-invalid="Boolean(errors.password)"
+            :aria-describedby="errors.password ? 'admin-password-error' : undefined"
+            @input="errors.password = ''"
+          />
+        </div>
         <span
           v-if="errors.password"
           id="admin-password-error"
@@ -99,8 +112,8 @@ const sessionStore = useAdminSessionStore();
 const { loading, errorMessage } = storeToRefs(sessionStore);
 const form = reactive({ username: "", password: "" });
 const errors = reactive({ username: "", password: "" });
-const usernameInput = ref<{ focus: () => void } | null>(null);
-const passwordInput = ref<{ focus: () => void } | null>(null);
+const usernameInput = ref<HTMLInputElement | null>(null);
+const passwordInput = ref<HTMLInputElement | null>(null);
 
 function focusFirstError() {
   void nextTick(() => {
@@ -220,6 +233,55 @@ function goToCreator() {
   color: var(--stars-text);
   font-size: 13px;
   font-weight: 600;
+}
+
+.input-control {
+  display: grid;
+  min-height: 40px;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--stars-border);
+  border-radius: 4px;
+  background: #ffffff;
+  transition: border-color 120ms ease-out, box-shadow 120ms ease-out;
+}
+
+.input-control:focus-within {
+  border-color: var(--stars-brand);
+  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.12);
+}
+
+.input-control--error {
+  border-color: var(--stars-danger);
+}
+
+.input-control--disabled {
+  background: var(--stars-surface-muted);
+  opacity: 0.72;
+}
+
+.input-control__icon {
+  justify-self: center;
+  color: var(--stars-text-muted);
+  font-size: 17px;
+}
+
+.login-input {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  padding: 0 12px 0 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--stars-text);
+  font: inherit;
+  font-size: 14px;
+}
+
+.login-input::placeholder {
+  color: var(--stars-text-muted);
 }
 
 .field-error {
