@@ -44,6 +44,8 @@ yarn build
 For local smoke:
 
 ```powershell
+$env:STARS_ACCEPTANCE_PASSWORD = "<仅本机使用的验收密码>"
+yarn seed:acceptance
 yarn start:acceptance
 ```
 

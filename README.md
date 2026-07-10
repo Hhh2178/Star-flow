@@ -4,7 +4,7 @@ Stars Flow 是新的 AI 漫剧/短剧生产工具主线，计划以 Toonflow-app
 
 ## Current Status
 
-R3 前后台分离、严格分组隔离、持久化生成队列、分层并发、额度台账和管理运营页面已经完成本地真实浏览器验收。Toonflow 后端和前端 fork 分别作为 `app/`、`web/` submodule 纳入外层治理仓库；当前进入 feature 分支合并、gitlink 更新和合并后统一发布门禁阶段。
+R3 前后台分离、严格分组隔离、持久化生成队列、分层并发、额度台账和管理运营页面已经合并到两个 submodule 的 `dev`，并完成自动化门禁、统一发布构建和本地真实浏览器验收。Toonflow 后端和前端 fork 分别作为 `app/`、`web/` submodule 纳入外层治理仓库。
 
 ## Project Direction
 
@@ -92,6 +92,8 @@ Visual and UI work uses the Toonflow-web fork as a local `web/` working copy. Du
 无真实 Provider 的本地验收由 app 工作树提供：
 
 ```powershell
+$env:STARS_ACCEPTANCE_PASSWORD = "<仅本机使用的验收密码>"
+yarn seed:acceptance
 yarn start:acceptance
 ```
 

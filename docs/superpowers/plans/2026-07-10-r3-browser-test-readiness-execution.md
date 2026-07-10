@@ -92,7 +92,7 @@
 - [x] Save browser screenshots and machine-readable interaction results under a non-secret validation evidence path.
 - [x] Record exact commands, account roles (not passwords), tested URLs, state transitions, failures fixed and residual risks in `docs/logbooks/validations/2026-07-10-r3-browser-readiness.md`.
 - [x] Update this plan, functional status and daily log after each task group; do not mark R3 Done until the full matrix passes.
-- [ ] Merge backend/frontend feature branches into their `dev` branches, update parent gitlinks and run the release gate again from the parent repository.
+- [x] Merge backend/frontend feature branches into their `dev` branches, update parent gitlinks and run the release gate again from the parent repository.
 
 ## Completion Gate
 

@@ -32,7 +32,7 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 - 第二阶段再考虑 Electron 客户端连接云端中控。
 - 旧星环漫剧只作为参考，不直接搬运其现有前后端实现。
 - 当前代码由外层治理仓库和 `app/`、`web/` 两个 Git submodule 组成；三者保留独立历史，但必须作为一个发布单元验证。
-- 当前后端开发入口是 `app/.worktrees/r3b-generation-queue`，当前前端开发入口是 `web/.worktrees/r3b-admin-console`。不要直接在 submodule 的 `dev` 工作树上覆盖未集成的 R3 代码。
+- R3 已合并；当前后端开发入口恢复为 `app/` 的 `dev`，前端开发入口恢复为 `web/` 的 `dev`。旧 R3 feature worktree 仅用于追溯，后续任务应从最新 `dev` 创建新的短期分支或 worktree。
 - R3 的完成口径不是“页面可打开”，而是 Creator/Admin 双入口完成真实角色、队列、并发、额度、日志和异步生成状态的浏览器交互验证。
 
 ## Current Execution Entry
@@ -91,7 +91,7 @@ npm run harness:verify:project
 
 R3 浏览器就绪检查以 `docs/superpowers/plans/2026-07-10-r3-browser-test-readiness-execution.md` 的命令矩阵为准。外层统一构建最终必须同时产出 `app/data/web/` Creator 静态文件和 `app/data/web/admin/` Admin 静态文件。
 
-本地无付费验收入口：进入当前 app 工作树运行 `yarn start:acceptance`。该入口使用独立的 `data/acceptance.sqlite`、确定性测试数据和假 Provider 执行器，不得连接真实 Provider，也不得把验收账号密码写入文档或日志。
+本地无付费验收先通过 `STARS_ACCEPTANCE_PASSWORD` 自定义本机密码并运行 `yarn seed:acceptance`，再运行 `yarn start:acceptance`。该入口使用独立的 `data/acceptance.sqlite`、确定性测试数据和假 Provider 执行器，不得连接真实 Provider，也不得把验收账号密码写入文档或日志。
 
 ## Documentation Rules
 

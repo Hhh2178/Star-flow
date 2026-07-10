@@ -74,3 +74,10 @@ Screenshots are under `docs/logbooks/validations/evidence/2026-07-10-r3/`:
 Provider submission deduplication is protected by persisted provider request state and `needs_attention` recovery. Agent tool calls that mutate the database do not yet have tool-call-level idempotency keys; a process crash after a tool side effect but before job completion could repeat that side effect on retry. This is accepted for local browser readiness and must be hardened before production paid Agent execution.
 
 Real Provider compatibility, payment processing, server staging deployment and load testing remain outside this local R3 gate.
+
+## Integration Gate
+
+- Backend feature fast-forwarded to `app/dev`; final release artifact commit: `baafc28`.
+- Frontend feature fast-forwarded to `web/dev`; merged head: `44d2401`.
+- Post-merge `npm run build:release`, `npm run test:release-layout` and `npm run harness:verify:project` passed.
+- The outer repository records both final submodule gitlinks. No remote push or server deployment was included.
