@@ -82,7 +82,15 @@ const sessionStore = useAdminSessionStore();
 const { session } = storeToRefs(sessionStore);
 const sidebarOpen = ref(false);
 
-const navigation = computed(() => getAdminNavigation(session.value?.role as AdminRole));
+const registeredRouteNames = computed(() => new Set(
+  router.getRoutes()
+    .map((registeredRoute) => registeredRoute.name)
+    .filter((routeName): routeName is string => typeof routeName === "string"),
+));
+const navigation = computed(() => getAdminNavigation(
+  session.value?.role as AdminRole,
+  registeredRouteNames.value,
+));
 const userInitial = computed(() => session.value?.name.trim().slice(0, 1).toUpperCase() || "管");
 const roleLabel = computed(() => session.value?.role === "super_admin" ? "超级管理员" : "分组管理员");
 const userOptions = [
