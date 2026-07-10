@@ -151,7 +151,7 @@ describe("QuotaPage", () => {
     await wrapper.get('[data-testid="open-adjustment"]').trigger("click");
     await wrapper.get('[data-testid="adjustment-group"]').setValue("3");
     await wrapper.get('[data-testid="adjustment-type"]').setValue("manual_credit");
-    await wrapper.get<HTMLInputElement>('[data-testid="adjustment-amount"]').setValue("1.123456");
+    await wrapper.get<HTMLInputElement>('[data-testid="adjustment-amount"]').setValue(" 1.123456 ");
     await wrapper.get<HTMLInputElement>('[data-testid="adjustment-reason"]').setValue("运营补偿");
     await wrapper.get('[data-testid="submit-adjustment"]').trigger("click");
     await flushPromises();

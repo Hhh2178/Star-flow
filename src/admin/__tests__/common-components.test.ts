@@ -7,8 +7,13 @@ import ErrorState from "../components/ErrorState.vue";
 import LoadingState from "../components/LoadingState.vue";
 import PageHeader from "../components/PageHeader.vue";
 import StatusText from "../components/StatusText.vue";
+import { ADMIN_DATE_FORMATTER, formatAdminDate } from "../components/adminDate";
 
 describe("admin common components", () => {
+  it("formats page timestamps through the shared admin formatter", () => {
+    expect(formatAdminDate(1000)).toBe(ADMIN_DATE_FORMATTER.format(1000));
+  });
+
   it.each([
     ["queued", "排队中"],
     ["running", "执行中"],

@@ -37,7 +37,7 @@
               <td><StatusText :status="job.status" /></td>
               <td>{{ job.queuePosition === null ? "-" : `预计第 ${job.queuePosition} 位` }}</td>
               <td>{{ job.priority }}</td>
-              <td>{{ formatDate(job.queuedAt) }}</td>
+              <td>{{ formatAdminDate(job.queuedAt) }}</td>
               <td class="error-cell">{{ job.errorMessage || "-" }}</td>
               <td>
                 <div class="row-actions">
@@ -126,6 +126,7 @@ import StatusText from "../components/StatusText.vue";
 import LoadingState from "../components/LoadingState.vue";
 import EmptyState from "../components/EmptyState.vue";
 import ErrorState from "../components/ErrorState.vue";
+import { formatAdminDate } from "../components/adminDate";
 import { useAdminSessionStore } from "../session";
 import {
   adminErrorText,
@@ -194,6 +195,11 @@ const prioritySaving = ref(false);
 const priorityError = ref("");
 const priorityForm = reactive({ id: 0, priority: 0, reason: "" });
 let pollTimer: number | undefined;
+let queueRequestSequence = 0;
+let queueRerunQueued = false;
+let queueRunPromise: Promise<void> | null = null;
+let policyLoadSequence = 0;
+let loadedTarget: { groupId: number; userId: number } | null = null;
 
 const filterUserOptions = computed(() => users.value.map((user) => ({ label: `${user.name} (#${user.id})`, value: user.id })));
 const groupOptions = computed(() => groups.value.map((group) => ({ label: group.name, value: group.id })));
@@ -205,35 +211,51 @@ const concurrencyUserOptions = computed(() => manageableUsers.value.map((user) =
 const selectedUserName = computed(() => manageableUsers.value.find((user) => user.id === Number(selectedUserId.value))?.name ?? "-");
 const hasConcurrencyTarget = computed(() => Boolean(selectedGroupId.value && selectedUserId.value));
 
-function formatDate(timestamp: number) {
-  return new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(timestamp);
-}
-
 function canCancel(status: GenerationJobStatus) {
   return status === "queued" || status === "running" || status === "recovering";
 }
 
-async function loadQueue(silent = false) {
-  if (silent) refreshing.value = true;
-  else if (jobs.value.length === 0) loading.value = true;
-  queueError.value = "";
+async function drainQueueRequests() {
   try {
-    const result = await listJobs({
-      ...(filterStatus.value ? { status: filterStatus.value } : {}),
-      ...(filterType.value ? { taskType: filterType.value } : {}),
-      ...(filterUserId.value ? { ownerUserId: Number(filterUserId.value) } : {}),
-    });
-    jobs.value = result.items;
-    counts.value = result.counts;
-  } catch (cause) {
-    queueError.value = adminErrorText(cause, "队列加载失败");
+    while (queueRerunQueued) {
+      queueRerunQueued = false;
+      const sequence = queueRequestSequence;
+      try {
+        const result = await listJobs({
+          ...(filterStatus.value ? { status: filterStatus.value } : {}),
+          ...(filterType.value ? { taskType: filterType.value } : {}),
+          ...(filterUserId.value ? { ownerUserId: Number(filterUserId.value) } : {}),
+        });
+        if (sequence !== queueRequestSequence) continue;
+        jobs.value = result.items;
+        counts.value = result.counts;
+      } catch (cause) {
+        if (sequence === queueRequestSequence) {
+          queueError.value = adminErrorText(cause, "队列加载失败");
+        }
+      }
+    }
   } finally {
+    queueRunPromise = null;
     loading.value = false;
     refreshing.value = false;
   }
 }
 
+function loadQueue(silent = false): Promise<void> {
+  queueRequestSequence += 1;
+  queueRerunQueued = true;
+  if (silent) refreshing.value = true;
+  else if (jobs.value.length === 0) loading.value = true;
+  queueError.value = "";
+  if (!queueRunPromise) queueRunPromise = drainQueueRequests();
+  return queueRunPromise;
+}
+
 async function loadTargets() {
+  policyLoadSequence += 1;
+  loadedTarget = null;
+  policiesLoading.value = false;
   targetLoading.value = true;
   targetError.value = "";
   policyMessage.value = "";
@@ -264,19 +286,52 @@ async function handleGroupChange() {
   await loadPolicies();
 }
 
-async function loadPolicies() {
-  if (!selectedGroupId.value || !selectedUserId.value) return;
+function currentPolicyTarget() {
+  if (!selectedGroupId.value || !selectedUserId.value) return null;
+  return { groupId: Number(selectedGroupId.value), userId: Number(selectedUserId.value) };
+}
+
+function isSamePolicyTarget(
+  left: { groupId: number; userId: number } | null,
+  right: { groupId: number; userId: number } | null,
+) {
+  return Boolean(left && right && left.groupId === right.groupId && left.userId === right.userId);
+}
+
+async function loadPolicies(): Promise<boolean> {
+  const target = currentPolicyTarget();
+  const sequence = ++policyLoadSequence;
+  loadedTarget = null;
+  if (!target) {
+    policiesLoading.value = false;
+    return false;
+  }
   policiesLoading.value = true;
   policyMessage.value = "";
   try {
-    const result = await getPolicies({ groupId: Number(selectedGroupId.value), userId: Number(selectedUserId.value) });
+    const result = await getPolicies(target);
+    if (sequence !== policyLoadSequence) return false;
     Object.assign(groupPolicy, result.group);
     Object.assign(userPolicy, result.user);
+    loadedTarget = target;
+    policyFailed.value = false;
+    return true;
   } catch (cause) {
-    policyFailed.value = true;
-    policyMessage.value = adminErrorText(cause, "并发策略加载失败");
+    if (sequence === policyLoadSequence) {
+      policyFailed.value = true;
+      policyMessage.value = adminErrorText(cause, "并发策略加载失败");
+    }
+    return false;
   } finally {
-    policiesLoading.value = false;
+    if (sequence === policyLoadSequence) policiesLoading.value = false;
+  }
+}
+
+async function rejectStalePolicySave() {
+  const reloaded = await loadPolicies();
+  if (reloaded) {
+    policyFailed.value = true;
+    policyMessage.value = "当前目标已变更，已重新加载并发策略，请确认后再保存";
   }
 }
 
@@ -326,11 +381,16 @@ async function submitPriority() {
 }
 
 async function saveGroupPolicy() {
-  if (!isSuperAdmin.value || !selectedGroupId.value) return;
+  if (!isSuperAdmin.value) return;
+  const target = currentPolicyTarget();
+  if (!isSamePolicyTarget(target, loadedTarget)) {
+    await rejectStalePolicySave();
+    return;
+  }
   savingGroup.value = true;
   policyMessage.value = "";
   try {
-    await updateGroupPolicy({ groupId: Number(selectedGroupId.value), ...groupPolicy });
+    await updateGroupPolicy({ groupId: target!.groupId, ...groupPolicy });
     policyFailed.value = false;
     policyMessage.value = "分组并发策略已保存";
     await loadPolicies();
@@ -343,11 +403,15 @@ async function saveGroupPolicy() {
 }
 
 async function saveUserPolicy() {
-  if (!selectedUserId.value) return;
+  const target = currentPolicyTarget();
+  if (!isSamePolicyTarget(target, loadedTarget)) {
+    await rejectStalePolicySave();
+    return;
+  }
   savingUser.value = true;
   policyMessage.value = "";
   try {
-    await updateUserPolicy({ userId: Number(selectedUserId.value), ...userPolicy });
+    await updateUserPolicy({ userId: target!.userId, ...userPolicy });
     policyFailed.value = false;
     policyMessage.value = "个人并发策略已保存";
     await loadPolicies();

@@ -38,7 +38,7 @@
           </thead>
           <tbody>
             <tr v-for="item in result.items" :key="item.id">
-              <td>{{ formatDate(item.createdAt) }}</td>
+              <td>{{ formatAdminDate(item.createdAt) }}</td>
               <td><strong>#{{ item.actorUserId }}</strong><small>{{ item.actorRoleLabel }}</small></td>
               <td>{{ item.groupId === null ? "-" : `#${item.groupId}` }}</td>
               <td>{{ item.actionLabel }}</td>
@@ -88,6 +88,7 @@ import PageHeader from "../components/PageHeader.vue";
 import LoadingState from "../components/LoadingState.vue";
 import EmptyState from "../components/EmptyState.vue";
 import ErrorState from "../components/ErrorState.vue";
+import { formatAdminDate } from "../components/adminDate";
 import { useAdminSessionStore } from "../session";
 import {
   adminErrorText,
@@ -149,12 +150,6 @@ const groupOptions = computed(() => [
   ...groups.value.map((group) => ({ label: group.name, value: group.id })),
 ]);
 const totalPages = computed(() => Math.max(1, Math.ceil(result.value.total / PAGE_SIZE)));
-
-function formatDate(timestamp: number) {
-  return new Intl.DateTimeFormat("zh-CN", {
-    year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
-  }).format(timestamp);
-}
 
 function formatTarget(item: AuditItem) {
   return item.targetId === null ? item.targetTypeLabel : `${item.targetTypeLabel} #${item.targetId}`;

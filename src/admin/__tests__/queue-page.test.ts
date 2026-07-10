@@ -114,6 +114,16 @@ function flushPromises() {
   return new Promise((resolve) => setTimeout(resolve, 0));
 }
 
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+}
+
 async function mountPage(role: "admin" | "super_admin" = "super_admin") {
   const pinia = createPinia();
   setActivePinia(pinia);
@@ -297,6 +307,61 @@ describe("QueuePage", () => {
     expect(wrapper.get('[data-testid="refresh-queue"]').attributes("data-loading")).toBe("false");
   });
 
+  it("queues one rerun with the latest filters and never applies the stale response", async () => {
+    wrapper = await mountPage();
+    const staleRequest = deferred<{ items: typeof jobs; counts: typeof counts }>();
+    const latestRequest = deferred<{ items: typeof jobs; counts: typeof counts }>();
+    api.listJobs
+      .mockImplementationOnce(() => staleRequest.promise)
+      .mockImplementationOnce(() => latestRequest.promise);
+
+    await wrapper.get('[data-testid="refresh-queue"]').trigger("click");
+    await wrapper.get('[data-testid="filter-status"]').setValue("queued");
+    await wrapper.get('[data-testid="filter-type"]').setValue("image");
+
+    expect(api.listJobs).toHaveBeenCalledTimes(2);
+    staleRequest.resolve({
+      items: [{ ...jobs[0], id: 99, status: "succeeded", taskType: "text" }],
+      counts: { ...counts, queued: 0, succeeded: 1 },
+    });
+    await flushPromises();
+
+    expect(api.listJobs).toHaveBeenCalledTimes(3);
+    expect(wrapper.text()).not.toContain("#99");
+    latestRequest.resolve({
+      items: [{ ...jobs[0], id: 77 }],
+      counts,
+    });
+    await flushPromises();
+
+    expect(api.listJobs).toHaveBeenLastCalledWith({ status: "queued", taskType: "image" });
+    expect(wrapper.text()).toContain("#77");
+  });
+
+  it("does not overlap interval polls and coalesces repeated ticks into one rerun", async () => {
+    let intervalCallback: (() => void) | undefined;
+    vi.spyOn(window, "setInterval").mockImplementation(((handler: TimerHandler) => {
+      if (typeof handler === "function") intervalCallback = handler;
+      return 41;
+    }) as typeof window.setInterval);
+    vi.spyOn(window, "clearInterval").mockImplementation(() => undefined);
+    wrapper = await mountPage();
+    const pollRequest = deferred<{ items: typeof jobs; counts: typeof counts }>();
+    api.listJobs.mockImplementationOnce(() => pollRequest.promise);
+
+    intervalCallback?.();
+    intervalCallback?.();
+    intervalCallback?.();
+    await nextTick();
+
+    expect(api.listJobs).toHaveBeenCalledTimes(2);
+    pollRequest.resolve({ items: jobs, counts });
+    await flushPromises();
+    await flushPromises();
+
+    expect(api.listJobs).toHaveBeenCalledTimes(3);
+  });
+
   it("requires a reason before a Super Admin reprioritizes a queued job", async () => {
     wrapper = await mountPage();
     await wrapper.get('[data-testid="reprioritize-11"]').trigger("click");
@@ -319,6 +384,69 @@ describe("QueuePage", () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain("个人总并发不能超过分组总并发");
+  });
+
+  it("discards a stale policy response that resolves after the latest target", async () => {
+    wrapper = await mountPage();
+    const staleRequest = deferred<{
+      group: { total: number; text: number; image: number; video: number };
+      user: { total: number; text: number; image: number; video: number };
+    }>();
+    const latestRequest = deferred<{
+      group: { total: number; text: number; image: number; video: number };
+      user: { total: number; text: number; image: number; video: number };
+    }>();
+    api.getPolicies
+      .mockImplementationOnce(() => staleRequest.promise)
+      .mockImplementationOnce(() => latestRequest.promise);
+
+    await wrapper.get('[data-testid="concurrency-user"]').setValue("7");
+    await wrapper.get('[data-testid="concurrency-group"]').setValue("4");
+    latestRequest.resolve({
+      group: { total: 20, text: 10, image: 8, video: 6 },
+      user: { total: 10, text: 5, image: 4, video: 3 },
+    });
+    await flushPromises();
+
+    expect(wrapper.findAll('input[type="number"]').map((input) => input.element.value)).toEqual([
+      "20", "10", "8", "6", "10", "5", "4", "3",
+    ]);
+    staleRequest.resolve({
+      group: { total: 90, text: 90, image: 90, video: 90 },
+      user: { total: 80, text: 80, image: 80, video: 80 },
+    });
+    await flushPromises();
+
+    expect(wrapper.findAll('input[type="number"]').map((input) => input.element.value)).toEqual([
+      "20", "10", "8", "6", "10", "5", "4", "3",
+    ]);
+  });
+
+  it("rejects a user policy save when the current target was not loaded and reloads it", async () => {
+    wrapper = await mountPage();
+    wrapper.getComponent('[data-testid="concurrency-user"]').vm.$emit("update:modelValue", 7);
+    await nextTick();
+
+    await wrapper.get('[data-testid="save-user-policy"]').trigger("click");
+    await flushPromises();
+
+    expect(api.updateUserPolicy).not.toHaveBeenCalled();
+    expect(api.getPolicies).toHaveBeenLastCalledWith({ groupId: 3, userId: 7 });
+    expect(wrapper.text()).toContain("当前目标已变更");
+  });
+
+  it("rejects a group policy save when the current target was not loaded and reloads it", async () => {
+    wrapper = await mountPage();
+    wrapper.getComponent('[data-testid="concurrency-group"]').vm.$emit("update:modelValue", 4);
+    wrapper.getComponent('[data-testid="concurrency-user"]').vm.$emit("update:modelValue", 8);
+    await nextTick();
+
+    await wrapper.get('[data-testid="save-group-policy"]').trigger("click");
+    await flushPromises();
+
+    expect(api.updateGroupPolicy).not.toHaveBeenCalled();
+    expect(api.getPolicies).toHaveBeenLastCalledWith({ groupId: 4, userId: 8 });
+    expect(wrapper.text()).toContain("当前目标已变更");
   });
 
   it("polls every five seconds and clears the timer on unmount", async () => {

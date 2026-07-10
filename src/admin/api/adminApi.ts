@@ -34,6 +34,21 @@ export interface GenerationJobListItem {
   errorMessage: string | null;
 }
 
+export interface GenerationJobMutationResult {
+  id: number;
+  groupId: number;
+  ownerUserId: number;
+  projectId: number | null;
+  sourceTaskId: number | null;
+  handlerKey: string;
+  taskType: GenerationTaskType;
+  status: GenerationJobStatus;
+  priority: number;
+  queuedAt: number;
+  startedAt: number | null;
+  finishedAt: number | null;
+}
+
 export type JobStatusCounts = Record<GenerationJobStatus, number>;
 
 export interface JobListFilters {
@@ -112,6 +127,16 @@ export interface QuotaAdjustmentInput {
   reason: string;
 }
 
+interface PolicyResult {
+  group: ConcurrencyLimit;
+  user: ConcurrencyLimit;
+}
+
+interface QuotaAdjustmentResult {
+  account: { groupId: number; balance: number; updatedAt: number };
+  ledger: QuotaLedgerItem;
+}
+
 export type AuditScalar = string | number | boolean | null;
 
 export interface AuditItem {
@@ -160,6 +185,191 @@ export class AdminApiError extends Error {
 const client = createApiClient();
 const hasChinese = (value: string) => /[\u3400-\u9fff]/u.test(value);
 const invalidEnvelopeText = "服务器响应格式无效，请稍后重试";
+const invalidDataText = "服务器响应数据无效，请稍后重试";
+const generationStatuses: readonly GenerationJobStatus[] = ["queued", "running", "recovering", "needs_attention", "succeeded", "failed", "cancelled"];
+const generationTaskTypes: readonly GenerationTaskType[] = ["text", "image", "video"];
+const userRoles: readonly UserRole[] = ["super_admin", "admin", "creator"];
+const quotaEntryTypes: readonly QuotaEntryType[] = ["manual_topup", "manual_credit", "manual_debit", "usage_debit"];
+
+type DataGuard<T> = (value: unknown) => value is T;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function isInteger(value: unknown): value is number {
+  return Number.isInteger(value);
+}
+
+function isNullableNumber(value: unknown): value is number | null {
+  return value === null || isFiniteNumber(value);
+}
+
+function isNullableString(value: unknown): value is string | null {
+  return value === null || typeof value === "string";
+}
+
+function isOneOf<T extends string>(value: unknown, values: readonly T[]): value is T {
+  return typeof value === "string" && values.includes(value as T);
+}
+
+function isArrayOf<T>(value: unknown, guard: DataGuard<T>): value is T[] {
+  return Array.isArray(value) && value.every(guard);
+}
+
+function isConcurrencyLimit(value: unknown): value is ConcurrencyLimit {
+  return isRecord(value)
+    && isInteger(value.total)
+    && isInteger(value.text)
+    && isInteger(value.image)
+    && isInteger(value.video);
+}
+
+function isGenerationJob(value: unknown): value is GenerationJobListItem {
+  return isRecord(value)
+    && isInteger(value.id)
+    && isInteger(value.groupId)
+    && isInteger(value.ownerUserId)
+    && isNullableNumber(value.projectId)
+    && isOneOf(value.taskType, generationTaskTypes)
+    && isOneOf(value.status, generationStatuses)
+    && isInteger(value.priority)
+    && isNullableNumber(value.queuePosition)
+    && isFiniteNumber(value.queuedAt)
+    && isNullableNumber(value.startedAt)
+    && isNullableNumber(value.finishedAt)
+    && isNullableString(value.errorMessage);
+}
+
+function isGenerationJobMutationResult(value: unknown): value is GenerationJobMutationResult {
+  return isRecord(value)
+    && isInteger(value.id)
+    && isInteger(value.groupId)
+    && isInteger(value.ownerUserId)
+    && isNullableNumber(value.projectId)
+    && isNullableNumber(value.sourceTaskId)
+    && typeof value.handlerKey === "string"
+    && isOneOf(value.taskType, generationTaskTypes)
+    && isOneOf(value.status, generationStatuses)
+    && isInteger(value.priority)
+    && isFiniteNumber(value.queuedAt)
+    && isNullableNumber(value.startedAt)
+    && isNullableNumber(value.finishedAt);
+}
+
+function isJobListResult(value: unknown): value is JobListResult {
+  if (!isRecord(value) || !isArrayOf(value.items, isGenerationJob)) return false;
+  const counts = value.counts;
+  if (!isRecord(counts)) return false;
+  return generationStatuses.every((status) => isFiniteNumber(counts[status]));
+}
+
+function isPolicyResult(value: unknown): value is PolicyResult {
+  return isRecord(value) && isConcurrencyLimit(value.group) && isConcurrencyLimit(value.user);
+}
+
+function isGroup(value: unknown): value is GroupDto {
+  return isRecord(value)
+    && isInteger(value.id)
+    && typeof value.name === "string"
+    && isNullableNumber(value.adminUserId)
+    && isInteger(value.creatorLimit)
+    && (value.status === "enabled" || value.status === "disabled")
+    && isFiniteNumber(value.createdAt)
+    && isFiniteNumber(value.updatedAt);
+}
+
+function isUser(value: unknown): value is UserDto {
+  return isRecord(value)
+    && isInteger(value.id)
+    && typeof value.name === "string"
+    && isOneOf(value.role, userRoles)
+    && (value.status === "enabled" || value.status === "disabled")
+    && isNullableNumber(value.groupId)
+    && typeof value.mustChangePassword === "boolean"
+    && isNullableNumber(value.createdAt)
+    && isNullableNumber(value.updatedAt)
+    && isNullableNumber(value.lastLoginAt);
+}
+
+function isQuotaSummary(value: unknown): value is QuotaSummary & Record<string, unknown> {
+  return isRecord(value)
+    && isFiniteNumber(value.balance)
+    && isFiniteNumber(value.totalRecharge)
+    && isFiniteNumber(value.totalUsage);
+}
+
+function isQuotaGroup(value: unknown): value is QuotaGroupSummary {
+  return isQuotaSummary(value)
+    && isInteger(value.groupId)
+    && typeof value.groupName === "string";
+}
+
+function isQuotaLedger(value: unknown): value is QuotaLedgerItem {
+  return isRecord(value)
+    && isInteger(value.id)
+    && isInteger(value.groupId)
+    && isOneOf(value.entryType, quotaEntryTypes)
+    && isFiniteNumber(value.amount)
+    && isFiniteNumber(value.balanceBefore)
+    && isFiniteNumber(value.balanceAfter)
+    && isNullableNumber(value.actorUserId)
+    && isNullableNumber(value.usageLedgerId)
+    && typeof value.reason === "string"
+    && isFiniteNumber(value.createdAt);
+}
+
+function isQuotaOverview(value: unknown): value is QuotaOverview {
+  return isRecord(value)
+    && isQuotaSummary(value.summary)
+    && isArrayOf(value.groups, isQuotaGroup)
+    && isArrayOf(value.logs, isQuotaLedger);
+}
+
+function isQuotaAdjustmentResult(value: unknown): value is QuotaAdjustmentResult {
+  return isRecord(value)
+    && isRecord(value.account)
+    && isInteger(value.account.groupId)
+    && isFiniteNumber(value.account.balance)
+    && isFiniteNumber(value.account.updatedAt)
+    && isQuotaLedger(value.ledger);
+}
+
+function isAuditSummary(value: unknown): value is Record<string, AuditScalar> {
+  return isRecord(value) && Object.values(value).every((item) => item === null || ["string", "number", "boolean"].includes(typeof item));
+}
+
+function isAuditItem(value: unknown): value is AuditItem {
+  return isRecord(value)
+    && isInteger(value.id)
+    && isInteger(value.actorUserId)
+    && isOneOf(value.actorRole, userRoles)
+    && typeof value.actorRoleLabel === "string"
+    && isNullableNumber(value.groupId)
+    && typeof value.action === "string"
+    && typeof value.actionLabel === "string"
+    && typeof value.targetType === "string"
+    && typeof value.targetTypeLabel === "string"
+    && isNullableString(value.targetId)
+    && (value.targetRole === null || isOneOf(value.targetRole, userRoles))
+    && isAuditSummary(value.summary)
+    && typeof value.result === "string"
+    && typeof value.resultLabel === "string"
+    && isNullableString(value.requestId)
+    && isFiniteNumber(value.createdAt);
+}
+
+function isAuditListResult(value: unknown): value is AuditListResult {
+  return isRecord(value)
+    && isInteger(value.page)
+    && isInteger(value.pageSize)
+    && isInteger(value.total)
+    && isArrayOf(value.items, isAuditItem);
+}
 
 function errorCode(value: unknown): string | number | undefined {
   if (typeof value !== "object" || value === null) return undefined;
@@ -186,7 +396,7 @@ export function adminErrorText(error: unknown, fallback = "请求失败，请稍
   return fallback;
 }
 
-async function unwrap<T>(request: Promise<AxiosResponse<ApiResponse<T>>>): Promise<T> {
+async function unwrap<T>(request: Promise<AxiosResponse<ApiResponse<T>>>, guard: DataGuard<T>): Promise<T> {
   try {
     const response = await request;
     const envelope: unknown = response.data;
@@ -208,6 +418,7 @@ async function unwrap<T>(request: Promise<AxiosResponse<ApiResponse<T>>>): Promi
         errorCode(validEnvelope.data) ?? errorCode(validEnvelope),
       );
     }
+    if (!guard(validEnvelope.data)) throw new AdminApiError(invalidDataText);
     return validEnvelope.data;
   } catch (cause) {
     if (cause instanceof AdminApiError) throw cause;
@@ -221,49 +432,51 @@ async function unwrap<T>(request: Promise<AxiosResponse<ApiResponse<T>>>): Promi
 }
 
 export function listJobs(filters: JobListFilters = {}) {
-  return unwrap<JobListResult>(client.get("/admin/queue/listJobs", { params: filters }));
+  return unwrap<JobListResult>(client.get("/admin/queue/listJobs", { params: filters }), isJobListResult);
 }
 
 export function cancelJob(id: number) {
-  return unwrap<GenerationJobListItem>(client.post("/admin/queue/cancelJob", { id }));
+  return unwrap<GenerationJobMutationResult>(client.post("/admin/queue/cancelJob", { id }), isGenerationJobMutationResult);
 }
 
 export function reprioritizeJob(input: { id: number; priority: number; reason: string }) {
-  return unwrap<GenerationJobListItem>(client.post("/admin/queue/reprioritizeJob", input));
+  return unwrap<GenerationJobMutationResult>(client.post("/admin/queue/reprioritizeJob", input), isGenerationJobMutationResult);
 }
 
 export function getPolicies(input: { groupId: number; userId: number }) {
-  return unwrap<{ group: ConcurrencyLimit; user: ConcurrencyLimit }>(
+  return unwrap<PolicyResult>(
     client.get("/admin/concurrency/getPolicies", { params: input }),
+    isPolicyResult,
   );
 }
 
 export function updateGroupPolicy(input: { groupId: number } & ConcurrencyLimit) {
-  return unwrap<ConcurrencyLimit>(client.post("/admin/concurrency/updateGroupPolicy", input));
+  return unwrap<ConcurrencyLimit>(client.post("/admin/concurrency/updateGroupPolicy", input), isConcurrencyLimit);
 }
 
 export function updateUserPolicy(input: { userId: number } & ConcurrencyLimit) {
-  return unwrap<ConcurrencyLimit>(client.post("/admin/concurrency/updateUserPolicy", input));
+  return unwrap<ConcurrencyLimit>(client.post("/admin/concurrency/updateUserPolicy", input), isConcurrencyLimit);
 }
 
 export function listGroups() {
-  return unwrap<GroupDto[]>(client.get("/admin/groups/listGroups"));
+  return unwrap<GroupDto[]>(client.get("/admin/groups/listGroups"), (value): value is GroupDto[] => isArrayOf(value, isGroup));
 }
 
 export function listUsers() {
-  return unwrap<UserDto[]>(client.get("/admin/users/listUsers"));
+  return unwrap<UserDto[]>(client.get("/admin/users/listUsers"), (value): value is UserDto[] => isArrayOf(value, isUser));
 }
 
 export function getQuotaOverview() {
-  return unwrap<QuotaOverview>(client.get("/admin/quota/getOverview"));
+  return unwrap<QuotaOverview>(client.get("/admin/quota/getOverview"), isQuotaOverview);
 }
 
 export function adjustQuota(input: QuotaAdjustmentInput) {
-  return unwrap<{ account: { groupId: number; balance: number; updatedAt: number }; ledger: QuotaLedgerItem }>(
+  return unwrap<QuotaAdjustmentResult>(
     client.post("/admin/quota/adjustQuota", input),
+    isQuotaAdjustmentResult,
   );
 }
 
 export function listAudit(filters: AuditListFilters = {}) {
-  return unwrap<AuditListResult>(client.get("/admin/audit/listAudit", { params: filters }));
+  return unwrap<AuditListResult>(client.get("/admin/audit/listAudit", { params: filters }), isAuditListResult);
 }

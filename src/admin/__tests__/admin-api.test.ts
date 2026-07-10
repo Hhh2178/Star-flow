@@ -28,13 +28,92 @@ function ok<T>(data: T) {
   return { data: { code: 200, data, message: "成功" } };
 }
 
+const validCounts = {
+  queued: 1,
+  running: 0,
+  recovering: 0,
+  needs_attention: 0,
+  succeeded: 0,
+  failed: 0,
+  cancelled: 0,
+};
+const validJob = {
+  id: 12,
+  groupId: 3,
+  ownerUserId: 7,
+  projectId: 9,
+  taskType: "image",
+  status: "queued",
+  priority: 2,
+  queuePosition: 1,
+  queuedAt: 1000,
+  startedAt: null,
+  finishedAt: null,
+  errorMessage: null,
+};
+const validMutationJob = {
+  id: 12,
+  groupId: 3,
+  ownerUserId: 7,
+  projectId: 9,
+  sourceTaskId: null,
+  handlerKey: "image.generate",
+  taskType: "image",
+  status: "queued",
+  priority: 2,
+  queuedAt: 1000,
+  startedAt: null,
+  finishedAt: null,
+};
+const validLimit = { total: 8, text: 4, image: 3, video: 2 };
+const validGroup = { id: 3, name: "内容一组", adminUserId: 2, creatorLimit: 5, status: "enabled", createdAt: 1, updatedAt: 1 };
+const validUser = { id: 7, name: "创作者甲", role: "creator", status: "enabled", groupId: 3, mustChangePassword: false, createdAt: 1, updatedAt: 1, lastLoginAt: null };
+const validLedger = { id: 9, groupId: 3, entryType: "manual_credit", amount: 1, balanceBefore: 10, balanceAfter: 11, actorUserId: 1, usageLedgerId: null, reason: "运营补偿", createdAt: 1 };
+const validQuotaOverview = {
+  summary: { balance: 11, totalRecharge: 20, totalUsage: 9 },
+  groups: [{ groupId: 3, groupName: "内容一组", balance: 11, totalRecharge: 20, totalUsage: 9 }],
+  logs: [validLedger],
+};
+const validAuditItem = {
+  id: 90,
+  actorUserId: 1,
+  actorRole: "super_admin",
+  actorRoleLabel: "超级管理员",
+  groupId: 3,
+  action: "quota.adjust",
+  actionLabel: "额度调整",
+  targetType: "quota_account",
+  targetTypeLabel: "额度账户",
+  targetId: "3",
+  targetRole: null,
+  summary: { amount: 1 },
+  result: "success",
+  resultLabel: "成功",
+  requestId: null,
+  createdAt: 1,
+};
+
+const endpointCases = [
+  { name: "listJobs", call: () => listJobs(), invalid: { items: [{ ...validJob, id: "12" }], counts: validCounts } },
+  { name: "cancelJob", call: () => cancelJob(12), invalid: { ...validMutationJob, status: "unknown" } },
+  { name: "reprioritizeJob", call: () => reprioritizeJob({ id: 12, priority: 8, reason: "紧急交付" }), invalid: { ...validMutationJob, handlerKey: null } },
+  { name: "getPolicies", call: () => getPolicies({ groupId: 3, userId: 7 }), invalid: { group: validLimit, user: { ...validLimit, total: "4" } } },
+  { name: "updateGroupPolicy", call: () => updateGroupPolicy({ groupId: 3, ...validLimit }), invalid: { ...validLimit, video: null } },
+  { name: "updateUserPolicy", call: () => updateUserPolicy({ userId: 7, ...validLimit }), invalid: { total: 4, text: 2, image: 1 } },
+  { name: "listGroups", call: () => listGroups(), invalid: [{ ...validGroup, name: 7 }] },
+  { name: "listUsers", call: () => listUsers(), invalid: [{ ...validUser, role: "owner" }] },
+  { name: "getQuotaOverview", call: () => getQuotaOverview(), invalid: { ...validQuotaOverview, summary: { ...validQuotaOverview.summary, balance: "11" } } },
+  { name: "adjustQuota", call: () => adjustQuota({ groupId: 3, entryType: "manual_credit", amount: 1, reason: "运营补偿" }), invalid: { account: { groupId: 3, balance: "11", updatedAt: 1 }, ledger: validLedger } },
+  { name: "listAudit", call: () => listAudit(), invalid: { page: 1, pageSize: 20, total: 1, items: [{ ...validAuditItem, id: "90" }] } },
+] as const;
+
 describe("adminApi", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("unwraps ApiResponse data and sends queue filters as query params", async () => {
-    client.get.mockResolvedValue(ok({ items: [], counts: { queued: 0 } }));
+    client.get.mockResolvedValue(ok({ items: [], counts: { ...validCounts, queued: 0 } }));
 
     await expect(listJobs({ status: "queued", taskType: "image", ownerUserId: 7 })).resolves.toMatchObject({
       items: [],
@@ -44,10 +123,26 @@ describe("adminApi", () => {
     });
   });
 
-  it("accepts null when a valid envelope owns the data property", async () => {
-    client.get.mockResolvedValue({ data: { code: 200, data: null, message: "成功" } });
+  it.each(endpointCases)("rejects null data from $name", async ({ call }) => {
+    client.get.mockResolvedValue(ok(null));
+    client.post.mockResolvedValue(ok(null));
 
-    await expect(listGroups()).resolves.toBeNull();
+    const error = await call().catch((cause) => cause);
+
+    expect(error).toBeInstanceOf(AdminApiError);
+    expect(error).toMatchObject({ message: "服务器响应数据无效，请稍后重试" });
+    expect(error.message).toMatch(/[\u3400-\u9fff]/u);
+  });
+
+  it.each(endpointCases)("rejects invalid data from $name", async ({ call, invalid }) => {
+    client.get.mockResolvedValue(ok(invalid));
+    client.post.mockResolvedValue(ok(invalid));
+
+    const error = await call().catch((cause) => cause);
+
+    expect(error).toBeInstanceOf(AdminApiError);
+    expect(error).toMatchObject({ message: "服务器响应数据无效，请稍后重试" });
+    expect(error).not.toHaveProperty("data");
   });
 
   it.each([
@@ -79,8 +174,18 @@ describe("adminApi", () => {
   });
 
   it("uses the existing admin endpoints and typed request bodies", async () => {
-    client.get.mockResolvedValue(ok([]));
-    client.post.mockResolvedValue(ok({}));
+    client.get
+      .mockResolvedValueOnce(ok({ group: validLimit, user: validLimit }))
+      .mockResolvedValueOnce(ok([validGroup]))
+      .mockResolvedValueOnce(ok([validUser]))
+      .mockResolvedValueOnce(ok(validQuotaOverview))
+      .mockResolvedValueOnce(ok({ page: 2, pageSize: 20, total: 1, items: [validAuditItem] }));
+    client.post
+      .mockResolvedValueOnce(ok(validMutationJob))
+      .mockResolvedValueOnce(ok(validMutationJob))
+      .mockResolvedValueOnce(ok(validLimit))
+      .mockResolvedValueOnce(ok(validLimit))
+      .mockResolvedValueOnce(ok({ account: { groupId: 3, balance: 11, updatedAt: 2 }, ledger: validLedger }));
 
     await cancelJob(12);
     await reprioritizeJob({ id: 12, priority: 8, reason: "紧急交付" });

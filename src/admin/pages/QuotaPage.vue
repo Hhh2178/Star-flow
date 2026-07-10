@@ -43,7 +43,7 @@
             <thead><tr><th>时间</th><th>分组</th><th>类型</th><th>变动</th><th>变动前</th><th>变动后</th><th>操作人</th><th>原因</th></tr></thead>
             <tbody>
               <tr v-for="item in overview.logs" :key="item.id">
-                <td>{{ formatDate(item.createdAt) }}</td><td>#{{ item.groupId }}</td><td>{{ entryTypeLabels[item.entryType] || item.entryType }}</td>
+                <td>{{ formatAdminDate(item.createdAt) }}</td><td>#{{ item.groupId }}</td><td>{{ entryTypeLabels[item.entryType] || item.entryType }}</td>
                 <td :class="item.amount < 0 ? 'negative' : 'positive'">{{ item.amount > 0 ? "+" : "" }}{{ formatMoney(item.amount) }}</td>
                 <td>{{ formatMoney(item.balanceBefore) }}</td><td>{{ formatMoney(item.balanceAfter) }}</td><td>{{ item.actorUserId === null ? "-" : `#${item.actorUserId}` }}</td><td>{{ item.reason }}</td>
               </tr>
@@ -76,6 +76,7 @@ import PageHeader from "../components/PageHeader.vue";
 import LoadingState from "../components/LoadingState.vue";
 import EmptyState from "../components/EmptyState.vue";
 import ErrorState from "../components/ErrorState.vue";
+import { formatAdminDate } from "../components/adminDate";
 import { useAdminSessionStore } from "../session";
 import {
   adjustQuota,
@@ -118,10 +119,6 @@ function formatMoney(value: number) {
   return Number(value || 0).toFixed(6);
 }
 
-function formatDate(timestamp: number) {
-  return new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(timestamp);
-}
-
 async function loadOverview(silent = false) {
   if (silent) refreshing.value = true;
   else loading.value = true;
@@ -145,11 +142,11 @@ function openAdjustment() {
   adjustmentVisible.value = true;
 }
 
-function validateAdjustment() {
+function validateAdjustment(normalizedAmount: string) {
   if (!adjustment.groupId) return "请选择分组";
-  if (!/^\d+(?:\.\d+)?$/.test(adjustment.amount.trim()) || Number(adjustment.amount) <= 0) return "调整金额必须大于零";
-  if ((adjustment.amount.split(".")[1]?.length ?? 0) > 6) return "调整金额最多保留 6 位小数";
-  if (Number(adjustment.amount) > 1_000_000_000) return "调整金额不能超过 1000000000";
+  if (!/^\d+(?:\.\d+)?$/.test(normalizedAmount) || Number(normalizedAmount) <= 0) return "调整金额必须大于零";
+  if ((normalizedAmount.split(".")[1]?.length ?? 0) > 6) return "调整金额最多保留 6 位小数";
+  if (Number(normalizedAmount) > 1_000_000_000) return "调整金额不能超过 1000000000";
   const reasonLength = adjustment.reason.trim().length;
   if (reasonLength < 2) return "调整原因至少 2 个字符";
   if (reasonLength > 500) return "调整原因不能超过 500 个字符";
@@ -157,7 +154,8 @@ function validateAdjustment() {
 }
 
 async function submitAdjustment() {
-  const validation = validateAdjustment();
+  const normalizedAmount = adjustment.amount.trim();
+  const validation = validateAdjustment(normalizedAmount);
   if (validation) {
     adjustmentError.value = validation;
     return;
@@ -168,7 +166,7 @@ async function submitAdjustment() {
     await adjustQuota({
       groupId: Number(adjustment.groupId),
       entryType: adjustment.entryType,
-      amount: Number(adjustment.amount),
+      amount: Number(normalizedAmount),
       reason: adjustment.reason.trim(),
     });
     adjustmentVisible.value = false;
