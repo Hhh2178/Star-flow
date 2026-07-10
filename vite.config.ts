@@ -6,6 +6,14 @@ import Components from "unplugin-vue-components/vite";
 import { TDesignResolver } from "@tdesign-vue-next/auto-import-resolver";
 import { viteSingleFile } from "vite-plugin-singlefile";
 import postcsspxtoviewport from "postcss-px-to-viewport";
+import { creatorModuleBoundaryPlugin } from "./scripts/build-boundaries.mjs";
+
+function replaceRequired(html: string, search: string, replacement: string, label: string): string {
+  if (!html.includes(search)) {
+    throw new Error(`无法在 index.html 中定位${label}`);
+  }
+  return html.replace(search, replacement);
+}
 
 function appEntryPlugin(isAdmin: boolean): Plugin {
   const creatorEntry = '<script type="module" src="/src/main.ts"></script>';
@@ -18,11 +26,10 @@ function appEntryPlugin(isAdmin: boolean): Plugin {
       order: "pre",
       handler(html) {
         if (!isAdmin) return html;
-        if (!html.includes(creatorEntry)) {
-          throw new Error("无法在 index.html 中定位 Creator 入口 /src/main.ts");
-        }
 
-        return html.replace(creatorEntry, adminEntry);
+        const withAdminEntry = replaceRequired(html, creatorEntry, adminEntry, " Creator 入口 /src/main.ts");
+        const withChineseLanguage = replaceRequired(withAdminEntry, '<html lang="">', '<html lang="zh-CN">', " html lang 属性");
+        return replaceRequired(withChineseLanguage, "<title>Toonflow</title>", "<title>Stars Flow 管理后台</title>", " Creator 标题");
       },
     },
   };
@@ -31,9 +38,10 @@ function appEntryPlugin(isAdmin: boolean): Plugin {
 export default defineConfig(({ mode }) => {
   const isAdmin = mode === "admin";
   const appName = isAdmin ? "admin" : "creator";
+  const appBase = isAdmin ? "/admin/" : "./";
 
   return {
-    base: isAdmin ? "/admin/" : "./",
+    base: appBase,
     build: {
       outDir: `dist/${appName}`,
       assetsInlineLimit: Infinity,
@@ -45,6 +53,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       appEntryPlugin(isAdmin),
+      ...(isAdmin ? [] : [creatorModuleBoundaryPlugin()]),
       vue(),
       AutoImport({
         dts: isAdmin ? false : "src/types/auto-imports.d.ts",
@@ -69,7 +78,7 @@ export default defineConfig(({ mode }) => {
           }),
         ],
       }),
-      viteSingleFile(),
+      viteSingleFile({ overrideConfig: { base: appBase } }),
     ],
     resolve: {
       alias: {

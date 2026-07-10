@@ -12,7 +12,7 @@
     "build:admin": "vite build --mode admin",
     "build-only": "yarn build:creator && yarn build:admin",
     "check:build-boundaries": "node scripts/check-build-boundaries.mjs",
-    "test:admin": "yarn check:build-boundaries",
+    "test:admin": "yarn build-only && node --test scripts/build-boundaries.test.mjs && yarn check:build-boundaries",
     "type-check": "vue-tsc --build --force",
     "license": "node scripts/license.ts",
     "i18n:check": "node scripts/findUnusedI18n.ts"
