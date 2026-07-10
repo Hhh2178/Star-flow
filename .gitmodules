@@ -2,3 +2,7 @@
 	path = app
 	url = https://github.com/Hhh2178/Starflow.git
 	branch = main
+[submodule "web"]
+	path = web
+	url = https://github.com/Hhh2178/Starflow-web.git
+	branch = dev

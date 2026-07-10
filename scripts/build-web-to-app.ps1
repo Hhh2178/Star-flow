@@ -16,6 +16,7 @@ if (-not (Test-Path (Join-Path $webDir "package.json"))) {
 Push-Location $webDir
 try {
   yarn build-only
+  if ($LASTEXITCODE -ne 0) { throw "Web build failed with exit code $LASTEXITCODE" }
 } finally {
   Pop-Location
 }
