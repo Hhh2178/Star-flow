@@ -196,6 +196,7 @@ async function unwrap<T>(request: Promise<AxiosResponse<ApiResponse<T>>>): Promi
       || Array.isArray(envelope)
       || !Number.isInteger((envelope as { code?: unknown }).code)
       || !Object.prototype.hasOwnProperty.call(envelope, "data")
+      || (envelope as { data?: unknown }).data === undefined
     ) {
       throw new AdminApiError(invalidEnvelopeText);
     }

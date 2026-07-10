@@ -55,6 +55,7 @@ describe("adminApi", () => {
     ["array envelope", [{ code: 200, data: [] }], "服务器响应格式无效，请稍后重试"],
     ["missing code", { data: [], raw: "missing-code-secret" }, "服务器响应格式无效，请稍后重试"],
     ["missing data", { code: 200, raw: "missing-data-secret" }, "服务器响应格式无效，请稍后重试"],
+    ["undefined data", { code: 200, data: undefined, raw: "undefined-data-secret" }, "服务器响应格式无效，请稍后重试"],
     ["string code", { code: "200", data: [], raw: "string-code-secret" }, "服务器响应格式无效，请稍后重试"],
     ["NaN code", { code: Number.NaN, data: [], raw: "nan-code-secret" }, "服务器响应格式无效，请稍后重试"],
     ["client error code", { code: 400, data: { raw: "client-error-secret" }, message: "raw client error" }, "请求失败，请稍后重试"],
