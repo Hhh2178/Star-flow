@@ -1,5 +1,7 @@
 # R3 Project Ownership And Production Access Implementation Plan
 
+> Superseded on 2026-07-10 by the approved separated admin-console design and the R3A-R3D plans. Do not execute this older all-Admin-access plan.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make projects and production APIs respect three-role access rules.

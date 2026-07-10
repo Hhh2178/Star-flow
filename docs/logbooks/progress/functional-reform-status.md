@@ -11,7 +11,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | R0 | Planning and tracking | Done | Low | Roadmap and plans created | Start R1 |
 | R1 | Account/auth foundation | Done | Medium | `app/dev` commits `f379dbd`, `a9a45ea`; validation log added | Start R2 |
 | R2 | Setting-center permissions | Done | Medium | `app/dev` commit `1c4d6be`; `web/dev` commit `8551e77`; validation log added | Start separate admin-console redesign |
-| R3 | Separate admin console | Planned | High | Architecture approved in `docs/specs/2026-07-10-stars-flow-separated-admin-console-design.md` | Write the executable implementation plan |
+| R3 | Separate admin console | Planned | High | R3A-R3D executable plans written from the approved architecture | Execute R3A group access foundation |
 | R4 | Production closed-loop audit | Planned | Medium | Toonflow flow identified | Run full chain after R1-R3 basics |
 | R5 | Provider/admin hardening | Deferred | Medium | Provider setting exists | Revisit after R1-R4 |
 
