@@ -31,6 +31,26 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 - 第一阶段优先做十人团队内部服务器版，通过浏览器统一访问。
 - 第二阶段再考虑 Electron 客户端连接云端中控。
 - 旧星环漫剧只作为参考，不直接搬运其现有前后端实现。
+- 当前代码由外层治理仓库和 `app/`、`web/` 两个 Git submodule 组成；三者保留独立历史，但必须作为一个发布单元验证。
+- 当前后端开发入口是 `app/.worktrees/r3b-generation-queue`，当前前端开发入口是 `web/.worktrees/r3b-admin-console`。不要直接在 submodule 的 `dev` 工作树上覆盖未集成的 R3 代码。
+- R3 的完成口径不是“页面可打开”，而是 Creator/Admin 双入口完成真实角色、队列、并发、额度、日志和异步生成状态的浏览器交互验证。
+
+## Current Execution Entry
+
+继续 R3 时按以下顺序读取和执行：
+
+1. `docs/specs/2026-07-10-stars-flow-separated-admin-console-design.md`
+2. `docs/superpowers/plans/2026-07-10-r3-browser-test-readiness-execution.md`
+3. `docs/logbooks/progress/functional-reform-status.md`
+4. `docs/logbooks/daily/2026-07-10.md`
+
+R3 剩余实现必须遵守：
+
+- 先补测试并确认失败，再实现行为。
+- Admin 跨组列表、聚合和直接 ID 访问都必须由服务端隔离，越界资源返回 `404`。
+- Creator 构建不得包含后台页面或全局配置代码。
+- 生成任务的浏览器状态至少覆盖排队、执行、成功、失败、取消和需要处理。
+- 浏览器验收必须实际点击、输入、提交、刷新和切换账号，不以静态截图代替交互验证。
 
 ## Server Context
 
@@ -68,6 +88,8 @@ npm run harness:verify:project
 ```
 
 在修改 Toonflow app 代码后，还需要进入 `app/` 运行对应 Toonflow 检查。
+
+R3 浏览器就绪检查以 `docs/superpowers/plans/2026-07-10-r3-browser-test-readiness-execution.md` 的命令矩阵为准。外层统一构建最终必须同时产出 `app/data/web/` Creator 静态文件和 `app/data/web/admin/` Admin 静态文件。
 
 ## Documentation Rules
 

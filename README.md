@@ -4,7 +4,7 @@ Stars Flow 是新的 AI 漫剧/短剧生产工具主线，计划以 Toonflow-app
 
 ## Current Status
 
-当前阶段为路线设计和迁移评估阶段，尚未 clone Toonflow 代码，尚未开始功能改造。
+当前处于 R3 前后台分离与持久化生成队列实施阶段。Toonflow 后端和前端 fork 已分别作为 `app/`、`web/` submodule 纳入外层治理仓库；R1 账号认证、R2 设置权限、R3A 分组隔离以及 R3B 队列核心已完成，双前端和管理运营页面正在实施，尚未达到完整浏览器验收状态。
 
 ## Project Direction
 
@@ -72,16 +72,22 @@ Visual and UI work uses the Toonflow-web fork as a local `web/` working copy. Du
 .\scripts\start-local-visual-dev.ps1
 ```
 
-This starts:
+目标开发环境包含：
 
 - App backend: `http://localhost:10588`
-- Web dev server: `http://localhost:50188`
+- Creator dev server: `http://localhost:50188`
+- Admin dev server: `http://localhost:50189/admin/`
 
-To build the web UI and copy the compiled single-file output into the app runtime:
+统一发布构建目标是生成两个独立前端产物并复制到 app runtime：
 
 ```powershell
 .\scripts\build-web-to-app.ps1
 ```
+
+- Creator: `app/data/web/`
+- Admin: `app/data/web/admin/`
+
+当前收敛执行计划：`docs/superpowers/plans/2026-07-10-r3-browser-test-readiness-execution.md`。
 
 ## Non-Goals For Phase 1
 

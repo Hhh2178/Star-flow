@@ -6,9 +6,9 @@ The frontend system covers the user-facing project creation, script, storyboard,
 
 ## Runtime Shape
 
-Frontend source lives in the local `web/` working copy, forked from Toonflow-web. The Vite dev server runs on `50188` and talks to the app backend at `http://localhost:10588/api` by default.
+Frontend source lives in the `web/` submodule, forked from Toonflow-web. R3 uses two independent Vite entries: Creator runs at `/` (local port `50188`) and Admin runs at `/admin/` (local port `50189`). Both talk to the app backend at `http://localhost:10588/api` by default and share only session/API/design primitives.
 
-Compiled frontend output is copied into `app/data/web` for the app runtime.
+Compiled output is separated as `web/dist/creator` and `web/dist/admin`, then copied to `app/data/web` and `app/data/web/admin`. Creator routes, layout and chunks must have no import path to Admin pages or global setting editors.
 
 ## Visual Direction
 
@@ -24,3 +24,5 @@ Use:
 .\scripts\start-local-visual-dev.ps1
 .\scripts\build-web-to-app.ps1
 ```
+
+浏览器验收必须覆盖 Admin/Super Admin 菜单差异、Creator 后台拒绝、跨组直接 URL/API 拒绝、表格筛选和操作、并发策略提交、队列各终态、手工额度流水以及窄屏无重叠。

@@ -31,11 +31,13 @@ Read in order:
 | Frontend visual system | `systems/frontend/frontend-design/stars-flow-visual-system.md` | Theme token, component style, or motion rules change |
 | Toonflow/Xinghuan feature comparison | `systems/frontend/frontend-design/toonflow-xinghuan-feature-comparison.md` | Feature scope or migration priority changes |
 | Deployment shape decision | `decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md` | Deployment target or app/client boundary changes |
+| Dual frontend and release-unit decision | `decisions/ADR-0002-dual-frontend-single-release-unit.md` | Creator/Admin entry, submodule, output, or static hosting shape changes |
 | Server facts | `references/server-context.md` | Server host, ports, service constraints, or deploy path changes |
 | Deployment evidence | `references/deployment-assessment-2026-07-09.md` and `logbooks/validations/` | New deployment validation or incident |
 | Governance rules | `governance/*.md` | Process, documentation, branch, or safety rules change |
 | System contracts | `systems/*/README.md` | Runtime, interface, data, permission, or verification changes |
 | Daily work evidence | `logbooks/daily/*.md` | Meaningful work occurs |
+| Current R3 browser-readiness execution | `superpowers/plans/2026-07-10-r3-browser-test-readiness-execution.md` | Remaining implementation, verification matrix, or browser acceptance scope changes |
 
 ## Document Families
 
