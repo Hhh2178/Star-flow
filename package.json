@@ -12,7 +12,8 @@
     "build:admin": "vite build --mode admin",
     "build-only": "yarn build:creator && yarn build:admin",
     "check:build-boundaries": "node scripts/check-build-boundaries.mjs",
-    "test:admin": "yarn build-only && node --test scripts/build-boundaries.test.mjs && yarn check:build-boundaries",
+    "test:admin:unit": "vitest run src/admin src/shared",
+    "test:admin": "yarn test:admin:unit && yarn build-only && node --test scripts/build-boundaries.test.mjs && yarn check:build-boundaries",
     "type-check": "vue-tsc --build --force",
     "license": "node scripts/license.ts",
     "i18n:check": "node scripts/findUnusedI18n.ts"
@@ -68,6 +69,7 @@
     "unplugin-vue-components": "^31.0.0",
     "vite": "^5.4.10",
     "vite-plugin-singlefile": "^2.3.0",
+    "vitest": "2.1.9",
     "vue-tsc": "^2.1.10"
   }
 }

@@ -58,9 +58,12 @@ test("Admin 构建 HTML 使用 /admin/ base 和中文元数据", async () => {
   assert.ok(adminHtml.includes('href="/admin/favicon.ico"'), "Admin HTML 未保留 /admin/ base");
 });
 
-test("test:admin 会先重建双端产物再执行测试和边界检查", async () => {
+test("test:admin 会先运行单测再重建双端产物和检查边界", async () => {
   const packageJson = JSON.parse(await readFile(join(projectRoot, "package.json"), "utf8"));
-  assert.equal(packageJson.scripts["test:admin"], "yarn build-only && node --test scripts/build-boundaries.test.mjs && yarn check:build-boundaries");
+  assert.equal(
+    packageJson.scripts["test:admin"],
+    "yarn test:admin:unit && yarn build-only && node --test scripts/build-boundaries.test.mjs && yarn check:build-boundaries",
+  );
 });
 
 test("CodeGraph 本地索引被 Git 忽略", async () => {

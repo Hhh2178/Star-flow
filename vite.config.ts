@@ -127,6 +127,14 @@ export default defineConfig(({ mode }) => {
     server: {
       port: isAdmin ? 50189 : 50188,
       strictPort: true,
+      proxy: isAdmin
+        ? {
+            "/api": {
+              target: "http://127.0.0.1:10588",
+              changeOrigin: true,
+            },
+          }
+        : undefined,
     },
   };
 });
