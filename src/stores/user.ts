@@ -1,6 +1,7 @@
 import axios from "@/utils/axios";
+import type { UserRole } from "@/shared/auth";
 
-export type UserRole = "super_admin" | "admin" | "creator";
+export type { UserRole } from "@/shared/auth";
 export type UserStatus = "enabled" | "disabled";
 
 export interface CurrentUser {

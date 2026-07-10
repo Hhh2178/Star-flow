@@ -18,8 +18,6 @@ declare module "vue-router" {
 
 export const ADMIN_HISTORY_BASE = "/admin/";
 
-const pendingPage = () => import("./pages/SectionPendingPage.vue");
-
 export const adminRoutes: RouteRecordRaw[] = [
   {
     path: "/login",
@@ -44,18 +42,6 @@ export const adminRoutes: RouteRecordRaw[] = [
         component: () => import("./pages/AdminHome.vue"),
         meta: { title: "总览", ...ADMIN_ROUTE_ACCESS.home },
       },
-      { path: "groups", name: "groups", component: pendingPage, meta: { title: "分组管理", ...ADMIN_ROUTE_ACCESS.groups } },
-      { path: "users", name: "users", component: pendingPage, meta: { title: "用户管理", ...ADMIN_ROUTE_ACCESS.users } },
-      { path: "projects", name: "projects", component: pendingPage, meta: { title: "项目监管", ...ADMIN_ROUTE_ACCESS.projects } },
-      { path: "tasks", name: "tasks", component: pendingPage, meta: { title: "任务监控", ...ADMIN_ROUTE_ACCESS.tasks } },
-      { path: "queue", name: "queue", component: pendingPage, meta: { title: "队列与并发", ...ADMIN_ROUTE_ACCESS.queue } },
-      { path: "usage", name: "usage", component: pendingPage, meta: { title: "成本与用量", ...ADMIN_ROUTE_ACCESS.usage } },
-      { path: "quota", name: "quota", component: pendingPage, meta: { title: "额度与充值", ...ADMIN_ROUTE_ACCESS.quota } },
-      { path: "providers", name: "providers", component: pendingPage, meta: { title: "Provider 与模型", ...ADMIN_ROUTE_ACCESS.providers } },
-      { path: "ai-config", name: "ai-config", component: pendingPage, meta: { title: "AI 全局配置", ...ADMIN_ROUTE_ACCESS.aiConfig } },
-      { path: "system", name: "system", component: pendingPage, meta: { title: "系统设置", ...ADMIN_ROUTE_ACCESS.system } },
-      { path: "audit", name: "audit", component: pendingPage, meta: { title: "审计日志", ...ADMIN_ROUTE_ACCESS.audit } },
-      { path: "profile", name: "profile", component: pendingPage, meta: { title: "个人中心", ...ADMIN_ROUTE_ACCESS.profile } },
     ],
   },
   {

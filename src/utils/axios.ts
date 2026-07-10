@@ -1,39 +1,26 @@
-import axios from "axios";
-import router from "@/router/index";
 import { storeToRefs } from "pinia";
-import { MessagePlugin, NotifyPlugin, type TNode } from "tdesign-vue-next";
+import { MessagePlugin, NotifyPlugin } from "tdesign-vue-next";
 import settingStore from "@/stores/setting";
+import { createApiClient } from "@/shared/api";
 import { h } from "vue";
-const instance = axios.create();
 
-instance.interceptors.request.use(function (config) {
-  const { baseUrl, otherSetting } = storeToRefs(settingStore());
-  config.baseURL = baseUrl.value;
-  config.timeout = otherSetting.value.axiosTimeOut;
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = token;
-  }
-
-  return config;
-});
-
-instance.interceptors.response.use(
-  function (response) {
-    return response.data;
+const instance = createApiClient({
+  getBaseURL: () => storeToRefs(settingStore()).baseUrl.value,
+  getTimeout: () => storeToRefs(settingStore()).otherSetting.value.axiosTimeOut,
+  unwrapResponse: true,
+  onUnauthorized: () => {
+    localStorage.removeItem("token");
+    window.location.hash = "#/login";
+    MessagePlugin.error(window.$t("common.sessionExpired"));
   },
-  function (error) {
-    if (error.status === 401) {
-      localStorage.removeItem("token");
-      router.push("/login");
-      MessagePlugin.error(window.$t("common.sessionExpired"));
-    }
-    if (error.message.includes("Network Error") || error.response.data?.message === "Network Error") {
+  onError: (error) => {
+    const responseData = error.response?.data as { message?: unknown } | undefined;
+    if (error.message.includes("Network Error") || responseData?.message === "Network Error") {
       NotifyPlugin.error({
         title: "Network Error",
         closeBtn: true,
-        duration: 3000, // 不自动关闭，让用户有时间看
-        className: "customNotifyFull", // 自定义类名
+        duration: 3000,
+        className: "customNotifyFull",
         content: () =>
           h("div", [
             h("div", { style: { marginBottom: "8px" } }, "网络连接失败，请依次尝试："),
@@ -67,9 +54,7 @@ instance.interceptors.response.use(
           ]),
       });
     }
-
-    return Promise.reject(error?.response?.data ?? error);
   },
-);
+});
 
 export default instance;

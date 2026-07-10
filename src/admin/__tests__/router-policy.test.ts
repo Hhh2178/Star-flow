@@ -1,14 +1,27 @@
 import { describe, expect, it } from "vitest";
+import { createMemoryHistory, createRouter } from "vue-router";
 import { ADMIN_HISTORY_BASE, adminRoutes } from "../router";
 import { ADMIN_ROUTE_ACCESS, decideAdminGuard } from "../router-policy";
 
 describe("admin route policy", () => {
-  it("uses the /admin/ history base and applies role meta to real route records", () => {
+  it("uses the /admin/ history base and registers only the implemented home page", () => {
     const layoutRoute = adminRoutes.find((route) => route.name === "layout");
-    const groupsRoute = layoutRoute?.children?.find((route) => route.name === "groups");
 
     expect(ADMIN_HISTORY_BASE).toBe("/admin/");
-    expect(groupsRoute?.meta?.roles).toEqual(["super_admin"]);
+    expect(layoutRoute?.children?.map((route) => route.name)).toEqual(["home"]);
+  });
+
+  it("redirects unfinished direct routes to the safe home fallback", async () => {
+    const fallbackRoute = adminRoutes.find((route) => route.path === "/:pathMatch(.*)*");
+    const router = createRouter({
+      history: createMemoryHistory(ADMIN_HISTORY_BASE),
+      routes: adminRoutes,
+    });
+
+    expect(adminRoutes.some((route) => route.path === "/groups")).toBe(false);
+    expect(fallbackRoute?.redirect).toBe("/");
+    await router.push("/groups");
+    expect(router.currentRoute.value).toMatchObject({ path: "/", name: "home" });
   });
 
   it("marks login and forbidden as public routes", () => {

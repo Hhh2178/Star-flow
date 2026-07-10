@@ -86,17 +86,12 @@ const navigation = computed(() => getAdminNavigation(session.value?.role as Admi
 const userInitial = computed(() => session.value?.name.trim().slice(0, 1).toUpperCase() || "管");
 const roleLabel = computed(() => session.value?.role === "super_admin" ? "超级管理员" : "分组管理员");
 const userOptions = [
-  { content: "个人中心", value: "profile" },
   { content: "返回创作前台", value: "creator" },
   { content: "退出登录", value: "logout" },
 ];
 
 async function handleUserCommand(option: DropdownOption) {
   const command = String(option.value ?? "");
-  if (command === "profile") {
-    await router.push("/profile");
-    return;
-  }
   if (command === "creator") {
     window.location.assign("/");
     return;

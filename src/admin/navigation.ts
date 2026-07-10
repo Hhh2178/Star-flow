@@ -11,7 +11,7 @@ export interface AdminNavigationItem {
 const allAdminRoles = ["admin", "super_admin"] as const;
 const superAdminOnly = ["super_admin"] as const;
 
-export const adminNavigation: readonly AdminNavigationItem[] = [
+export const adminNavigationCatalog: readonly AdminNavigationItem[] = [
   { key: "overview", label: "总览", path: "/", icon: "i-dashboard-one", roles: allAdminRoles },
   { key: "groups", label: "分组管理", path: "/groups", icon: "i-peoples", roles: superAdminOnly },
   { key: "users", label: "用户管理", path: "/users", icon: "i-user", roles: allAdminRoles },
@@ -27,6 +27,10 @@ export const adminNavigation: readonly AdminNavigationItem[] = [
   { key: "profile", label: "个人中心", path: "/profile", icon: "i-user-positioning", roles: allAdminRoles },
 ];
 
+export const implementedAdminNavigationKeys = new Set(["overview"]);
+
 export function getAdminNavigation(role: AdminRole): AdminNavigationItem[] {
-  return adminNavigation.filter((item) => item.roles.includes(role));
+  return adminNavigationCatalog.filter(
+    (item) => implementedAdminNavigationKeys.has(item.key) && item.roles.includes(role),
+  );
 }
