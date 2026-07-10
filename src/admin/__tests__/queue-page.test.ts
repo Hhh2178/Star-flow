@@ -200,6 +200,56 @@ describe("QueuePage", () => {
     expect(policyInputs.slice(4).every((input) => input.attributes("disabled") === undefined)).toBe(true);
   });
 
+  it("shows a dedicated loading state while concurrency targets are pending", async () => {
+    let resolveUsers: ((value: typeof users) => void) | undefined;
+    api.listUsers.mockImplementationOnce(() => new Promise((resolve) => {
+      resolveUsers = resolve;
+    }));
+
+    wrapper = await mountPage();
+
+    expect(wrapper.get('[data-testid="target-loading"]').text()).toContain("加载并发目标");
+    expect(wrapper.find('[data-testid="concurrency-group"]').exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("暂无可管理的并发目标");
+
+    resolveUsers?.(users);
+    await flushPromises();
+    await nextTick();
+    expect(wrapper.find('[data-testid="target-loading"]').exists()).toBe(false);
+    expect(wrapper.get('[data-testid="concurrency-group"]').exists()).toBe(true);
+  });
+
+  it("shows a retryable target error and recovers after loadTargets succeeds", async () => {
+    api.listUsers.mockRejectedValueOnce(new Error("并发目标加载失败"));
+
+    wrapper = await mountPage();
+
+    const errorState = wrapper.get('[data-testid="target-error"]');
+    expect(errorState.text()).toContain("并发目标加载失败");
+    expect(errorState.get("button").text()).toContain("重试");
+    expect(wrapper.text()).not.toContain("暂无可管理的并发目标");
+
+    await errorState.get("button").trigger("click");
+    await flushPromises();
+    await nextTick();
+
+    expect(api.listUsers).toHaveBeenCalledTimes(2);
+    expect(wrapper.find('[data-testid="target-error"]').exists()).toBe(false);
+    expect(wrapper.get('[data-testid="concurrency-group"]').exists()).toBe(true);
+  });
+
+  it("shows the target empty state only after a successful empty response", async () => {
+    api.listUsers.mockResolvedValueOnce([]);
+    api.listGroups.mockResolvedValueOnce([]);
+
+    wrapper = await mountPage();
+
+    expect(wrapper.get('[data-testid="target-empty"]').text()).toContain("暂无可管理的并发目标");
+    expect(wrapper.find('[data-testid="target-loading"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="target-error"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="concurrency-group"]').exists()).toBe(false);
+  });
+
   it("applies status, type and user filters", async () => {
     wrapper = await mountPage("super_admin");
 

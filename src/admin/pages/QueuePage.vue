@@ -70,34 +70,38 @@
 
     <section class="data-section concurrency-section" aria-labelledby="concurrency-title">
       <div class="section-heading"><h2 id="concurrency-title">并发策略</h2><span>总量与文本、图片、视频限制同时生效</span></div>
-      <div class="target-grid">
-        <label><span>目标分组</span><t-select data-testid="concurrency-group" v-model="selectedGroupId" :options="groupOptions" :disabled="!isSuperAdmin" @change="handleGroupChange" /></label>
-        <label><span>目标用户</span><t-select data-testid="concurrency-user" v-model="selectedUserId" :options="concurrencyUserOptions" @change="loadPolicies" /></label>
-      </div>
+      <LoadingState v-if="targetLoading" data-testid="target-loading" text="加载并发目标..." />
+      <ErrorState v-else-if="targetError" data-testid="target-error" :message="targetError" retryable @retry="loadTargets" />
+      <div v-else-if="hasConcurrencyTarget" class="target-content">
+        <div class="target-grid">
+          <label><span>目标分组</span><t-select data-testid="concurrency-group" v-model="selectedGroupId" :options="groupOptions" :disabled="!isSuperAdmin" @change="handleGroupChange" /></label>
+          <label><span>目标用户</span><t-select data-testid="concurrency-user" v-model="selectedUserId" :options="concurrencyUserOptions" @change="loadPolicies" /></label>
+        </div>
 
-      <LoadingState v-if="policiesLoading" text="加载并发策略..." />
-      <div v-else-if="selectedGroupId && selectedUserId" class="policy-grid">
-        <section class="policy-block">
-          <div class="policy-title"><h3>分组限制</h3><span v-if="!isSuperAdmin">只读</span></div>
-          <div class="limit-grid">
-            <label v-for="field in limitFields" :key="`group-${field.key}`"><span>{{ field.label }}</span><t-input-number v-model="groupPolicy[field.key]" :min="1" :max="1000" :disabled="!isSuperAdmin || savingGroup" /></label>
-          </div>
-          <t-button v-if="isSuperAdmin" data-testid="save-group-policy" size="small" :loading="savingGroup" :disabled="savingGroup" @click="saveGroupPolicy">
-            <template #icon><i-save theme="outline" /></template>保存分组策略
-          </t-button>
-        </section>
-        <section class="policy-block">
-          <div class="policy-title"><h3>个人限制</h3><span>{{ selectedUserName }}</span></div>
-          <div class="limit-grid">
-            <label v-for="field in limitFields" :key="`user-${field.key}`"><span>{{ field.label }}</span><t-input-number v-model="userPolicy[field.key]" :min="1" :max="1000" :disabled="savingUser" /></label>
-          </div>
-          <t-button data-testid="save-user-policy" size="small" :loading="savingUser" :disabled="savingUser" @click="saveUserPolicy">
-            <template #icon><i-save theme="outline" /></template>保存个人策略
-          </t-button>
-        </section>
+        <LoadingState v-if="policiesLoading" text="加载并发策略..." />
+        <div v-else class="policy-grid">
+          <section class="policy-block">
+            <div class="policy-title"><h3>分组限制</h3><span v-if="!isSuperAdmin">只读</span></div>
+            <div class="limit-grid">
+              <label v-for="field in limitFields" :key="`group-${field.key}`"><span>{{ field.label }}</span><t-input-number v-model="groupPolicy[field.key]" :min="1" :max="1000" :disabled="!isSuperAdmin || savingGroup" /></label>
+            </div>
+            <t-button v-if="isSuperAdmin" data-testid="save-group-policy" size="small" :loading="savingGroup" :disabled="savingGroup" @click="saveGroupPolicy">
+              <template #icon><i-save theme="outline" /></template>保存分组策略
+            </t-button>
+          </section>
+          <section class="policy-block">
+            <div class="policy-title"><h3>个人限制</h3><span>{{ selectedUserName }}</span></div>
+            <div class="limit-grid">
+              <label v-for="field in limitFields" :key="`user-${field.key}`"><span>{{ field.label }}</span><t-input-number v-model="userPolicy[field.key]" :min="1" :max="1000" :disabled="savingUser" /></label>
+            </div>
+            <t-button data-testid="save-user-policy" size="small" :loading="savingUser" :disabled="savingUser" @click="saveUserPolicy">
+              <template #icon><i-save theme="outline" /></template>保存个人策略
+            </t-button>
+          </section>
+        </div>
+        <p v-if="policyMessage" class="operation-message" :class="{ error: policyFailed }" role="status">{{ policyMessage }}</p>
       </div>
-      <EmptyState v-else text="请选择可管理的分组和用户" />
-      <p v-if="policyMessage" class="operation-message" :class="{ error: policyFailed }" role="status">{{ policyMessage }}</p>
+      <EmptyState v-else data-testid="target-empty" text="暂无可管理的并发目标" />
     </section>
 
     <t-dialog v-model:visible="priorityDialogVisible" header="调整任务优先级" :close-on-overlay-click="false" :footer="false">
@@ -176,6 +180,8 @@ const groups = ref<GroupDto[]>([]);
 const users = ref<UserDto[]>([]);
 const selectedGroupId = ref<number | "">("");
 const selectedUserId = ref<number | "">("");
+const targetLoading = ref(true);
+const targetError = ref("");
 const groupPolicy = reactive<ConcurrencyLimit>(emptyLimit());
 const userPolicy = reactive<ConcurrencyLimit>(emptyLimit());
 const policiesLoading = ref(false);
@@ -197,6 +203,7 @@ const manageableUsers = computed(() => users.value.filter((user) => {
 }));
 const concurrencyUserOptions = computed(() => manageableUsers.value.map((user) => ({ label: `${user.name} (#${user.id})`, value: user.id })));
 const selectedUserName = computed(() => manageableUsers.value.find((user) => user.id === Number(selectedUserId.value))?.name ?? "-");
+const hasConcurrencyTarget = computed(() => Boolean(selectedGroupId.value && selectedUserId.value));
 
 function formatDate(timestamp: number) {
   return new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(timestamp);
@@ -227,6 +234,9 @@ async function loadQueue(silent = false) {
 }
 
 async function loadTargets() {
+  targetLoading.value = true;
+  targetError.value = "";
+  policyMessage.value = "";
   try {
     users.value = await listUsers();
     if (isSuperAdmin.value) {
@@ -236,11 +246,17 @@ async function loadTargets() {
     }
     selectedGroupId.value = groups.value[0]?.id ?? "";
     selectedUserId.value = manageableUsers.value[0]?.id ?? "";
-    await loadPolicies();
   } catch (cause) {
-    policyFailed.value = true;
-    policyMessage.value = adminErrorText(cause, "并发目标加载失败");
+    groups.value = [];
+    users.value = [];
+    selectedGroupId.value = "";
+    selectedUserId.value = "";
+    targetError.value = adminErrorText(cause, "并发目标加载失败");
+    return;
+  } finally {
+    targetLoading.value = false;
   }
+  await loadPolicies();
 }
 
 async function handleGroupChange() {

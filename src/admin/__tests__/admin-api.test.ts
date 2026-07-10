@@ -44,6 +44,39 @@ describe("adminApi", () => {
     });
   });
 
+  it("accepts null when a valid envelope owns the data property", async () => {
+    client.get.mockResolvedValue({ data: { code: 200, data: null, message: "成功" } });
+
+    await expect(listGroups()).resolves.toBeNull();
+  });
+
+  it.each([
+    ["null envelope", null, "服务器响应格式无效，请稍后重试"],
+    ["array envelope", [{ code: 200, data: [] }], "服务器响应格式无效，请稍后重试"],
+    ["missing code", { data: [], raw: "missing-code-secret" }, "服务器响应格式无效，请稍后重试"],
+    ["missing data", { code: 200, raw: "missing-data-secret" }, "服务器响应格式无效，请稍后重试"],
+    ["string code", { code: "200", data: [], raw: "string-code-secret" }, "服务器响应格式无效，请稍后重试"],
+    ["NaN code", { code: Number.NaN, data: [], raw: "nan-code-secret" }, "服务器响应格式无效，请稍后重试"],
+    ["client error code", { code: 400, data: { raw: "client-error-secret" }, message: "raw client error" }, "请求失败，请稍后重试"],
+    ["unsafe Chinese error", { code: 422, data: null, message: "数据库密码为 raw-secret" }, "提交的数据不符合要求"],
+    ["server error code", { code: 500, data: { raw: "server-error-secret" }, message: "raw server error" }, "服务器暂时无法处理请求"],
+    [
+      "inherited data",
+      Object.assign(Object.create({ data: { raw: "inherited-data-secret" } }), { code: 200 }),
+      "服务器响应格式无效，请稍后重试",
+    ],
+  ])("rejects an invalid %s without retaining the raw payload", async (_name, envelope, message) => {
+    client.get.mockResolvedValue({ data: envelope });
+
+    const error = await listGroups().catch((cause) => cause);
+
+    expect(error).toBeInstanceOf(AdminApiError);
+    expect(error).toMatchObject({ message });
+    expect(error).not.toHaveProperty("data");
+    expect(JSON.stringify(error)).not.toContain("secret");
+    expect(error.message).toMatch(/[\u3400-\u9fff]/u);
+  });
+
   it("uses the existing admin endpoints and typed request bodies", async () => {
     client.get.mockResolvedValue(ok([]));
     client.post.mockResolvedValue(ok({}));

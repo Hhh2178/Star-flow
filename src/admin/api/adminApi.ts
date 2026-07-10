@@ -159,6 +159,7 @@ export class AdminApiError extends Error {
 
 const client = createApiClient();
 const hasChinese = (value: string) => /[\u3400-\u9fff]/u.test(value);
+const invalidEnvelopeText = "服务器响应格式无效，请稍后重试";
 
 function errorCode(value: unknown): string | number | undefined {
   if (typeof value !== "object" || value === null) return undefined;
@@ -188,15 +189,25 @@ export function adminErrorText(error: unknown, fallback = "请求失败，请稍
 async function unwrap<T>(request: Promise<AxiosResponse<ApiResponse<T>>>): Promise<T> {
   try {
     const response = await request;
-    const envelope = response.data;
-    if (!envelope || envelope.code < 200 || envelope.code >= 300) {
+    const envelope: unknown = response.data;
+    if (
+      typeof envelope !== "object"
+      || envelope === null
+      || Array.isArray(envelope)
+      || !Number.isInteger((envelope as { code?: unknown }).code)
+      || !Object.prototype.hasOwnProperty.call(envelope, "data")
+    ) {
+      throw new AdminApiError(invalidEnvelopeText);
+    }
+    const validEnvelope = envelope as ApiResponse<T>;
+    if (validEnvelope.code < 200 || validEnvelope.code >= 300) {
       throw new AdminApiError(
-        adminErrorText({ status: envelope?.code, message: envelope?.message }),
-        envelope?.code,
-        errorCode(envelope?.data) ?? errorCode(envelope),
+        adminErrorText({ status: validEnvelope.code }),
+        validEnvelope.code,
+        errorCode(validEnvelope.data) ?? errorCode(validEnvelope),
       );
     }
-    return envelope.data;
+    return validEnvelope.data;
   } catch (cause) {
     if (cause instanceof AdminApiError) throw cause;
     const value = typeof cause === "object" && cause !== null
