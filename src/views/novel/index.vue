@@ -114,8 +114,8 @@ import axios from "@/utils/axios";
 import importNovel from "./components/importNovel.vue";
 import editNodel from "./components/editNodel.vue";
 import projectStore from "@/stores/project";
-import settingStore from "@/stores/setting";
-const { otherSetting } = storeToRefs(settingStore());
+import { assertGenerationJobsSucceeded, startGenerationJobTracking } from "@/utils/generationJobTracker";
+const generationTrackingController = new AbortController();
 const { project } = storeToRefs(projectStore());
 
 // 搜索文本
@@ -273,18 +273,22 @@ function startEventAnalysis() {
   const dialog = DialogPlugin.confirm({
     header: $t("workbench.novel.msg.eventAnalysisHeader"),
     body: $t("workbench.novel.msg.eventAnalysisBody", { count: selectedRowKeys.value.length }),
-    onConfirm: () => {
+    onConfirm: async () => {
       dialog.destroy();
-      axios
-        .post("/novel/event/generateEvents", {
+      const novelIds = [...selectedRowKeys.value] as number[];
+      try {
+        const { data } = await axios.post("/novel/event/generateEvents", {
           projectId: project.value?.id!,
-          novelIds: selectedRowKeys.value,
-          concurrentCount: otherSetting.value.assetsBatchGenereateSize,
-        })
-        .then((res) => {
-          selectedRowKeys.value.length = 0;
-          getNovel();
+          novelIds,
         });
+        selectedRowKeys.value.length = 0;
+        getNovel();
+        const tracking = startGenerationJobTracking(data, { signal: generationTrackingController.signal });
+        assertGenerationJobsSucceeded(await tracking.done);
+        getNovel();
+      } catch (e) {
+        if ((e as Error)?.name !== "AbortError") window.$message.error((e as Error).message);
+      }
     },
   });
 }
@@ -342,6 +346,7 @@ watch(notCompultedData, (val) => {
   }
 });
 onUnmounted(() => {
+  generationTrackingController.abort();
   stopPolling();
 });
 </script>

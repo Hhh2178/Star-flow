@@ -79,12 +79,11 @@ import editScript from "./components/editScript.vue";
 import addScript from "./components/addScript.vue";
 import batchAddScript from "./components/batchAddScript.vue";
 import projectStore from "@/stores/project";
-import settingStore from "@/stores/setting";
 import imageListCacheStore from "@/stores/imageListCache";
+import { assertGenerationJobsSucceeded, startGenerationJobTracking, type GenerationJobDetail } from "@/utils/generationJobTracker";
 
 const { clearScriptCache } = imageListCacheStore();
 
-const { otherSetting } = storeToRefs(settingStore());
 const { project } = storeToRefs(projectStore());
 interface ScriptAsset {
   id: number;
@@ -108,6 +107,13 @@ const addScriptShow = ref(false);
 const selectedIds = ref<number[]>([]);
 const scriptLoad = ref(false);
 const batchScriptShow = ref(false);
+const generationTrackingController = new AbortController();
+
+function scriptGenerationState(job: GenerationJobDetail): -1 | 0 | 1 {
+  if (job.status === "succeeded") return 1;
+  if (["failed", "cancelled", "needs_attention"].includes(job.status)) return -1;
+  return 0;
+}
 const isAllSelected = computed(() => scripts.value.length > 0 && selectedIds.value.length === scripts.value.length);
 function toggleSelect(id: number) {
   const idx = selectedIds.value.indexOf(id);
@@ -219,14 +225,24 @@ async function handleExtractAssets() {
   //判断是否有资产正在提取中
   scriptLoad.value = true;
   try {
-    await axios.post("/script/extractAssets", {
+    const { data } = await axios.post("/script/extractAssets", {
       scriptIds: selectedIds.value,
       projectId: project.value!.id,
-      groupSize: otherSetting.value.assetsBatchGenereateSize,
     });
+    const tracking = startGenerationJobTracking(data, {
+      signal: generationTrackingController.signal,
+      onUpdate: (queued, job) => {
+        const script = scripts.value.find((item) => item.id === queued.targetId);
+        if (!script) return;
+        script.extractState = scriptGenerationState(job);
+        if (script.extractState === -1) script.errorReason = job.errorMessage || "生成任务未完成";
+      },
+    });
+    assertGenerationJobsSucceeded(await tracking.done);
     searchScripts();
     selectedIds.value = [];
   } catch (e) {
+    if ((e as Error)?.name === "AbortError") return;
     window.$message.error((e as any)?.message || $t("workbench.script.msg.extractFailed"));
   } finally {
     scriptLoad.value = false;
@@ -319,6 +335,7 @@ watch(
   },
 );
 onUnmounted(() => {
+  generationTrackingController.abort();
   stopPolling();
 });
 </script>

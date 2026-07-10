@@ -143,6 +143,7 @@ import modelSelect from "@/components/modelSelect.vue";
 import projectStore from "@/stores/project";
 const { project } = storeToRefs(projectStore());
 import axios from "@/utils/axios";
+import { assertGenerationJobsSucceeded, startGenerationJobTracking } from "@/utils/generationJobTracker";
 const props = defineProps<{
   formData: {
     id?: number;
@@ -177,6 +178,7 @@ const selectValue = ref(""); //选择的模型
 const value2 = ref("");
 //智能生成提示词
 const promptLoading = ref(false);
+const generationTrackingController = new AbortController();
 async function generatePrompt() {
   promptLoading.value = true;
   try {
@@ -187,16 +189,23 @@ async function generatePrompt() {
       name: props.formData.name,
       describe: props.formData.describe ? props.formData.describe : $t("workbench.assets.noDescription"),
     });
+    const tracking = startGenerationJobTracking(data, { signal: generationTrackingController.signal });
+    const results = await tracking.done;
+    assertGenerationJobsSucceeded(results);
+    const result = results[0]?.result as { assetId?: number; prompt?: string } | null;
+    const prompt = result?.prompt;
     window.$message.success($t("workbench.assets.gen.promptSuccess"));
-    if (data.assetsId === props.formData.id) {
-      props.formData.prompt = data.prompt;
+    if (result?.assetId === props.formData.id && prompt) {
+      props.formData.prompt = prompt;
     }
   } catch (e: any) {
+    if (e?.name === "AbortError") return;
     window.$message.error(e.message ?? $t("workbench.assets.gen.promptFail"));
   } finally {
     promptLoading.value = false;
   }
 }
+onUnmounted(() => generationTrackingController.abort());
 const emit = defineEmits(["update"]);
 const resolution = ref("1K");
 //生成图片
@@ -215,33 +224,26 @@ async function handleGenerate() {
   }
   generateLoading.value = true;
   try {
-    let referenceImageBase64 = "";
     if (referenceFileList.value.length > 0) {
-      const file = referenceFileList.value[0].raw;
-      if (file instanceof File) {
-        referenceImageBase64 = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const base64 = e.target?.result as string;
-            resolve(base64);
-          };
-          reader.readAsDataURL(file);
-        });
-      }
+      window.$message.warning("参考图需要先保存到项目资产后再选择");
+      return;
     }
-    await axios.post("/assetsGenerate/generateAssets", {
+    const { data } = await axios.post("/assetsGenerate/generateAssets", {
       type: props.formData.type ?? "props",
       projectId: project.value?.id,
       name: props.formData.name ?? $t("workbench.assets.gen.unnamed"),
-      base64: referenceImageBase64,
+      base64: "",
       prompt: props.formData.prompt,
       model: selectValue.value,
       id: props.formData.id,
       resolution: resolution.value,
     });
+    const tracking = startGenerationJobTracking(data, { signal: generationTrackingController.signal });
+    assertGenerationJobsSucceeded(await tracking.done);
     window.$message.success($t("workbench.assets.gen.assetGenSuccess"));
     await fetchGeneratedImages();
   } catch (e: any) {
+    if (e?.name === "AbortError") return;
     window.$message.error(e.message ?? $t("workbench.assets.gen.assetGenFail"));
     fetchGeneratedImages();
   } finally {

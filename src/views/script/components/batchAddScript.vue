@@ -100,7 +100,9 @@ import parseScript from "@/utils/parseScript";
 import mammoth from "mammoth";
 import type { UploadFile, PrimaryTableCol, TableRowData } from "tdesign-vue-next";
 import projectStore from "@/stores/project";
+import { assertGenerationJobsSucceeded, startGenerationJobTracking } from "@/utils/generationJobTracker";
 const { project } = storeToRefs(projectStore());
+const generationTrackingController = new AbortController();
 interface ChapterItem {
   index: number;
   scriptName: string;
@@ -268,16 +270,22 @@ async function getAiRegex() {
   const sample = content.value.slice(0, 2000);
   aiRegexLoading.value = true;
   try {
-    const { data } = await axios.post("/script/getAiRegex", { content: sample });
-    if (data) {
-      customRegStr.value = data;
+    const { data } = await axios.post("/script/getAiRegex", { projectId: project.value?.id, content: sample });
+    const tracking = startGenerationJobTracking(data, { signal: generationTrackingController.signal });
+    const results = await tracking.done;
+    assertGenerationJobsSucceeded(results);
+    const result = results[0]?.result as { regex?: string } | null;
+    if (result?.regex) {
+      customRegStr.value = result.regex;
     }
   } catch (e) {
+    if ((e as Error)?.name === "AbortError") return;
     window.$message.error((e as Error).message);
   } finally {
     aiRegexLoading.value = false;
   }
 }
+onUnmounted(() => generationTrackingController.abort());
 </script>
 
 <style lang="scss" scoped>

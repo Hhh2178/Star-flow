@@ -248,10 +248,9 @@
 import axios from "@/utils/axios";
 import projectStore from "@/stores/project";
 import modelSelect from "@/components/modelSelect.vue";
-import settingStore from "@/stores/setting";
 import openAssetsSelector from "@/utils/assetsCheck";
+import { assertGenerationJobsSucceeded, startGenerationJobTracking, type GenerationJobDetail } from "@/utils/generationJobTracker";
 
-const { otherSetting } = storeToRefs(settingStore());
 interface Image {
   filePath: string;
   id: number;
@@ -299,6 +298,11 @@ const translatedOptions = computed(() =>
 );
 const dataList = ref<DataItem[]>([]);
 const loading = ref(false);
+const generationTrackingController = new AbortController();
+
+function isTerminalFailure(job: GenerationJobDetail) {
+  return ["failed", "cancelled", "needs_attention"].includes(job.status);
+}
 
 // 用于取消进行中的生成请求
 let abortController: AbortController | null = null;
@@ -314,6 +318,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  generationTrackingController.abort();
   if (abortController) {
     abortController.abort();
     abortController = null;
@@ -520,7 +525,7 @@ function setItemState(id: number, state: string) {
   if (currentItem.value?.id === id) currentItem.value.state = state;
 }
 
-function regenerateItem() {
+async function regenerateItem() {
   if (!currentItem.value) return;
   if (!selectValue.value) {
     window.$message.warning($t("workbench.cornerScape.msg.selectModel"));
@@ -538,8 +543,8 @@ function regenerateItem() {
   setItemState(item.id, "生成中");
   drawerVisible.value = false;
   const controller = createAbortController();
-  axios
-    .post(
+  try {
+    const { data } = await axios.post(
       "/assetsGenerate/generateAssets",
       {
         type: item.type ?? "props",
@@ -550,19 +555,18 @@ function regenerateItem() {
         model: selectValue.value,
         id: item.id,
         resolution: editForm.resolution,
-        concurrentCount: 1,
       },
       { signal: controller.signal },
-    )
-    .then(async () => {
-      window.$message.success($t("workbench.cornerScape.msg.genSuccess", { name: item.name }));
-      await getFilteredData();
-    })
-    .catch((e: any) => {
-      if (e.name === "CanceledError" || e.code === "ERR_CANCELED") return;
-      window.$message.error(e.message ?? $t("workbench.cornerScape.msg.genFailed", { name: item.name }));
-      setItemState(item.id, "生成失败");
-    });
+    );
+    const tracking = startGenerationJobTracking(data, { signal: generationTrackingController.signal });
+    assertGenerationJobsSucceeded(await tracking.done);
+    window.$message.success($t("workbench.cornerScape.msg.genSuccess", { name: item.name }));
+    await getFilteredData();
+  } catch (e: any) {
+    if (e.name === "CanceledError" || e.code === "ERR_CANCELED" || e.name === "AbortError") return;
+    window.$message.error(e.message ?? $t("workbench.cornerScape.msg.genFailed", { name: item.name }));
+    setItemState(item.id, "生成失败");
+  }
 }
 
 // 提示词失焦保存
@@ -603,12 +607,17 @@ async function polishPrompts() {
       name: editForm.name,
       describe: editForm.describe,
     });
+    const tracking = startGenerationJobTracking(data, { signal: generationTrackingController.signal });
+    const results = await tracking.done;
+    assertGenerationJobsSucceeded(results);
+    const result = results[0]?.result as { assetId?: number; prompt?: string } | null;
     window.$message.success($t("workbench.cornerScape.msg.promptGenSuccess"));
-    if (data.assetsId === editForm.assetsId) {
-      editForm.prompt = data.prompt;
+    if (result?.assetId === editForm.assetsId && result.prompt) {
+      editForm.prompt = result.prompt;
     }
     getFilteredData();
   } catch (e) {
+    if ((e as Error)?.name === "AbortError") return;
     window.$message.error((e as any)?.message ?? $t("workbench.cornerScape.msg.polishFailed"));
   } finally {
     polishing.value = false;
@@ -632,7 +641,7 @@ async function batchGenerationPrompt() {
   selectedIds.value = [];
 
   try {
-    await axios.post("/assetsGenerate/batchPolishAssetsPrompt", {
+    const { data } = await axios.post("/assetsGenerate/batchPolishAssetsPrompt", {
       projectId: project.value?.id,
       items: items.map((item) => ({
         assetsId: item.id,
@@ -640,10 +649,27 @@ async function batchGenerationPrompt() {
         name: item.name,
         describe: item.describe,
       })),
-      concurrentCount: otherSetting.value.assetsBatchGenereateSize,
       otherTextPrompt: otherTextPrompt.value,
     });
+    const tracking = startGenerationJobTracking(data, {
+      signal: generationTrackingController.signal,
+      onUpdate: (queued, job) => {
+        const target = dataList.value.find((item) => item.id === queued.targetId);
+        if (!target) return;
+        if (job.status === "succeeded") {
+          target.promptState = "已完成";
+          const result = job.result as { prompt?: string } | null;
+          if (result?.prompt) target.prompt = result.prompt;
+        } else if (isTerminalFailure(job)) {
+          target.promptState = "生成失败";
+          target.promptErrorReason = job.errorMessage || "生成任务未完成";
+        }
+      },
+    });
+    assertGenerationJobsSucceeded(await tracking.done);
+    await pollingPromptAssets();
   } catch (e: any) {
+    if (e?.name === "AbortError") return;
     window.$message.error(e?.message ?? $t("workbench.cornerScape.msg.promptGenFail"));
     // 生成失败时重置 promptState
     items.forEach((item) => {
@@ -670,12 +696,23 @@ async function batchSelectBindAudio() {
   selectedIds.value = [];
 
   try {
-    await axios.post("/cornerScape/batchBindAudio", {
+    const { data } = await axios.post("/cornerScape/batchBindAudio", {
       projectId: project.value?.id,
       assetsIds: items.map((item) => item.id),
-      concurrentCount: otherSetting.value.assetsBatchGenereateSize,
     });
+    const tracking = startGenerationJobTracking(data, {
+      signal: generationTrackingController.signal,
+      onUpdate: (queued, job) => {
+        const target = dataList.value.find((item) => item.id === queued.targetId);
+        if (!target) return;
+        if (job.status === "succeeded") target.audioBindState = "已完成";
+        else if (isTerminalFailure(job)) target.audioBindState = "生成失败";
+      },
+    });
+    assertGenerationJobsSucceeded(await tracking.done);
+    await pollingAudioBind();
   } catch (e: any) {
+    if (e?.name === "AbortError") return;
     window.$message.error(e.message ?? $t("workbench.cornerScape.msg.promptGenFail"));
     // 生成失败时重置 audioBindState
     items.forEach((item) => {
@@ -715,16 +752,13 @@ async function batchGenerationImage() {
   // 前端先将所有选中项标记为"生成中"
   items.forEach((item) => setItemState(item.id, "生成中"));
 
-  window.$message.success(
-    $t("workbench.cornerScape.msg.batchStarted", { count: items.length, concurrent: otherSetting.value.assetsBatchGenereateSize }),
-  );
+  window.$message.success(`已提交 ${items.length} 个图片生成任务`);
 
   try {
-    await axios.post("/assetsGenerate/batchGenerateImageAssets", {
+    const { data } = await axios.post("/assetsGenerate/batchGenerateImageAssets", {
       projectId: project.value?.id,
       model: selectValue.value,
       resolution: resolution.value,
-      concurrentCount: otherSetting.value.assetsBatchGenereateSize,
       items: items.map((item) => ({
         id: item.id,
         type: item.type ?? "props",
@@ -732,9 +766,12 @@ async function batchGenerationImage() {
         prompt: item.prompt,
       })),
     });
+    const tracking = startGenerationJobTracking(data, { signal: generationTrackingController.signal });
+    assertGenerationJobsSucceeded(await tracking.done);
+    await getFilteredData();
     selectedIds.value = [];
   } catch (e: any) {
-    if (e.name === "CanceledError" || e.code === "ERR_CANCELED") return;
+    if (e.name === "CanceledError" || e.code === "ERR_CANCELED" || e.name === "AbortError") return;
     window.$message.error(e.message ?? $t("workbench.cornerScape.msg.batchFailed"));
   }
 }

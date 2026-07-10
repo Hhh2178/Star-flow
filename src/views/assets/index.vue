@@ -441,8 +441,7 @@ import addAssets from "./components/addAssets.vue";
 import addAudioAssets from "./components/addAudioAssets.vue";
 import generateImage from "./components/generateImage.vue";
 import projectStore from "@/stores/project";
-import settingStore from "@/stores/setting";
-const { otherSetting } = storeToRefs(settingStore());
+import { assertGenerationJobsSucceeded, startGenerationJobTracking } from "@/utils/generationJobTracker";
 
 const props = withDefaults(
   defineProps<{
@@ -461,6 +460,7 @@ const props = withDefaults(
   },
 );
 const addAudioShow = ref(false);
+const generationTrackingController = new AbortController();
 
 const audioFormData = ref({
   name: "",
@@ -473,6 +473,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  generationTrackingController.abort();
   stopPolling();
   stopImagePolling();
 });
@@ -715,17 +716,21 @@ async function handleBatchGeneratePrompt() {
   selectedSubRowKeys.value = selectedSubRowKeys.value.filter((key) => !selectedSubAssets.some((a) => a.id === key));
   batchGenerationShow.value = false;
   try {
-    await axios.post("/assetsGenerate/batchPolishAssetsPrompt", {
+    const { data } = await axios.post("/assetsGenerate/batchPolishAssetsPrompt", {
       projectId: project.value?.id,
-      concurrentCount: otherSetting.value.assetsBatchGenereateSize,
       items: selectedAssets.map((item: { id: number; name: string; type: string; describe: string }) => ({
         assetsId: item.id,
         type: item.type ?? "props",
         name: item.name,
         describe: item.describe ? item.describe : $t("workbench.assets.noDescription"),
       })),
+      otherTextPrompt: "",
     });
+    const tracking = startGenerationJobTracking(data, { signal: generationTrackingController.signal });
+    assertGenerationJobsSucceeded(await tracking.done);
+    await pollingPromptAssets();
   } catch (e: any) {
+    if (e?.name === "AbortError") return;
     window.$message.error(e?.message ?? $t("workbench.assets.promptGenFail"));
   }
 }
@@ -775,11 +780,10 @@ async function handleBatchGenerateImage() {
   batchGenerationShow.value = false;
 
   try {
-    await axios.post("/assetsGenerate/batchGenerateImageAssets", {
+    const { data } = await axios.post("/assetsGenerate/batchGenerateImageAssets", {
       projectId: project.value?.id,
       model: selectValue.value,
       resolution: resolution.value,
-      concurrentCount: otherSetting.value.assetsBatchGenereateSize,
       items: validAssets.map((item) => ({
         id: item.id,
         type: item.type ?? "props",
@@ -787,7 +791,11 @@ async function handleBatchGenerateImage() {
         prompt: item.prompt || item.describe,
       })),
     });
+    const tracking = startGenerationJobTracking(data, { signal: generationTrackingController.signal });
+    assertGenerationJobsSucceeded(await tracking.done);
+    await loadCurrentTabData();
   } catch (e: any) {
+    if (e?.name === "AbortError") return;
     window.$message.error($t("workbench.assets.imageGenFail", { name: "", error: e.message ?? "" }));
     validAssets.forEach((asset) => {
       // 在父级和子级中都查找
