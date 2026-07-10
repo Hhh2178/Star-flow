@@ -4,6 +4,8 @@
 
 Approved direction on 2026-07-09: use three account levels only. Do not add a Viewer/Reviewer level in the first version.
 
+R1 and R2 implemented the three-role account and interim setting-center guards. The separate admin-console design approved on 2026-07-10 supersedes this document's assumptions that Admin can view all projects, edit Prompt/Skill/Memory, and use the embedded setting center as the long-term admin surface. See `2026-07-10-stars-flow-separated-admin-console-design.md` for current group scope and admin-console rules.
+
 ## Purpose
 
 Define how Stars Flow should evolve Toonflow's current single-admin login into a lightweight internal team account system. This design is based on the current Toonflow setting center, not a new standalone admin application.

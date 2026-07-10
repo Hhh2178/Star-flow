@@ -25,6 +25,7 @@ Read in order:
 | Toonflow rebase strategy | `specs/2026-07-09-stars-flow-toonflow-rebase-design.md` | Product or architecture direction changes |
 | Visual migration requirements | `specs/2026-07-09-stars-flow-visual-requirements.md` | Visual boundary, UI migration scope, or Xinghuan visual direction changes |
 | Account and permission design | `specs/2026-07-09-stars-flow-account-permission-design.md` | Account role, backend permission, or setting-center access rules change |
+| Separate admin console design | `specs/2026-07-10-stars-flow-separated-admin-console-design.md` | Frontend/admin boundary, group scope, admin module, quota, or audit rules change |
 | Functional reform roadmap | `specs/2026-07-09-stars-flow-functional-reform-roadmap.md` | Functional reform sequence, ring scope, or status process changes |
 | Functional reform status | `logbooks/progress/functional-reform-status.md` | Any reform ring starts, pauses, completes, or changes scope |
 | Frontend visual system | `systems/frontend/frontend-design/stars-flow-visual-system.md` | Theme token, component style, or motion rules change |
