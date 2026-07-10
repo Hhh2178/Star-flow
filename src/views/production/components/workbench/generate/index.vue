@@ -56,6 +56,12 @@ import axios from "@/utils/axios";
 import projectStore from "@/stores/project";
 import promptEditor from "@/components/promptEditor.vue";
 import imageListCacheStore from "@/stores/imageListCache";
+import {
+  assertGenerationJobsSucceeded,
+  generationJobStatusLabels,
+  startGenerationJobTracking,
+  type GenerationJobDetail,
+} from "@/utils/generationJobTracker";
 
 const { project } = storeToRefs(projectStore());
 const episodesId = inject<Ref<number>>("episodesId")!;
@@ -84,6 +90,11 @@ const modelParmas = ref<ModelSetting>({
 });
 
 const storyboardList = ref<StoryboardItem[]>([]); // 分镜列表
+const generationTrackingController = new AbortController();
+
+function isGenerationTerminalFailure(job: GenerationJobDetail) {
+  return ["failed", "cancelled", "needs_attention"].includes(job.status);
+}
 
 /** 排序优先级：assets有图=0，storyboard有图=1，无图=2 */
 function getImageItemPriority(item: UploadItem): number {
@@ -327,9 +338,23 @@ async function genText() {
       model: modelParmas.value.model,
       mode: modelParmas.value.mode,
     });
-    track.prompt = data;
+    const tracking = startGenerationJobTracking(data, {
+      signal: generationTrackingController.signal,
+      onUpdate: (_queued, job) => {
+        track.state = job.status === "succeeded" ? "已完成" : isGenerationTerminalFailure(job) ? "生成失败" : "生成中";
+        track.reason = job.queuePosition
+          ? `${generationJobStatusLabels[job.status]}，队列第 ${job.queuePosition} 位`
+          : job.errorMessage || generationJobStatusLabels[job.status];
+      },
+    });
+    const results = await tracking.done;
+    assertGenerationJobsSucceeded(results);
+    const result = results[0]?.result as { prompt?: string } | null;
+    if (!result?.prompt) throw new Error("提示词任务已完成，但未返回提示词");
+    track.prompt = result.prompt;
     track.state = "已完成";
   } catch (e) {
+    if ((e as Error)?.name === "AbortError") return;
     track.state = "生成失败";
     window.$message.error((e as Error)?.message ?? "提示词生成失败");
   }
@@ -390,6 +415,8 @@ async function generateVideo() {
     body: $t("workbench.generate.generateConfirmBody"),
     onConfirm: async () => {
       dlg.destroy();
+      const targetTrack = currentTrack.value;
+      if (!targetTrack?.id) return;
       try {
         const { data } = await axios.post("/production/workbench/generateVideo", {
           projectId: project.value?.id,
@@ -411,21 +438,38 @@ async function generateVideo() {
                   if (modelParmas.value.mode === "singleImage") return filtered.slice(0, 1);
                   return filtered;
                 })(),
-          prompt: currentTrack.value.prompt,
+          prompt: targetTrack.prompt,
           model: modelParmas.value.model,
           mode: modelParmas.value.mode,
           resolution: modelParmas.value.resolution,
           duration: modelParmas.value.duration,
           audio: modelParmas.value.audio,
-          trackId: currentTrack.value.id,
+          trackId: targetTrack.id,
         });
+        const tracking = startGenerationJobTracking(data, {
+          signal: generationTrackingController.signal,
+          onUpdate: (queued, job) => {
+            const video = targetTrack.videoList.find((item) => item.id === queued.videoId);
+            if (!video) return;
+            if (job.status === "succeeded") video.state = "已完成";
+            else if (isGenerationTerminalFailure(job)) {
+              video.state = "生成失败";
+              video.errorReason = job.errorMessage || generationJobStatusLabels[job.status];
+            }
+          },
+        });
+        const queued = tracking.items[0];
+        if (!queued?.videoId) throw new Error("视频任务未返回视频记录 ID");
         window.$message.success($t("workbench.generate.generateStarted"));
-        currentTrack.value.videoList.push({
-          id: data,
+        targetTrack.videoList.push({
+          id: queued.videoId,
           state: "生成中",
           src: "",
         });
+        assertGenerationJobsSucceeded(await tracking.done);
+        await getVideoList();
       } catch (e) {
+        if ((e as Error)?.name === "AbortError") return;
         window.$message.error((e as any)?.message ?? "视频发起生成请求失败");
       } finally {
       }
@@ -531,6 +575,7 @@ watch(
   },
 );
 onUnmounted(() => {
+  generationTrackingController.abort();
   stopPoll();
   stopPromptPoll();
 });

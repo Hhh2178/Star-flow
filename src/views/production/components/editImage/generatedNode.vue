@@ -9,7 +9,7 @@
       <div class="image">
         <div v-if="generating" class="imageLoading">
           <div class="loadingSpinner"></div>
-          <span class="loadingText">{{ $t("workbench.production.editImage.generating") }}</span>
+          <span class="loadingText">{{ generationStatusText || $t("workbench.production.editImage.generating") }}</span>
         </div>
         <div v-else class="imageWrapper">
           <t-image class="image" :src="data.generatedImage" fit="contain" :class="['nodeImage', { selected }]">
@@ -87,12 +87,19 @@ import type { Storyboard } from "../../utils/flowBuilder";
 import openAssetsSelector from "@/utils/assetsCheck";
 import { useFileDialog } from "@vueuse/core";
 import projectStore from "@/stores/project";
+import {
+  assertGenerationJobsSucceeded,
+  generationJobStatusLabels,
+  startGenerationJobTracking,
+} from "@/utils/generationJobTracker";
 const { project } = storeToRefs(projectStore());
 const openStoryboardCheck = inject<() => Promise<Storyboard[]>>("openStoryboardCheck")!;
 const { open, onChange, onCancel } = useFileDialog({ multiple: false, reset: true, accept: ".png,.jpg,.jpeg" });
 
 const selected = ref(true);
 const generating = ref(false);
+const generationStatusText = ref("");
+const generationTrackingController = new AbortController();
 const episodesId = inject<Ref<number>>("episodesId")!;
 
 const emit = defineEmits(["keep"]);
@@ -186,11 +193,24 @@ async function handleGenerate() {
       prompt: props.data.prompt,
       projectId: props.projectId,
     });
-    props.data.generatedImage = data.url;
+    const tracking = startGenerationJobTracking(data, {
+      signal: generationTrackingController.signal,
+      onUpdate: (_queued, job) => {
+        generationStatusText.value = job.queuePosition
+          ? `${generationJobStatusLabels[job.status]}（第 ${job.queuePosition} 位）`
+          : generationJobStatusLabels[job.status];
+      },
+    });
+    const results = await tracking.done;
+    assertGenerationJobsSucceeded(results);
+    const result = results[0]?.result as { path?: string } | null;
+    if (!result?.path) throw new Error("图片任务已完成，但未返回图片地址");
+    props.data.generatedImage = result.path;
   } catch (e) {
     return window.$message.error((e as any)?.message || $t("workbench.production.editImage.generateFailed"));
   } finally {
     generating.value = false;
+    generationStatusText.value = "";
   }
 }
 
@@ -203,6 +223,7 @@ onMounted(() => {
   props.data.quality = project.value?.imageQuality ?? "";
   props.data.ratio = project.value?.videoRatio ?? "16:9";
 });
+onUnmounted(() => generationTrackingController.abort());
 </script>
 
 <style lang="scss" scoped>

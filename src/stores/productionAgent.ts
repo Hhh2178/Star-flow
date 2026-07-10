@@ -5,9 +5,31 @@ import { useChat } from "@/utils/useChat";
 import type { FlowData, Storyboard } from "@/views/production/utils/flowBuilder";
 import type { ChatMessagesData } from "@tdesign-vue-next/chat";
 import { useThrottleFn } from "@vueuse/core";
+import {
+  assertGenerationJobsSucceeded,
+  startGenerationJobTracking,
+  type GenerationJobDetail,
+} from "@/utils/generationJobTracker";
 
 function makeProductionAgentStore(projectId: string) {
   return defineStore(`productionAgent-${projectId}`, () => {
+    let generationTrackingController = new AbortController();
+
+    function resetGenerationTrackingController() {
+      if (generationTrackingController.signal.aborted) generationTrackingController = new AbortController();
+      return generationTrackingController;
+    }
+
+    function stopGenerationTracking() {
+      generationTrackingController.abort();
+      generationTrackingController = new AbortController();
+    }
+
+    function generationState(job: GenerationJobDetail): "生成中" | "已完成" | "生成失败" {
+      if (job.status === "succeeded") return "已完成";
+      if (["failed", "cancelled", "needs_attention"].includes(job.status)) return "生成失败";
+      return "生成中";
+    }
     const defMsg: ChatMessagesData[] = [
       {
         id: "welcome",
@@ -237,26 +259,25 @@ function makeProductionAgentStore(projectId: string) {
           scriptId: episodesId.value,
           projectId: projectId,
           storyboardIds: allIds,
-          concurrentCount: settingStore().otherSetting.assetsBatchGenereateSize,
           compulsory,
         });
-        if (data) {
-          if (flowData.value.storyboard.length === 0) {
-            flowData.value.storyboard = data;
-            return data;
-          } else {
-            flowData.value.storyboard.forEach((item) => {
-              const findData = data.find((i: any) => i.id == item.id);
-              if (findData) {
-                item.state = findData.state;
-                item.src = findData.src;
-              }
-            });
-          }
-        }
-        return data;
+        const tracking = startGenerationJobTracking(data, {
+          signal: resetGenerationTrackingController().signal,
+          onUpdate: (queued, job) => {
+            const item = flowData.value.storyboard.find((storyboard) => storyboard.id === queued.targetId);
+            if (!item) return;
+            item.state = generationState(job);
+            if (item.state === "生成失败") item.reason = job.errorMessage || "生成任务未完成";
+          },
+        });
+        const results = await tracking.done;
+        assertGenerationJobsSucceeded(results);
+        await pollStoryboardImages();
+        return flowData.value.storyboard.filter((item) => item.id != null && allIds.includes(item.id));
       } catch (e) {
+        if ((e as Error)?.name === "AbortError") return [];
         window.$message.error((e as any)?.message);
+        throw e;
       }
     }
     async function batchGenerateAssets(allIds: number[]) {
@@ -274,24 +295,27 @@ function makeProductionAgentStore(projectId: string) {
           assetIds: allIds,
           projectId: projectId,
           scriptId: episodesId.value,
-          concurrentCount: settingStore().otherSetting.assetsBatchGenereateSize,
         });
-        if (data) {
-          data.forEach((record: { id: number; state: "未生成" | "生成中" | "已完成" | "生成失败"; src: string }) => {
-            flowData.value.assets.forEach((asset) => {
-              if (asset.derive) {
-                asset.derive.forEach((derive) => {
-                  if (derive.id === record.id) {
-                    derive.state = record.state;
-                    derive.src = record.src;
-                  }
-                });
-              }
-            });
-          });
-        }
-        return data;
-      } catch (e) {}
+        const tracking = startGenerationJobTracking(data, {
+          signal: resetGenerationTrackingController().signal,
+          onUpdate: (queued, job) => {
+            for (const asset of flowData.value.assets) {
+              const derive = asset.derive?.find((item) => item.id === queued.targetId);
+              if (!derive) continue;
+              derive.state = generationState(job);
+              if (derive.state === "生成失败") derive.errorReason = job.errorMessage || "生成任务未完成";
+            }
+          },
+        });
+        const results = await tracking.done;
+        assertGenerationJobsSucceeded(results);
+        await pollAssetsImages();
+        return flowData.value.assets.flatMap((asset) => asset.derive ?? []).filter((item) => allIds.includes(item.id));
+      } catch (e) {
+        if ((e as Error)?.name === "AbortError") return [];
+        window.$message.error((e as any)?.message || "资产图片生成失败");
+        throw e;
+      }
     }
     const assetsNotStateImageIds = computed(() => {
       const ids: number[] = [];
@@ -504,6 +528,7 @@ function makeProductionAgentStore(projectId: string) {
       episodesId,
       stopAssetsPolling,
       stopStoryboardPolling,
+      stopGenerationTracking,
       updateContext,
       getHistory,
       loadingHistory,

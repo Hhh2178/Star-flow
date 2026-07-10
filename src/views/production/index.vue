@@ -252,6 +252,12 @@ onMounted(async () => {
   }
 });
 
+onUnmounted(() => {
+  productionAgentStore().stopGenerationTracking();
+  productionAgentStore().stopAssetsPolling();
+  productionAgentStore().stopStoryboardPolling();
+});
+
 const episodesOptions = ref<{ label: string; value: number }[]>([]);
 function confirmEpisodesSwitch() {
   if (status.value !== "pending" && status.value !== "streaming") {

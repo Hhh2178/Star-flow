@@ -74,9 +74,13 @@ import axios from "@/utils/axios";
 import projectStore from "@/stores/project";
 import imageListCacheStore from "@/stores/imageListCache";
 import JSZip from "jszip";
-import settingStore from "@/stores/setting";
+import {
+  assertGenerationJobsSucceeded,
+  generationJobStatusLabels,
+  startGenerationJobTracking,
+  type GenerationJobDetail,
+} from "@/utils/generationJobTracker";
 
-const { otherSetting } = storeToRefs(settingStore());
 const { project } = storeToRefs(projectStore());
 const { removeCache } = imageListCacheStore();
 const episodesId = inject<Ref<number>>("episodesId")!;
@@ -98,6 +102,11 @@ const emit = defineEmits<{
   saveImageList: [trackId: number];
 }>();
 const checkAll = ref(false); // 全选状态
+const generationTrackingController = new AbortController();
+
+function isGenerationTerminalFailure(job: GenerationJobDetail) {
+  return ["failed", "cancelled", "needs_attention"].includes(job.status);
+}
 
 /** 视频封面缓存 src -> dataURL */
 const videoCoverMap = ref<Record<string, string>>({});
@@ -241,7 +250,7 @@ async function batchDownloadVideo(): Promise<void> {
   checkAll.value = false;
 }
 const generateTextLoad = ref(false);
-function batchGenText() {
+async function batchGenText() {
   generateTextLoad.value = true;
   const trackData: any[] = [];
   trackList.value.forEach((track, index) => {
@@ -259,27 +268,35 @@ function batchGenText() {
     });
     track.state = "生成中";
   });
-  axios
-    .post("/production/workbench/batchGeneratePrompt", {
+  try {
+    const { data } = await axios.post("/production/workbench/batchGeneratePrompt", {
       projectId: project.value?.id,
       trackData,
       model: props.modelParmas.model,
       mode: props.modelParmas.mode,
-      concurrentCount: otherSetting.value.assetsBatchGenereateSize,
-    })
-    .then(({ data }) => {
-      window.$message.success("开始生成提示词");
-      generateTextLoad.value = false;
-      checkedTrackIds.value = [];
-      checkAll.value = false;
-    })
-    .catch((e) => {
-      window.$message.error(e?.message ?? "生成提示词失败");
-      trackList.value.forEach((i) => {
-        i.state = "生成失败";
-      });
-    })
-    .finally(() => {});
+    });
+    const tracking = startGenerationJobTracking(data, {
+      signal: generationTrackingController.signal,
+      onUpdate: (queued, job) => {
+        const track = trackList.value.find((item) => item.id === queued.targetId);
+        if (!track) return;
+        track.state = job.status === "succeeded" ? "已完成" : isGenerationTerminalFailure(job) ? "生成失败" : "生成中";
+        track.reason = job.queuePosition
+          ? `${generationJobStatusLabels[job.status]}，队列第 ${job.queuePosition} 位`
+          : job.errorMessage || generationJobStatusLabels[job.status];
+        const result = job.result as { prompt?: string } | null;
+        if (job.status === "succeeded" && result?.prompt) track.prompt = result.prompt;
+      },
+    });
+    window.$message.success("提示词任务已加入队列");
+    assertGenerationJobsSucceeded(await tracking.done);
+    checkedTrackIds.value = [];
+    checkAll.value = false;
+  } catch (e) {
+    if ((e as Error)?.name !== "AbortError") window.$message.error((e as Error)?.message ?? "生成提示词失败");
+  } finally {
+    generateTextLoad.value = false;
+  }
 }
 /**
  * 获取指定轨道的上传数据：
@@ -311,6 +328,7 @@ function batchGenVideo() {
       const checkedTrackData = trackList.value.filter((track) => checkedTrackIds.value.includes(track.id));
       const notHasPrompt = checkedTrackData.filter((i) => !i.prompt);
       if (notHasPrompt.length) return window.$message.warning($t("workbench.generate.skipDataWithEmptyVideoPromptWords"));
+      generateVideoLoad.value = true;
 
       const trackData = checkedTrackData.map((track) => {
         const trackId = track.id;
@@ -333,22 +351,29 @@ function batchGenVideo() {
       };
       try {
         const { data } = await axios.post("/production/workbench/batchGenerateVideo", requestData);
-        const videoRecordId: Record<number, number> = {};
-        data.forEach((item: { videoId: number; trackId: number }) => {
-          videoRecordId[item.trackId] = item.videoId;
+        const tracking = startGenerationJobTracking(data, {
+          signal: generationTrackingController.signal,
+          onUpdate: (queued, job) => {
+            const track = checkedTrackData.find((item) => item.id === queued.targetId);
+            const video = track?.videoList.find((item) => item.id === queued.videoId);
+            if (!video) return;
+            if (job.status === "succeeded") video.state = "已完成";
+            else if (isGenerationTerminalFailure(job)) {
+              video.state = "生成失败";
+              video.errorReason = job.errorMessage || generationJobStatusLabels[job.status];
+            }
+          },
         });
-        checkedTrackData.forEach((i) => {
-          if (videoRecordId[i.id])
-            i.videoList.push({
-              id: videoRecordId[i.id],
-              state: "生成中",
-              src: "",
-            });
-        });
+        for (const queued of tracking.items) {
+          const track = checkedTrackData.find((item) => item.id === queued.targetId);
+          if (track && queued.videoId) track.videoList.push({ id: queued.videoId, state: "生成中", src: "" });
+        }
         checkedTrackIds.value = [];
         window.$message.success($t("workbench.generate.generateStarted"));
+        assertGenerationJobsSucceeded(await tracking.done);
+        emit("getData");
       } catch (e) {
-        window.$message.error((e as any)?.message ?? $t("workbench.generate.generateError"));
+        if ((e as Error)?.name !== "AbortError") window.$message.error((e as any)?.message ?? $t("workbench.generate.generateError"));
       } finally {
         generateVideoLoad.value = false;
       }
@@ -356,6 +381,8 @@ function batchGenVideo() {
     onCancel: () => dlg.destroy(),
   });
 }
+
+onUnmounted(() => generationTrackingController.abort());
 
 /** 全选 / 取消全选轨道 */
 function handleCheckAll(val: boolean) {

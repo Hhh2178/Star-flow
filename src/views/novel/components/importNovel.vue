@@ -58,7 +58,10 @@
                   </t-tooltip>
                 </template>
               </t-table>
-              <div class="selectedInfo">{{ $t("workbench.novel.import.selectedInfo", { count: selectedTextLength }) }}</div>
+              <div class="selectedInfo">
+                <span>{{ $t("workbench.novel.import.selectedInfo", { count: selectedTextLength }) }}</span>
+                <span v-if="jobStatusText">{{ jobStatusText }}</span>
+              </div>
               <div style="margin-top: 16px; text-align: right">
                 <t-button variant="outline" @click="activeKey = 'To1'">{{ $t("workbench.novel.import.prevStep") }}</t-button>
                 <t-button theme="primary" style="margin-left: 10px" :loading="nextLoading" @click="keep">
@@ -80,6 +83,11 @@ import parseNovel from "@/utils/parseNovel";
 import mammoth from "mammoth";
 import type { UploadFile, PrimaryTableCol, TableRowData } from "tdesign-vue-next";
 import projectStore from "@/stores/project";
+import {
+  assertGenerationJobsSucceeded,
+  generationJobStatusLabels,
+  startGenerationJobTracking,
+} from "@/utils/generationJobTracker";
 const { project } = storeToRefs(projectStore());
 interface ChapterItem {
   index: number;
@@ -97,6 +105,8 @@ const fileList = ref<any[]>([]);
 const selectedRowKeys = ref<number[]>([]);
 
 const nextLoading = ref(false);
+const jobStatusText = ref("");
+const generationTrackingController = new AbortController();
 
 const columns: PrimaryTableCol<TableRowData>[] = [
   { colKey: "row-select", type: "multiple", width: 60 },
@@ -206,16 +216,25 @@ async function keep() {
     return;
   }
   try {
-    await axios.post("/novel/addNovel", { projectId: project.value?.id, data: selectedRows.value });
-    nextLoading.value = false;
+    const { data } = await axios.post("/novel/addNovel", { projectId: project.value?.id, data: selectedRows.value });
+    const tracking = startGenerationJobTracking(data, {
+      signal: generationTrackingController.signal,
+      onUpdate: (_queued, job) => {
+        jobStatusText.value = job.queuePosition
+          ? `${generationJobStatusLabels[job.status]}，队列第 ${job.queuePosition} 位`
+          : generationJobStatusLabels[job.status];
+      },
+    });
+    window.$message.info("原文已导入，事件提取正在队列中执行");
+    assertGenerationJobsSucceeded(await tracking.done);
     emit("select");
     window.$message.success($t("workbench.novel.import.msg.saveSuccess"));
+    purgeNovelShow.value = false;
   } catch (e) {
+    if ((e as Error)?.name === "AbortError") return;
     window.$message.error((e as Error).message);
-    nextLoading.value = false;
   } finally {
     nextLoading.value = false;
-    purgeNovelShow.value = false;
   }
 }
 //关闭弹窗时重置数据
@@ -225,8 +244,10 @@ watch(purgeNovelShow, (newVal) => {
     fileList.value = [];
     selectedRowKeys.value = [];
     activeKey.value = "To1";
+    jobStatusText.value = "";
   }
 });
+onUnmounted(() => generationTrackingController.abort());
 </script>
 
 <style lang="scss" scoped>
