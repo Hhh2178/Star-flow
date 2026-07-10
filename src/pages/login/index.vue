@@ -50,6 +50,7 @@ import axios from "@/utils/axios";
 import settingStore from "@/stores/setting";
 import { storeToRefs } from "pinia";
 import { languageList, cachedLocale } from "@/locales";
+import userStore from "@/stores/user";
 
 const { locale } = useI18n();
 const langOptions = languageList.map((item) => ({
@@ -63,6 +64,7 @@ const handleChangeLang = (data) => {
 
 const store = settingStore();
 const { baseUrl, isElectron } = storeToRefs(store);
+const currentUserStore = userStore();
 
 const showSettingModal = ref(false);
 const tempBaseUrl = ref(baseUrl.value);
@@ -96,7 +98,7 @@ const handleLogin = () => {
   axios
     .post("/login/login", obj)
     .then(({ data }) => {
-      localStorage.setItem("token", data.token);
+      currentUserStore.setToken(data.token);
       localStorage.setItem("userId", data.id);
       Router.push("/project");
       window.$message.success($t("login.loginSuccess"));

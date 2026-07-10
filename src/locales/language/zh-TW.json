@@ -59,7 +59,8 @@
       "promptManage": "提示詞管理",
       "skillManagement": "Skills技能管理",
       "memoryConfig": "Agent 記憶設定",
-      "loginConfig": "登入設定",
+      "loginConfig": "個人資料",
+      "userManagement": "使用者管理",
       "dbConfig": "資料庫操作",
       "fileManagement": "檔案管理",
       "otherConfig": "其他設定",
@@ -264,6 +265,8 @@
       "usernamePlaceholder": "請輸入使用者名稱",
       "password": "密碼",
       "passwordPlaceholder": "請輸入密碼",
+      "optionalPasswordPlaceholder": "留空則不修改密碼",
+      "mustChangePassword": "目前密碼是臨時密碼，請在此頁設定新密碼。",
       "modify": "修改",
       "msg": {
         "enterUsername": "請輸入使用者名稱",
@@ -273,6 +276,34 @@
         "fetchFailed": "取得使用者資訊失敗",
         "saveSuccess": "儲存成功",
         "saveFailed": "儲存失敗"
+      }
+    },
+    "userManagement": {
+      "addUser": "新增使用者",
+      "refresh": "重新整理",
+      "username": "使用者名稱",
+      "temporaryPassword": "臨時密碼",
+      "role": "角色",
+      "status": "狀態",
+      "enabled": "啟用",
+      "disabled": "停用",
+      "mustChangePassword": "需改密碼",
+      "lastLogin": "最後登入",
+      "actions": "操作",
+      "editUser": "編輯使用者",
+      "resetPassword": "重設密碼",
+      "yes": "是",
+      "no": "否",
+      "never": "從未登入",
+      "fetchFailed": "取得使用者列表失敗",
+      "createSuccess": "使用者建立成功",
+      "updateSuccess": "使用者更新成功",
+      "resetSuccess": "臨時密碼已重設",
+      "saveFailed": "儲存使用者失敗",
+      "roles": {
+        "super_admin": "超級管理員",
+        "admin": "管理員",
+        "creator": "創作人員"
       }
     },
     "db": {

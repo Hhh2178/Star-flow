@@ -2,7 +2,7 @@
   <t-dialog :header="$t('settings.title')" :footer="false" placement="center" width="1200px" v-model:visible="showSetting">
     <div class="settingPanel">
       <t-menu class="settingMenu" v-model:value="activeMenu" :style="{ height: '70vh' }">
-        <t-menu-item v-for="item in menuItems" :key="item.key" :value="item.key">
+        <t-menu-item v-for="item in visibleMenuItems" :key="item.key" :value="item.key">
           <template #icon>
             <t-badge :count="needUpdate && item.key === 'about' ? 1 : 0" dot>
               <component :is="item.icon" class="icon" />
@@ -19,6 +19,7 @@
           <vendorConfig v-if="activeMenu === 'vendorConfig'" />
           <requestConfig v-if="activeMenu === 'requestConfig'" />
           <loginConfig v-if="activeMenu === 'loginConfig'" />
+          <userManagement v-if="activeMenu === 'userManagement'" />
           <agentConfog v-if="activeMenu === 'agentConfog'" />
           <promptManage v-if="activeMenu === 'promptManage'" />
           <otherConfig v-if="activeMenu === 'otherConfig'" />
@@ -39,6 +40,11 @@
 <script setup lang="ts">
 import settingStore from "@/stores/setting";
 const { showSetting, activeMenu, needUpdate } = storeToRefs(settingStore());
+import userStore from "@/stores/user";
+import { getVisibleSettingMenuItems } from "./permissions";
+
+const currentUserStore = userStore();
+const { currentUser } = storeToRefs(currentUserStore);
 
 import uiConfig from "./components/uiConfig.vue";
 import languageConfig from "./components/languageConfig.vue";
@@ -56,27 +62,33 @@ import skillManagement from "./components/skillManagement.vue";
 import devConfig from "./components/devConfig.vue";
 import promptManage from "./components/promptManage.vue";
 import modelMap from "./components/modelMap.vue";
+import userManagement from "./components/userManagement.vue";
 
-const menuItems = [
-  { key: "ui", label: "settings.menu.ui", icon: "i-theme" },
-  { key: "language", label: "settings.menu.language", icon: "i-translate" },
-  { key: "vendorConfig", label: "settings.menu.vendorConfig", icon: "i-computer" },
-  { key: "modelMap", label: "settings.menu.modelMap", icon: "i-computer" },
-  { key: "agentConfog", label: "settings.menu.agentConfig", icon: "i-color-filter" },
-  { key: "promptManage", label: "settings.menu.promptManage", icon: "i-tips" },
-  { key: "skillManagement", label: "settings.menu.skillsSkillsManagement", icon: "i-ring" },
-  { key: "memoryConfig", label: "settings.menu.memoryConfig", icon: "i-memory-card-one" },
-  { key: "loginConfig", label: "settings.menu.loginConfig", icon: "i-lock" },
-  { key: "dbConfig", label: "settings.menu.dbConfig", icon: "i-data" },
-  { key: "fileManagement", label: "settings.menu.fileManagement", icon: "i-hard-disk" },
-  { key: "otherConfig", label: "settings.menu.otherConfig", icon: "i-application-menu" },
-  { key: "requestConfig", label: "settings.menu.requestConfig", icon: "i-api" },
-  { key: "devConfig", label: "settings.menu.devConfig", icon: "i-flask" },
-  { key: "about", label: "settings.menu.about", icon: "i-info" },
-  { key: "logoutConfig", label: "settings.menu.logoutConfig", icon: "i-logout" },
-];
+const visibleMenuItems = computed(() => getVisibleSettingMenuItems(currentUser.value?.role));
 
-const currentMenuItem = computed(() => menuItems.find((item) => item.key === activeMenu.value));
+function ensureActiveMenu() {
+  if (!visibleMenuItems.value.some((item) => item.key === activeMenu.value)) {
+    activeMenu.value = visibleMenuItems.value[0]?.key || "ui";
+  }
+}
+
+const currentMenuItem = computed(() => visibleMenuItems.value.find((item) => item.key === activeMenu.value));
+
+watch(
+  showSetting,
+  async (visible) => {
+    if (!visible) return;
+    try {
+      await currentUserStore.fetchCurrentUser();
+    } catch {
+      window.$message.error($t("settings.login.msg.fetchFailed"));
+    }
+    ensureActiveMenu();
+  },
+  { immediate: true },
+);
+
+watch(currentUser, ensureActiveMenu);
 </script>
 
 <style lang="scss" scoped>

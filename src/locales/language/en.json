@@ -51,7 +51,8 @@
       "promptManage": "Prompt Management",
       "skillManagement": "skillsSkillsManagement",
       "memoryConfig": "Agent Memory",
-      "loginConfig": "Login Config",
+      "loginConfig": "Profile",
+      "userManagement": "User Management",
       "dbConfig": "Database",
       "fileManagement": "File Management",
       "otherConfig": "Other Config",
@@ -258,6 +259,8 @@
       "usernamePlaceholder": "Please enter username",
       "password": "Password",
       "passwordPlaceholder": "Please enter password",
+      "optionalPasswordPlaceholder": "Leave blank to keep the current password",
+      "mustChangePassword": "Your current password is temporary. Set a new password here.",
       "modify": "Modify",
       "msg": {
         "enterUsername": "Please enter username",
@@ -267,6 +270,34 @@
         "fetchFailed": "Failed to fetch user information",
         "saveSuccess": "Saved successfully",
         "saveFailed": "Failed to save"
+      }
+    },
+    "userManagement": {
+      "addUser": "Add User",
+      "refresh": "Refresh",
+      "username": "Username",
+      "temporaryPassword": "Temporary Password",
+      "role": "Role",
+      "status": "Status",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "mustChangePassword": "Password Change",
+      "lastLogin": "Last Login",
+      "actions": "Actions",
+      "editUser": "Edit User",
+      "resetPassword": "Reset Password",
+      "yes": "Yes",
+      "no": "No",
+      "never": "Never",
+      "fetchFailed": "Failed to fetch users",
+      "createSuccess": "User created",
+      "updateSuccess": "User updated",
+      "resetSuccess": "Temporary password reset",
+      "saveFailed": "Failed to save user",
+      "roles": {
+        "super_admin": "Super Admin",
+        "admin": "Admin",
+        "creator": "Creator"
       }
     },
     "db": {

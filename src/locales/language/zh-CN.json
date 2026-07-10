@@ -90,7 +90,8 @@
       "promptManage": "提示词管理",
       "skillManagement": "Skills技能管理",
       "memoryConfig": "Agent记忆配置",
-      "loginConfig": "登录配置",
+      "loginConfig": "个人资料",
+      "userManagement": "用户管理",
       "dbConfig": "数据库操作",
       "fileManagement": "文件管理",
       "otherConfig": "其他配置",
@@ -350,6 +351,8 @@
       "usernamePlaceholder": "请输入用户名",
       "password": "密码",
       "passwordPlaceholder": "请输入密码",
+      "optionalPasswordPlaceholder": "留空则不修改密码",
+      "mustChangePassword": "当前密码是临时密码，请在本页设置新密码。",
       "modify": "修改",
       "msg": {
         "enterUsername": "请输入用户名",
@@ -359,6 +362,34 @@
         "fetchFailed": "获取用户信息失败",
         "saveSuccess": "保存成功",
         "saveFailed": "保存失败"
+      }
+    },
+    "userManagement": {
+      "addUser": "新增用户",
+      "refresh": "刷新",
+      "username": "用户名",
+      "temporaryPassword": "临时密码",
+      "role": "角色",
+      "status": "状态",
+      "enabled": "启用",
+      "disabled": "停用",
+      "mustChangePassword": "需改密码",
+      "lastLogin": "最后登录",
+      "actions": "操作",
+      "editUser": "编辑用户",
+      "resetPassword": "重置密码",
+      "yes": "是",
+      "no": "否",
+      "never": "从未登录",
+      "fetchFailed": "获取用户列表失败",
+      "createSuccess": "用户创建成功",
+      "updateSuccess": "用户更新成功",
+      "resetSuccess": "临时密码已重置",
+      "saveFailed": "保存用户失败",
+      "roles": {
+        "super_admin": "超级管理员",
+        "admin": "管理员",
+        "creator": "创作人员"
       }
     },
     "db": {

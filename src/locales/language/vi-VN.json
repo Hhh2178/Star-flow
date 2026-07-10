@@ -50,7 +50,8 @@
       "promptManage": "Quản lý Prompt",
       "skillManagement": "Quản lý kĩ năng",
       "memoryConfig": "Cấu hình bộ nhớ Agent",
-      "loginConfig": "Cấu hình đăng nhập",
+      "loginConfig": "Hồ sơ",
+      "userManagement": "Quản lý người dùng",
       "dbConfig": "Thao tác cơ sở dữ liệu",
       "fileManagement": "Quản lý tệp",
       "otherConfig": "Cấu hình khác",
@@ -256,6 +257,8 @@
       "usernamePlaceholder": "Vui lòng nhập tên người dùng",
       "password": "Mật khẩu",
       "passwordPlaceholder": "Vui lòng nhập mật khẩu",
+      "optionalPasswordPlaceholder": "Để trống nếu không đổi mật khẩu",
+      "mustChangePassword": "Mật khẩu hiện tại là mật khẩu tạm thời. Hãy đặt mật khẩu mới.",
       "modify": "Sửa đổi",
       "msg": {
         "enterUsername": "Vui lòng nhập tên người dùng",
@@ -265,6 +268,34 @@
         "fetchFailed": "Lấy thông tin người dùng thất bại",
         "saveSuccess": "Lưu thành công",
         "saveFailed": "Lưu thất bại"
+      }
+    },
+    "userManagement": {
+      "addUser": "Thêm người dùng",
+      "refresh": "Làm mới",
+      "username": "Tên người dùng",
+      "temporaryPassword": "Mật khẩu tạm thời",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "enabled": "Đã bật",
+      "disabled": "Đã tắt",
+      "mustChangePassword": "Đổi mật khẩu",
+      "lastLogin": "Đăng nhập cuối",
+      "actions": "Thao tác",
+      "editUser": "Sửa người dùng",
+      "resetPassword": "Đặt lại mật khẩu",
+      "yes": "Có",
+      "no": "Không",
+      "never": "Chưa đăng nhập",
+      "fetchFailed": "Không thể tải danh sách người dùng",
+      "createSuccess": "Đã tạo người dùng",
+      "updateSuccess": "Đã cập nhật người dùng",
+      "resetSuccess": "Đã đặt lại mật khẩu tạm thời",
+      "saveFailed": "Không thể lưu người dùng",
+      "roles": {
+        "super_admin": "Quản trị tối cao",
+        "admin": "Quản trị viên",
+        "creator": "Người sáng tạo"
       }
     },
     "db": {

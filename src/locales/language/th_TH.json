@@ -51,7 +51,8 @@
       "promptManage": "การจัดการพรอมต์",
       "skillManagement": "จัดการซิลเลคต",
       "memoryConfig": "หน่วยความจำ Agent",
-      "loginConfig": "การตั้งค่าเข้าสู่ระบบ",
+      "loginConfig": "โปรไฟล์",
+      "userManagement": "จัดการผู้ใช้",
       "dbConfig": "จัดการฐานข้อมูล",
       "fileManagement": "จัดการไฟล์",
       "otherConfig": "การตั้งค่าอื่นๆ",
@@ -257,6 +258,8 @@
       "usernamePlaceholder": "โปรดกรอกชื่อผู้ใช้",
       "password": "รหัสผ่าน",
       "passwordPlaceholder": "โปรดกรอกรหัสผ่าน",
+      "optionalPasswordPlaceholder": "เว้นว่างไว้หากไม่เปลี่ยนรหัสผ่าน",
+      "mustChangePassword": "รหัสผ่านปัจจุบันเป็นรหัสผ่านชั่วคราว โปรดตั้งรหัสผ่านใหม่",
       "modify": "แก้ไข",
       "msg": {
         "enterUsername": "โปรดกรอกชื่อผู้ใช้",
@@ -266,6 +269,34 @@
         "fetchFailed": "ดึงข้อมูลผู้ใช้ล้มเหลว",
         "saveSuccess": "บันทึกสำเร็จ",
         "saveFailed": "บันทึกล้มเหลว"
+      }
+    },
+    "userManagement": {
+      "addUser": "เพิ่มผู้ใช้",
+      "refresh": "รีเฟรช",
+      "username": "ชื่อผู้ใช้",
+      "temporaryPassword": "รหัสผ่านชั่วคราว",
+      "role": "บทบาท",
+      "status": "สถานะ",
+      "enabled": "เปิดใช้งาน",
+      "disabled": "ปิดใช้งาน",
+      "mustChangePassword": "เปลี่ยนรหัสผ่าน",
+      "lastLogin": "เข้าสู่ระบบล่าสุด",
+      "actions": "การทำงาน",
+      "editUser": "แก้ไขผู้ใช้",
+      "resetPassword": "รีเซ็ตรหัสผ่าน",
+      "yes": "ใช่",
+      "no": "ไม่",
+      "never": "ยังไม่เคย",
+      "fetchFailed": "โหลดรายชื่อผู้ใช้ไม่สำเร็จ",
+      "createSuccess": "สร้างผู้ใช้แล้ว",
+      "updateSuccess": "อัปเดตผู้ใช้แล้ว",
+      "resetSuccess": "รีเซ็ตรหัสผ่านชั่วคราวแล้ว",
+      "saveFailed": "บันทึกผู้ใช้ไม่สำเร็จ",
+      "roles": {
+        "super_admin": "ผู้ดูแลระบบสูงสุด",
+        "admin": "ผู้ดูแลระบบ",
+        "creator": "ผู้สร้าง"
       }
     },
     "db": {

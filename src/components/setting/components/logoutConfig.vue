@@ -16,9 +16,11 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { DialogPlugin } from "tdesign-vue-next";
+import userStore from "@/stores/user";
 
 const router = useRouter();
 const loading = ref(false);
+const currentUserStore = userStore();
 
 function openLogoutDialog() {
   const dialog = DialogPlugin.confirm({
@@ -40,9 +42,7 @@ function openLogoutDialog() {
 async function handleLogout() {
   loading.value = true;
   try {
-    // 清除本地存储的token
-    localStorage.removeItem("token");
-    // 清除其他可能的用户数据
+    currentUserStore.clearSession();
     localStorage.removeItem("user");
 
     window.$message.success($t("settings.logout.msg.logoutSuccess"));

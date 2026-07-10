@@ -51,7 +51,8 @@
       "promptManage": "Управление подсказками",
       "skillManagement": "Управление навыками",
       "memoryConfig": "Память Agent",
-      "loginConfig": "Настройки входа",
+      "loginConfig": "Профиль",
+      "userManagement": "Управление пользователями",
       "dbConfig": "База данных",
       "fileManagement": "Управление файлами",
       "otherConfig": "Другие настройки",
@@ -256,6 +257,8 @@
       "usernamePlaceholder": "Введите имя пользователя",
       "password": "Пароль",
       "passwordPlaceholder": "Введите пароль",
+      "optionalPasswordPlaceholder": "Оставьте пустым, чтобы не менять пароль",
+      "mustChangePassword": "Текущий пароль временный. Установите новый пароль.",
       "modify": "Изменить",
       "msg": {
         "enterUsername": "Пожалуйста, введите имя пользователя",
@@ -265,6 +268,34 @@
         "fetchFailed": "Не удалось получить информацию о пользователе",
         "saveSuccess": "Успешно сохранено",
         "saveFailed": "Ошибка сохранения"
+      }
+    },
+    "userManagement": {
+      "addUser": "Добавить пользователя",
+      "refresh": "Обновить",
+      "username": "Имя пользователя",
+      "temporaryPassword": "Временный пароль",
+      "role": "Роль",
+      "status": "Статус",
+      "enabled": "Включен",
+      "disabled": "Отключен",
+      "mustChangePassword": "Смена пароля",
+      "lastLogin": "Последний вход",
+      "actions": "Действия",
+      "editUser": "Изменить пользователя",
+      "resetPassword": "Сбросить пароль",
+      "yes": "Да",
+      "no": "Нет",
+      "never": "Никогда",
+      "fetchFailed": "Не удалось получить пользователей",
+      "createSuccess": "Пользователь создан",
+      "updateSuccess": "Пользователь обновлен",
+      "resetSuccess": "Временный пароль сброшен",
+      "saveFailed": "Не удалось сохранить пользователя",
+      "roles": {
+        "super_admin": "Суперадминистратор",
+        "admin": "Администратор",
+        "creator": "Создатель"
       }
     },
     "db": {

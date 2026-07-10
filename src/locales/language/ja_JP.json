@@ -51,7 +51,8 @@
       "promptManage": "プロンプト管理",
       "skillManagement": "スキル管理",
       "memoryConfig": "Agent メモリ設定",
-      "loginConfig": "ログイン設定",
+      "loginConfig": "プロフィール",
+      "userManagement": "ユーザー管理",
       "dbConfig": "データベース操作",
       "fileManagement": "ファイル管理",
       "otherConfig": "その他の設定",
@@ -257,6 +258,8 @@
       "usernamePlaceholder": "ユーザー名を入力してください",
       "password": "パスワード",
       "passwordPlaceholder": "パスワードを入力してください",
+      "optionalPasswordPlaceholder": "変更しない場合は空欄",
+      "mustChangePassword": "現在のパスワードは一時パスワードです。新しいパスワードを設定してください。",
       "modify": "変更",
       "msg": {
         "enterUsername": "ユーザー名を入力してください",
@@ -266,6 +269,34 @@
         "fetchFailed": "ユーザー情報の取得に失敗しました",
         "saveSuccess": "保存に成功しました",
         "saveFailed": "保存に失敗しました"
+      }
+    },
+    "userManagement": {
+      "addUser": "ユーザー追加",
+      "refresh": "更新",
+      "username": "ユーザー名",
+      "temporaryPassword": "一時パスワード",
+      "role": "ロール",
+      "status": "状態",
+      "enabled": "有効",
+      "disabled": "無効",
+      "mustChangePassword": "パスワード変更",
+      "lastLogin": "最終ログイン",
+      "actions": "操作",
+      "editUser": "ユーザー編集",
+      "resetPassword": "パスワードリセット",
+      "yes": "はい",
+      "no": "いいえ",
+      "never": "未ログイン",
+      "fetchFailed": "ユーザー一覧の取得に失敗しました",
+      "createSuccess": "ユーザーを作成しました",
+      "updateSuccess": "ユーザーを更新しました",
+      "resetSuccess": "一時パスワードをリセットしました",
+      "saveFailed": "ユーザーの保存に失敗しました",
+      "roles": {
+        "super_admin": "スーパー管理者",
+        "admin": "管理者",
+        "creator": "クリエイター"
       }
     },
     "db": {
