@@ -24,13 +24,14 @@ This roadmap breaks the first Stars Flow functional reform into small, verifiabl
 | R0 | Planning and tracking | Establish plans, status table, and update rules | Roadmap, implementation plans, status tracker | Done |
 | R1 | Account/auth foundation | Convert single-admin auth into three-role account foundation | Backend role model, secure login, role helpers | Planned |
 | R2 | Setting-center permissions | Gate the current backend/settings UI by role | User management and role-aware setting center | Planned |
-| R3 | Project ownership and production access | Make project data respect user role and ownership | Scoped project/task/production APIs | Planned |
-| R4 | Production closed-loop audit | Verify and stabilize the existing Toonflow production chain | Runbook, smoke tests, gap list, fixes | Planned |
-| R5 | Provider/admin hardening | Harden model/provider operations after roles exist | Safer provider admin, probes, logs | Deferred |
+| R3 | Separate admin console | Split creator frontend from admin console and move global settings out of creator UI | Admin architecture spec and implementation plan | Replanned |
+| R4 | Project ownership and production access | Make project data respect user role and ownership | Scoped project/task/production APIs | Planned |
+| R5 | Production closed-loop audit | Verify and stabilize the existing Toonflow production chain | Runbook, smoke tests, gap list, fixes | Planned |
+| R6 | Provider/admin hardening | Harden model/provider operations after the admin console boundary exists | Safer provider admin, probes, logs | Deferred |
 
 ## First Batch Scope
 
-The first batch includes R1, R2, R3, and R4. R5 is deferred until the account and project scope foundation exists.
+The first batch now includes R1, R2, R3, R4, and R5. R3 was replanned on 2026-07-10 after the user requested a separate admin console before project-ownership work continues. R6 is deferred until the account, admin-console, and project-scope foundations exist.
 
 ## Status Levels
 
