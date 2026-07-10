@@ -14,6 +14,11 @@ describe("admin common components", () => {
     expect(formatAdminDate(1000)).toBe(ADMIN_DATE_FORMATTER.format(1000));
   });
 
+  it("renders missing timestamps without a Unix epoch date", () => {
+    expect(formatAdminDate(null)).toBe("-");
+    expect(formatAdminDate(undefined)).toBe("-");
+  });
+
   it.each([
     ["queued", "排队中"],
     ["running", "执行中"],

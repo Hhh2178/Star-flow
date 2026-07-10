@@ -43,6 +43,18 @@ export const adminRoutes: RouteRecordRaw[] = [
         meta: { title: "总览", ...ADMIN_ROUTE_ACCESS.home },
       },
       {
+        path: "groups",
+        name: "groups",
+        component: () => import("./pages/GroupsPage.vue"),
+        meta: { title: "分组管理", ...ADMIN_ROUTE_ACCESS.groups },
+      },
+      {
+        path: "users",
+        name: "users",
+        component: () => import("./pages/UsersPage.vue"),
+        meta: { title: "用户管理", ...ADMIN_ROUTE_ACCESS.users },
+      },
+      {
         path: "queue",
         name: "queue",
         component: () => import("./pages/QueuePage.vue"),

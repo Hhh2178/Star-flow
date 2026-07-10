@@ -8,7 +8,7 @@ describe("admin route policy", () => {
     const layoutRoute = adminRoutes.find((route) => route.name === "layout");
 
     expect(ADMIN_HISTORY_BASE).toBe("/admin/");
-    expect(layoutRoute?.children?.map((route) => route.name)).toEqual(["home", "queue", "quota", "audit"]);
+    expect(layoutRoute?.children?.map((route) => route.name)).toEqual(["home", "groups", "users", "queue", "quota", "audit"]);
     expect(
       layoutRoute?.children
         ?.filter((route) => ["queue", "quota", "audit"].includes(String(route.name)))
@@ -23,10 +23,16 @@ describe("admin route policy", () => {
       routes: adminRoutes,
     });
 
-    expect(adminRoutes.some((route) => route.path === "/groups")).toBe(false);
+    expect(adminRoutes.some((route) => route.path === "/projects")).toBe(false);
     expect(fallbackRoute?.redirect).toBe("/");
-    await router.push("/groups");
+    await router.push("/projects");
     expect(router.currentRoute.value).toMatchObject({ path: "/", name: "home" });
+  });
+
+  it("registers groups for Super Admin and users for both admin roles", () => {
+    const layoutRoute = adminRoutes.find((route) => route.name === "layout");
+    expect(layoutRoute?.children?.find((route) => route.name === "groups")?.meta?.roles).toEqual(["super_admin"]);
+    expect(layoutRoute?.children?.find((route) => route.name === "users")?.meta?.roles).toEqual(["admin", "super_admin"]);
   });
 
   it.each(["queue", "quota", "audit"])("allows both admin roles on %s", (routeName) => {

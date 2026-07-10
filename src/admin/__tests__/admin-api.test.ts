@@ -13,6 +13,7 @@ import {
   AdminApiError,
   adjustQuota,
   cancelJob,
+  createUser,
   getPolicies,
   getQuotaOverview,
   listAudit,
@@ -20,6 +21,9 @@ import {
   listJobs,
   listUsers,
   reprioritizeJob,
+  resetUserPassword,
+  updateGroup,
+  updateUser,
   updateGroupPolicy,
   updateUserPolicy,
 } from "../api/adminApi";
@@ -236,6 +240,26 @@ describe("adminApi", () => {
     await expect(updateUserPolicy({ userId: 7, total: 9, text: 1, image: 1, video: 1 })).rejects.toThrow(
       "个人总并发不能超过分组总并发",
     );
+  });
+
+  it("uses typed group and user management request bodies", async () => {
+    client.post
+      .mockResolvedValueOnce(ok(validUser))
+      .mockResolvedValueOnce(ok(validGroup))
+      .mockResolvedValueOnce(ok(validUser))
+      .mockResolvedValueOnce(ok(null));
+
+    await createUser({ name: "创作者乙", password: "Temporary123", role: "creator", groupId: 3 });
+    await updateGroup({ id: 3, name: "内容新一组", creatorLimit: 8, status: "enabled" });
+    await updateUser({ id: 7, status: "disabled" });
+    await resetUserPassword({ id: 7, password: "ResetPass123" });
+
+    expect(client.post.mock.calls).toEqual([
+      ["/admin/users/createUser", { name: "创作者乙", password: "Temporary123", role: "creator", groupId: 3 }],
+      ["/admin/groups/updateGroup", { id: 3, name: "内容新一组", creatorLimit: 8, status: "enabled" }],
+      ["/admin/users/updateUser", { id: 7, status: "disabled" }],
+      ["/admin/users/resetPassword", { id: 7, password: "ResetPass123" }],
+    ]);
   });
 
   it("extracts the stable backend error code from the real error envelope without retaining data", async () => {

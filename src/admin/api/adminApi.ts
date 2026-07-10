@@ -84,6 +84,32 @@ export interface UserDto {
   lastLoginAt: number | null;
 }
 
+export interface CreateUserInput {
+  name: string;
+  password: string;
+  role: UserRole;
+  status?: "enabled" | "disabled";
+  groupId?: number;
+  groupName?: string;
+  creatorLimit?: number;
+}
+
+export interface UpdateUserInput {
+  id: number;
+  name?: string;
+  role?: UserRole;
+  status?: "enabled" | "disabled";
+  groupId?: number;
+}
+
+export interface UpdateGroupInput {
+  id: number;
+  name?: string;
+  adminUserId?: number;
+  creatorLimit?: number;
+  status?: "enabled" | "disabled";
+}
+
 export interface QuotaSummary {
   balance: number;
   totalRecharge: number;
@@ -464,6 +490,22 @@ export function listGroups() {
 
 export function listUsers() {
   return unwrap<UserDto[]>(client.get("/admin/users/listUsers"), (value): value is UserDto[] => isArrayOf(value, isUser));
+}
+
+export function createUser(input: CreateUserInput) {
+  return unwrap<UserDto>(client.post("/admin/users/createUser", input), isUser);
+}
+
+export function updateUser(input: UpdateUserInput) {
+  return unwrap<UserDto>(client.post("/admin/users/updateUser", input), isUser);
+}
+
+export function resetUserPassword(input: { id: number; password: string }) {
+  return unwrap<null>(client.post("/admin/users/resetPassword", input), (value): value is null => value === null);
+}
+
+export function updateGroup(input: UpdateGroupInput) {
+  return unwrap<GroupDto>(client.post("/admin/groups/updateGroup", input), isGroup);
 }
 
 export function getQuotaOverview() {

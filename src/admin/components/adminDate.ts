@@ -6,6 +6,7 @@ export const ADMIN_DATE_FORMATTER = new Intl.DateTimeFormat("zh-CN", {
   minute: "2-digit",
 });
 
-export function formatAdminDate(timestamp: number) {
+export function formatAdminDate(timestamp: number | null | undefined) {
+  if (timestamp === null || timestamp === undefined) return "-";
   return ADMIN_DATE_FORMATTER.format(timestamp);
 }
