@@ -288,6 +288,54 @@ export interface UsageOverview {
   items: UsageListItem[];
 }
 
+export interface AdminCapability {
+  read: boolean;
+  update: boolean;
+}
+
+export interface ProviderOverview {
+  providers: Array<{
+    id: string;
+    name: string;
+    enabled: boolean;
+    configured: boolean;
+    inputs: Array<{ key: string; label: string; type: string; required: boolean; configured: boolean }>;
+    modelCount: number;
+    modelTypes: Array<{ type: string; count: number }>;
+    models: Array<{ name: string; type: string }>;
+  }>;
+  capabilities: AdminCapability;
+}
+
+export interface AiConfigOverview {
+  useMode: "0" | "1";
+  deployments: Array<{
+    id: number;
+    name: string;
+    description: string;
+    vendorId: string | null;
+    model: string | null;
+    modelName: string | null;
+    temperature: number | null;
+    maxOutputTokens: number | null;
+    disabled: boolean;
+    configured: boolean;
+  }>;
+  capabilities: AdminCapability;
+}
+
+export interface SystemOverview {
+  database: { tables: Array<{ name: string; rowCount: number }> };
+  development: { aiDevToolsEnabled: boolean };
+  runtime: { nodeVersion: string; platform: string; environment: string };
+  capabilities: {
+    updateDevelopment: boolean;
+    clearDatabase: boolean;
+    importDatabase: boolean;
+    exportDatabase: boolean;
+  };
+}
+
 export class AdminApiError extends Error {
   constructor(
     message: string,
@@ -560,6 +608,69 @@ function isUsageOverview(value: unknown): value is UsageOverview {
     && isArrayOf(value.items, isUsageItem);
 }
 
+function isAdminCapability(value: unknown): value is AdminCapability {
+  return isRecord(value) && typeof value.read === "boolean" && typeof value.update === "boolean";
+}
+
+function isProviderOverview(value: unknown): value is ProviderOverview {
+  return isRecord(value)
+    && isAdminCapability(value.capabilities)
+    && Array.isArray(value.providers)
+    && value.providers.every((provider) => isRecord(provider)
+      && typeof provider.id === "string"
+      && typeof provider.name === "string"
+      && typeof provider.enabled === "boolean"
+      && typeof provider.configured === "boolean"
+      && Array.isArray(provider.inputs)
+      && provider.inputs.every((input) => isRecord(input)
+        && typeof input.key === "string"
+        && typeof input.label === "string"
+        && typeof input.type === "string"
+        && typeof input.required === "boolean"
+        && typeof input.configured === "boolean")
+      && isInteger(provider.modelCount)
+      && Array.isArray(provider.modelTypes)
+      && provider.modelTypes.every((item) => isRecord(item) && typeof item.type === "string" && isInteger(item.count))
+      && Array.isArray(provider.models)
+      && provider.models.every((model) => isRecord(model) && typeof model.name === "string" && typeof model.type === "string"));
+}
+
+function isAiConfigOverview(value: unknown): value is AiConfigOverview {
+  return isRecord(value)
+    && (value.useMode === "0" || value.useMode === "1")
+    && isAdminCapability(value.capabilities)
+    && Array.isArray(value.deployments)
+    && value.deployments.every((deployment) => isRecord(deployment)
+      && isInteger(deployment.id)
+      && typeof deployment.name === "string"
+      && typeof deployment.description === "string"
+      && isNullableString(deployment.vendorId)
+      && isNullableString(deployment.model)
+      && isNullableString(deployment.modelName)
+      && isNullableNumber(deployment.temperature)
+      && (deployment.maxOutputTokens === null || isInteger(deployment.maxOutputTokens))
+      && typeof deployment.disabled === "boolean"
+      && typeof deployment.configured === "boolean");
+}
+
+function isSystemOverview(value: unknown): value is SystemOverview {
+  return isRecord(value)
+    && isRecord(value.database)
+    && Array.isArray(value.database.tables)
+    && value.database.tables.every((table) => isRecord(table) && typeof table.name === "string" && isInteger(table.rowCount))
+    && isRecord(value.development)
+    && typeof value.development.aiDevToolsEnabled === "boolean"
+    && isRecord(value.runtime)
+    && typeof value.runtime.nodeVersion === "string"
+    && typeof value.runtime.platform === "string"
+    && typeof value.runtime.environment === "string"
+    && isRecord(value.capabilities)
+    && typeof value.capabilities.updateDevelopment === "boolean"
+    && typeof value.capabilities.clearDatabase === "boolean"
+    && typeof value.capabilities.importDatabase === "boolean"
+    && typeof value.capabilities.exportDatabase === "boolean";
+}
+
 function errorCode(value: unknown): string | number | undefined {
   if (typeof value !== "object" || value === null) return undefined;
   const code = (value as { code?: unknown }).code;
@@ -696,4 +807,42 @@ export function listTasks(filters: TaskListFilters = {}) {
 
 export function getUsageOverview(filters: UsageFilters = {}) {
   return unwrap<UsageOverview>(client.get("/admin/usage/getOverview", { params: filters }), isUsageOverview);
+}
+
+export function getProviderOverview() {
+  return unwrap<ProviderOverview>(client.get("/admin/providers/getOverview"), isProviderOverview);
+}
+
+export function updateProvider(input: { id: string; enabled?: boolean; inputValues?: Record<string, string> }) {
+  return unwrap<{ id: string; updated: boolean }>(client.post("/admin/providers/updateProvider", input), (value): value is { id: string; updated: boolean } => isRecord(value) && typeof value.id === "string" && value.updated === true);
+}
+
+export function getAiConfigOverview() {
+  return unwrap<AiConfigOverview>(client.get("/admin/ai-config/getOverview"), isAiConfigOverview);
+}
+
+export function updateAiUseMode(agentUseMode: "0" | "1") {
+  return unwrap<{ agentUseMode: "0" | "1" }>(client.post("/admin/ai-config/updateUseMode", { agentUseMode }), (value): value is { agentUseMode: "0" | "1" } => isRecord(value) && (value.agentUseMode === "0" || value.agentUseMode === "1"));
+}
+
+export function updateAiDeployment(input: AiConfigOverview["deployments"][number]) {
+  const payload = {
+    id: input.id, vendorId: input.vendorId, model: input.model ?? "", modelName: input.modelName ?? "",
+    ...(input.temperature === null ? {} : { temperature: input.temperature }),
+    ...(input.maxOutputTokens === null ? {} : { maxOutputTokens: input.maxOutputTokens }),
+    disabled: input.disabled,
+  };
+  return unwrap<{ id: number; updated: boolean }>(client.post("/admin/ai-config/updateDeployment", payload), (value): value is { id: number; updated: boolean } => isRecord(value) && isInteger(value.id) && value.updated === true);
+}
+
+export function getSystemOverview() {
+  return unwrap<SystemOverview>(client.get("/admin/system/getOverview"), isSystemOverview);
+}
+
+export function updateDevelopmentSettings(aiDevToolsEnabled: boolean) {
+  return unwrap<{ aiDevToolsEnabled: boolean }>(client.post("/admin/system/updateDevelopment", { aiDevToolsEnabled }), (value): value is { aiDevToolsEnabled: boolean } => isRecord(value) && typeof value.aiDevToolsEnabled === "boolean");
+}
+
+export function updateCurrentProfile(input: { name: string; password?: string }) {
+  return unwrap<UserDto>(client.post("/setting/loginConfig/updateUserPwd", input), isUser);
 }

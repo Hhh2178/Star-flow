@@ -1,3 +1,7 @@
+export function resolveRuntimeApiBaseUrl(configuredBaseUrl: string, protocol: string): string {
+  return protocol === "file:" ? configuredBaseUrl : "/api";
+}
+
 export default defineStore(
   "setting",
   () => {
@@ -7,6 +11,7 @@ export default defineStore(
     const activeMenu = ref("ui");
 
     const baseUrl = ref<string>("http://localhost:10588/api");
+    const runtimeBaseUrl = computed(() => resolveRuntimeApiBaseUrl(baseUrl.value, window.location.protocol));
 
     const needUpdate = ref(false);
 
@@ -30,7 +35,7 @@ export default defineStore(
 
     const language = ref<string>("zh-CN");
 
-    return { showSetting, baseUrl, otherSetting, themeSetting, language, activeMenu, isElectron, canvasWheelEvent, needUpdate };
+    return { showSetting, baseUrl, runtimeBaseUrl, otherSetting, themeSetting, language, activeMenu, isElectron, canvasWheelEvent, needUpdate };
   },
   { persist: { pick: ["baseUrl", "otherSetting", "themeSetting", "language"] } },
 );

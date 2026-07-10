@@ -72,13 +72,14 @@
       <div class="section-heading"><h2 id="concurrency-title">并发策略</h2><span>总量与文本、图片、视频限制同时生效</span></div>
       <LoadingState v-if="targetLoading" data-testid="target-loading" text="加载并发目标..." />
       <ErrorState v-else-if="targetError" data-testid="target-error" :message="targetError" retryable @retry="loadTargets" />
-      <div v-else-if="hasConcurrencyTarget" class="target-content">
+      <div v-else-if="groups.length > 0" class="target-content">
         <div class="target-grid">
           <label><span>目标分组</span><t-select data-testid="concurrency-group" v-model="selectedGroupId" :options="groupOptions" :disabled="!isSuperAdmin" @change="handleGroupChange" /></label>
-          <label><span>目标用户</span><t-select data-testid="concurrency-user" v-model="selectedUserId" :options="concurrencyUserOptions" @change="loadPolicies" /></label>
+          <label><span>目标用户</span><t-select data-testid="concurrency-user" v-model="selectedUserId" :options="concurrencyUserOptions" :disabled="concurrencyUserOptions.length === 0" @change="loadPolicies" /></label>
         </div>
 
-        <LoadingState v-if="policiesLoading" text="加载并发策略..." />
+        <EmptyState v-if="!hasConcurrencyTarget" data-testid="target-user-empty" text="请选择有可管理账号的分组" />
+        <LoadingState v-else-if="policiesLoading" text="加载并发策略..." />
         <div v-else class="policy-grid">
           <section class="policy-block">
             <div class="policy-title"><h3>分组限制</h3><span v-if="!isSuperAdmin">只读</span></div>

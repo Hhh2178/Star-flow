@@ -1,6 +1,7 @@
 import axios from "@/utils/axios";
 import type { UserRole } from "@/shared/auth";
 import { stopAllGenerationJobTracking } from "@/utils/generationJobTracker";
+import { stopAllAgentJobTracking } from "@/utils/agentJobTracker";
 
 export type { UserRole } from "@/shared/auth";
 export type UserStatus = "enabled" | "disabled";
@@ -38,6 +39,7 @@ export default defineStore(
 
     function clearSession() {
       stopAllGenerationJobTracking();
+      stopAllAgentJobTracking();
       token.value = null;
       currentUser.value = null;
       localStorage.removeItem("token");

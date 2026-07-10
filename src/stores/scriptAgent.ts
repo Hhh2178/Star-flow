@@ -17,8 +17,23 @@ function makeScriptAgentStore(projectId: string) {
           script: [],
         });
 
-        const { connected, messages, chat, stopGenerate, socket, status, disconnect, connect } = useChat({
-          url: `${settingStore().baseUrl}/socket/scriptAgent`,
+        const {
+          connected,
+          messages,
+          chat,
+          stopGenerate,
+          socket,
+          status,
+          disconnect,
+          connect,
+          activeAgentJob,
+          agentJobDetail,
+          agentJobStatusText,
+          agentJobError,
+          agentSubmissionPending,
+        } = useChat({
+          url: `${settingStore().runtimeBaseUrl}/socket/scriptAgent`,
+          jobStorageKey: `stars-flow:script-agent:${projectId}`,
           auth: () => ({
             isolationKey: `${projectId}:scriptAgent`,
             projectId: projectId,
@@ -54,18 +69,6 @@ function makeScriptAgentStore(projectId: string) {
           autoConnect: false,
         });
 
-        watch(
-          socket,
-          (s) => {
-            if (s) {
-              s.on("getPlanData", (_, callback) => {
-                callback(planData.value);
-              });
-            }
-          },
-          { immediate: true },
-        );
-
         async function setPlanData() {
           await axios.post("/scriptAgent/setPlanData", { projectId: projectId, agentType: "scriptAgent", data: planData.value });
         }
@@ -79,7 +82,25 @@ function makeScriptAgentStore(projectId: string) {
           }
         }
 
-        return { connected, messages, chat, stopGenerate, socket, status, planData, setPlanData, connect, disconnect, thinkLevel, updateThinkConfig };
+        return {
+          connected,
+          messages,
+          chat,
+          stopGenerate,
+          socket,
+          status,
+          activeAgentJob,
+          agentJobDetail,
+          agentJobStatusText,
+          agentJobError,
+          agentSubmissionPending,
+          planData,
+          setPlanData,
+          connect,
+          disconnect,
+          thinkLevel,
+          updateThinkConfig,
+        };
       });
 }
 

@@ -2,6 +2,14 @@
 import { ref, shallowRef, onMounted, onUnmounted, computed } from "vue";
 import { io, Socket } from "socket.io-client";
 import type { ChatMessagesData, AIMessage, UserMessage, AIMessageContent, ChatMessageStatus } from "@tdesign-vue-next/chat";
+import { createAgentJobTracker, type AgentJobEvent } from "@/utils/agentJobTracker";
+import {
+  generationJobFailureMessage,
+  generationJobStatusLabels,
+  type GenerationJobDetail,
+  type PollGenerationJobOptions,
+  type QueuedGenerationJob,
+} from "@/utils/generationJobTracker";
 
 // Socket 事件类型定义
 export interface MessageEvent {
@@ -59,7 +67,7 @@ export interface XmlTagOption {
 export interface ChatSocketEvents {
   // 发送事件
   chat: { content: string; attachments?: any[] };
-  stop: { messageId: string };
+  stop: { jobId: number };
   regenerate: { messageId: string };
 
   // 接收事件
@@ -81,6 +89,8 @@ export interface UseChatOptions {
   onConnect?: () => void;
   onDisconnect?: () => void;
   manageLifecycle?: boolean;
+  jobStorageKey?: string | (() => string);
+  agentJobTracking?: Pick<PollGenerationJobOptions, "fetchJob" | "sleep" | "initialDelayMs" | "maxDelayMs" | "backoffFactor" | "maxConsecutiveErrors">;
 }
 
 export function useChat(options: UseChatOptions) {
@@ -95,6 +105,8 @@ export function useChat(options: UseChatOptions) {
     onConnect,
     onDisconnect,
     manageLifecycle = true,
+    jobStorageKey,
+    agentJobTracking = {},
   } = options;
 
   const socket = shallowRef<Socket | null>(null);
@@ -117,6 +129,85 @@ export function useChat(options: UseChatOptions) {
   const hiddenXmlTags = normalizedXmlTagOptions.filter((item) => ((item.keepInMessage ?? keepXmlInMessage) ? false : true)).map((item) => item.tag);
   const emittedXmlState = new Map<string, Record<string, string>>();
   const rawContentState = new Map<string, string>();
+  const activeAgentJob = ref<QueuedGenerationJob | null>(null);
+  const agentJobDetail = ref<GenerationJobDetail | null>(null);
+  const agentJobError = ref<string | null>(null);
+  const agentSubmissionPending = ref(false);
+  const persistedEventNames = new Set(["message", "message:update", "content:add", "content:update"]);
+
+  const resolveAuth = () => (typeof auth === "function" ? auth() : auth) ?? {};
+  const resolveJobStorageKey = () => {
+    if (typeof jobStorageKey === "function") return jobStorageKey();
+    if (jobStorageKey) return jobStorageKey;
+    const isolationKey = String(resolveAuth().isolationKey ?? "default");
+    return `stars-flow:agent-job:${url}:${isolationKey}`;
+  };
+
+  const requestAgentEvents = (jobId: number, afterSequence: number): Promise<unknown> => new Promise((resolve, reject) => {
+    if (!socket.value?.connected) {
+      reject(new DOMException("Agent 连接已断开", "AbortError"));
+      return;
+    }
+    const timer = window.setTimeout(() => reject(new Error("Agent 事件同步超时")), 5_000);
+    socket.value.emit("agent:events", { jobId, afterSequence }, (response: unknown) => {
+      window.clearTimeout(timer);
+      resolve(response);
+    });
+  });
+
+  const dispatchPersistedEvent = (event: AgentJobEvent) => {
+    if (!persistedEventNames.has(event.event)) return;
+    const listeners = socket.value?.listeners(event.event) ?? [];
+    for (const listener of listeners) listener(event.data);
+  };
+
+  const agentTracker = createAgentJobTracker({
+    storageKey: resolveJobStorageKey,
+    requestEvents: requestAgentEvents,
+    onEvent: dispatchPersistedEvent,
+    onUpdate: (detail) => {
+      agentJobDetail.value = detail;
+      activeAgentJob.value = agentTracker.current;
+      agentJobError.value = generationJobFailureMessage(detail);
+    },
+    onTerminal: (detail) => {
+      agentJobDetail.value = detail;
+      activeAgentJob.value = agentTracker.current;
+      agentJobError.value = generationJobFailureMessage(detail);
+    },
+    onError: () => {
+      agentJobError.value = "暂时无法同步 Agent 任务状态，请稍后重试";
+    },
+    ...agentJobTracking,
+  });
+
+  const acceptQueuedAgentJob = (queued: unknown) => {
+    agentSubmissionPending.value = false;
+    const announcedJobId = queued && typeof queued === "object"
+      ? Number((queued as { jobId?: unknown }).jobId)
+      : 0;
+    if (announcedJobId > 0 && announcedJobId === activeAgentJob.value?.jobId) return;
+    activeAgentJob.value = agentTracker.track(queued);
+    agentJobDetail.value = null;
+    agentJobError.value = null;
+  };
+
+  const agentJobStatusText = computed(() => {
+    const detail = agentJobDetail.value;
+    const state = detail?.status ?? activeAgentJob.value?.status;
+    if (!state) return "";
+    const label = generationJobStatusLabels[state];
+    return state === "queued" && detail?.queuePosition
+      ? `${label}，队列第 ${detail.queuePosition} 位`
+      : label;
+  });
+
+  const switchAgentJobContext = () => {
+    activeAgentJob.value = agentTracker.switchContext();
+    agentJobDetail.value = null;
+    agentJobError.value = null;
+    return activeAgentJob.value;
+  };
 
   // 计算属性 - 修复：增加对内容流状态的判断
   const isGenerating = computed(() => {
@@ -429,6 +520,9 @@ export function useChat(options: UseChatOptions) {
         ext: data.ext,
       } as ChatMessagesData;
 
+      // A replay ack may arrive after the server already emitted the same raw event.
+      if (findMessage(data.id)) return;
+
       if (newMessage.status === "complete" && isEmptyMessageContent(newMessage)) {
         return;
       }
@@ -498,6 +592,8 @@ export function useChat(options: UseChatOptions) {
       const msg = findMessage(data.messageId) as AIMessage;
       if (!msg || msg.role !== "assistant") return;
 
+      if (data.content.id && findContent(msg, data.content.id)) return;
+
       if (!msg.content) {
         msg.content = [];
       }
@@ -542,6 +638,7 @@ export function useChat(options: UseChatOptions) {
 
     // 错误处理
     socket.value.on("error", (error: { code: string; message: string }) => {
+      agentSubmissionPending.value = false;
       console.error("[Chat Error]", error);
       onError?.(error);
     });
@@ -550,12 +647,23 @@ export function useChat(options: UseChatOptions) {
     socket.value.on("connect", () => {
       connected.value = true;
       connecting.value = false;
+      activeAgentJob.value = agentTracker.resume();
       onConnect?.();
     });
 
+    socket.value.on("agent:queued", (queued: unknown) => {
+      try {
+        acceptQueuedAgentJob(queued);
+      } catch {
+        agentJobError.value = "Agent 排队响应无效，请重试";
+      }
+    });
+
     socket.value.on("disconnect", (reason) => {
+      agentSubmissionPending.value = false;
       connected.value = false;
       connecting.value = false;
+      agentTracker.pause();
       onDisconnect?.();
       console.log("[Chat Disconnected]", reason);
     });
@@ -569,7 +677,12 @@ export function useChat(options: UseChatOptions) {
 
   // 连接管理
   const connect = () => {
-    if (socket.value?.connected || connecting.value) return;
+    if (socket.value?.connected) {
+      connected.value = true;
+      activeAgentJob.value = agentTracker.resume();
+      return;
+    }
+    if (connecting.value) return;
 
     connecting.value = true;
 
@@ -585,12 +698,18 @@ export function useChat(options: UseChatOptions) {
       });
 
       setupHandlers();
+      if (socket.value.connected) {
+        connected.value = true;
+        connecting.value = false;
+        activeAgentJob.value = agentTracker.resume();
+      }
     } else {
       socket.value.connect();
     }
   };
 
   const disconnect = () => {
+    agentTracker.pause();
     socket.value?.disconnect();
     connected.value = false;
     connecting.value = false;
@@ -628,6 +747,9 @@ export function useChat(options: UseChatOptions) {
   // 业务方法
   const chat = (content: string, attachments?: any[]) => {
     if (!content.trim() && !attachments?.length) return false;
+    const currentState = agentJobDetail.value?.status ?? activeAgentJob.value?.status;
+    if (agentSubmissionPending.value || (currentState && ["queued", "running", "recovering"].includes(currentState))) return false;
+    if (!socket.value?.connected) return false;
 
     const userMessage: UserMessage = {
       id: `user_${Date.now()}`,
@@ -647,22 +769,37 @@ export function useChat(options: UseChatOptions) {
 
     messages.value.push(userMessage);
 
-    return emit("chat", { content, attachments });
+    agentSubmissionPending.value = true;
+    const requestId = globalThis.crypto?.randomUUID?.() ?? `agent-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    socket.value.emit("chat", { content, attachments, requestId }, (queued: unknown) => {
+      agentSubmissionPending.value = false;
+      try {
+        acceptQueuedAgentJob(queued);
+      } catch {
+        agentJobError.value = "Agent 排队响应无效，请重试";
+      }
+    });
+    return true;
   };
 
   const stopGenerate = (messageId?: string) => {
-    const id = messageId || currentMessageId.value;
-    if (!id) return false;
+    const jobId = activeAgentJob.value?.jobId;
+    const jobState = agentJobDetail.value?.status ?? activeAgentJob.value?.status;
+    if (!jobId || !jobState || !["queued", "running", "recovering"].includes(jobState) || !socket.value?.connected) return false;
 
     // 立即更新本地状态，不等服务端响应
-    const msg = findMessage(id);
+    const id = messageId || currentMessageId.value;
+    const msg = id ? findMessage(id) : undefined;
     if (msg) {
       msg.status = "stop";
     }
     currentMessageId.value = null;
     status.value = "idle";
 
-    return emit("stop", { messageId: id });
+    socket.value.emit("stop", { jobId }, (response: { success?: boolean; status?: string } | undefined) => {
+      if (response?.success === false) agentJobError.value = "取消 Agent 任务失败，请稍后重试";
+    });
+    return true;
   };
 
   const regenerate = (messageId: string) => {
@@ -739,6 +876,12 @@ export function useChat(options: UseChatOptions) {
     currentMessageId,
     xmlData,
     xmlDataByMessage,
+    activeAgentJob,
+    agentJobDetail,
+    agentJobStatusText,
+    agentJobError,
+    agentSubmissionPending,
+    switchAgentJobContext,
     isGenerating,
     lastMessage,
     connect,

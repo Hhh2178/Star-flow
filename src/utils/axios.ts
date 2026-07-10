@@ -5,7 +5,7 @@ import { createApiClient } from "@/shared/api";
 import { h } from "vue";
 
 const instance = createApiClient({
-  getBaseURL: () => storeToRefs(settingStore()).baseUrl.value,
+  getBaseURL: () => storeToRefs(settingStore()).runtimeBaseUrl.value,
   getTimeout: () => storeToRefs(settingStore()).otherSetting.value.axiosTimeOut,
   unwrapResponse: true,
   onUnauthorized: () => {

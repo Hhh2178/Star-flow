@@ -61,8 +61,25 @@ function makeProductionAgentStore(projectId: string) {
 
     const episodesId = ref<number>();
 
-    const { connected, messages, chat, stopGenerate, socket, status, reconnect, connect, disconnect } = useChat({
-      url: `${settingStore().baseUrl}/socket/productionAgent`,
+    const {
+      connected,
+      messages,
+      chat,
+      stopGenerate,
+      socket,
+      status,
+      reconnect,
+      connect,
+      disconnect,
+      activeAgentJob,
+      agentJobDetail,
+      agentJobStatusText,
+      agentJobError,
+      agentSubmissionPending,
+      switchAgentJobContext,
+    } = useChat({
+      url: `${settingStore().runtimeBaseUrl}/socket/productionAgent`,
+      jobStorageKey: () => `stars-flow:production-agent:${projectId}:${episodesId.value ?? "none"}`,
       auth: () => ({
         isolationKey: `${projectId}:productionAgent:${episodesId.value}`,
         projectId: projectId,
@@ -70,6 +87,9 @@ function makeProductionAgentStore(projectId: string) {
       }),
       manageLifecycle: false,
       autoConnect: false,
+      onConnect: () => {
+        void getHistory();
+      },
       xmlTags: [
         { tag: "script", keepInMessage: false },
         { tag: "scriptPlan", keepInMessage: false },
@@ -144,100 +164,6 @@ function makeProductionAgentStore(projectId: string) {
       true,
       true,
     );
-    // 注册 getPlanData 事件（无需依赖组件生命周期）
-    watch(
-      socket,
-      (s) => {
-        if (s) {
-          s.on("connect", () => {
-            getHistory();
-          });
-          s.on("getFlowData", (_, callback) => {
-            const returnData = JSON.parse(JSON.stringify(flowData.value));
-            returnData.assets.forEach((item: any) => {
-              delete item.prompt;
-              delete item.flowId;
-              delete item.src;
-              if (item.derive && item.derive.length) {
-                item.derive.forEach((deriveItem: any) => {
-                  delete deriveItem.prompt;
-                  delete deriveItem.flowId;
-                  delete deriveItem.src;
-                });
-              }
-            });
-            returnData.storyboard.forEach((item: any) => {
-              delete item.prompt;
-              delete item.src;
-              delete item.flowId;
-            });
-            callback(returnData);
-          });
-          s.on("addDeriveAsset", async (data, callback) => {
-            const assets = flowData.value.assets.find((a) => a.id === data.assetsId);
-            if (!assets) return callback({ success: false, message: $t("storyboard.assets.notExist") });
-            const deriveAssetList = assets.derive || [];
-            const item = deriveAssetList.find((d) => d.id === data.id);
-            if (item) {
-              if (!item) return callback({ success: false, message: $t("storyboard.assets.notDerivativeExist") });
-              item.name = data.name;
-              item.type = assets.type;
-              callback({ success: true, message: $t("storyboard.assets.derivativeUpdateSuccess") });
-            } else {
-              deriveAssetList.push({
-                assetsId: data.assetsId,
-                id: data.id,
-                name: data.name,
-                type: assets.type,
-                desc: data.describe,
-                prompt: "",
-                state: "未生成" as "未生成" | "生成中" | "已完成" | "生成失败",
-                src: "",
-              });
-              callback({ success: true, message: $t("storyboard.assets.derivativeAddSuccess") });
-            }
-          });
-          s.on("delDeriveAsset", async (data, callback) => {
-            const assets = flowData.value.assets.find((a) => a.id === data.assetsId);
-            if (!assets) return callback({ success: false, message: $t("storyboard.assets.notExist") });
-            const deriveAssetList = assets.derive || [];
-            const index = deriveAssetList.findIndex((d) => d.id === data.id);
-            if (index === -1) return callback({ success: false, message: $t("storyboard.assets.notDerivativeExist") });
-            deriveAssetList.splice(index, 1);
-            callback({ success: true, message: $t("storyboard.assets.derivativeDelSuccess") });
-          });
-          s.on("generateDeriveAsset", async (data, callback) => {
-            const assetsData = await batchGenerateAssets(data.ids);
-            callback({ success: true, message: assetsData });
-          });
-          s.on("generateStoryboard", async (data, callback) => {
-            const storyData = await batchGenerateStoryboard(data.ids);
-            callback({ success: true, message: storyData });
-          });
-          s.on("addStoryboard", async (data, callback) => {
-            const insertVal = {
-              prompt: data.prompt || "",
-              duration: Number(data.duration) || 0,
-              track: data.track || "",
-              state: "未生成" as "未生成" | "生成中" | "已完成" | "生成失败",
-              src: null,
-              videoDesc: data.videoDesc,
-              shouldGenerateImage:
-                (typeof data.shouldGenerateImage == "boolean" && data.shouldGenerateImage) || String(data.shouldGenerateImage).toLowerCase() == "true"
-                  ? 1
-                  : 0,
-              associateAssetsIds: data.associateAssetsIds || [],
-            };
-            flowData.value.storyboard.push(insertVal);
-            await addStoryboardInfo([insertVal]);
-            throttledFn();
-            callback({ success: true, message: $t("storyboard.assets.derivativeAddSuccess") });
-          });
-        }
-      },
-      { immediate: true },
-    );
-
     async function setFlowData(scriptId?: number) {
       await axios.post("/production/saveFlowData", {
         projectId: projectId,
@@ -466,6 +392,7 @@ function makeProductionAgentStore(projectId: string) {
 
     function updateContext() {
       if (episodesId.value! < 0) return;
+      switchAgentJobContext();
       const ctx = {
         isolationKey: `${projectId}:productionAgent:${episodesId.value}`,
         projectId: projectId,
@@ -522,6 +449,12 @@ function makeProductionAgentStore(projectId: string) {
       stopGenerate,
       socket,
       status,
+      activeAgentJob,
+      agentJobDetail,
+      agentJobStatusText,
+      agentJobError,
+      agentSubmissionPending,
+      switchAgentJobContext,
       flowData,
       setFlowData,
       getFlowData,

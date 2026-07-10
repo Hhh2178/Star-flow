@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { createMemoryHistory, createRouter } from "vue-router";
 import { ADMIN_HISTORY_BASE, adminRoutes } from "../router";
 import { ADMIN_ROUTE_ACCESS, decideAdminGuard } from "../router-policy";
 
@@ -8,7 +7,10 @@ describe("admin route policy", () => {
     const layoutRoute = adminRoutes.find((route) => route.name === "layout");
 
     expect(ADMIN_HISTORY_BASE).toBe("/admin/");
-    expect(layoutRoute?.children?.map((route) => route.name)).toEqual(["home", "groups", "users", "projects", "tasks", "queue", "usage", "quota", "audit"]);
+    expect(layoutRoute?.children?.map((route) => route.name)).toEqual([
+      "home", "groups", "users", "projects", "tasks", "queue", "usage", "quota",
+      "providers", "ai-config", "system", "audit", "profile",
+    ]);
     expect(
       layoutRoute?.children
         ?.filter((route) => ["queue", "quota", "audit"].includes(String(route.name)))
@@ -16,17 +18,14 @@ describe("admin route policy", () => {
     ).toBe(true);
   });
 
-  it("redirects unfinished direct routes to the safe home fallback", async () => {
+  it("registers settings routes and keeps unknown paths on the safe home fallback", () => {
     const fallbackRoute = adminRoutes.find((route) => route.path === "/:pathMatch(.*)*");
-    const router = createRouter({
-      history: createMemoryHistory(ADMIN_HISTORY_BASE),
-      routes: adminRoutes,
-    });
 
-    expect(adminRoutes.some((route) => route.path === "/providers")).toBe(false);
+    const layoutRoute = adminRoutes.find((route) => route.name === "layout");
+    expect(layoutRoute?.children?.find((route) => route.path === "providers")?.meta?.roles).toEqual(["admin", "super_admin"]);
+    expect(layoutRoute?.children?.find((route) => route.path === "ai-config")?.meta?.roles).toEqual(["admin", "super_admin"]);
+    expect(layoutRoute?.children?.find((route) => route.path === "system")?.meta?.roles).toEqual(["super_admin"]);
     expect(fallbackRoute?.redirect).toBe("/");
-    await router.push("/providers");
-    expect(router.currentRoute.value).toMatchObject({ path: "/", name: "home" });
   });
 
   it.each(["projects", "tasks", "usage"])("allows both admin roles on %s monitoring", (routeName) => {

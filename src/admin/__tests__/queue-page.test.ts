@@ -260,6 +260,25 @@ describe("QueuePage", () => {
     expect(wrapper.find('[data-testid="concurrency-group"]').exists()).toBe(false);
   });
 
+  it("keeps the group selector available when the first Super Admin group has no manageable users", async () => {
+    api.listGroups.mockResolvedValueOnce([
+      { id: 1, name: "空分组", adminUserId: null, creatorLimit: 5, status: "enabled", createdAt: 1, updatedAt: 1 },
+      ...groups,
+    ]);
+
+    wrapper = await mountPage("super_admin");
+
+    expect(wrapper.get('[data-testid="concurrency-group"]').exists()).toBe(true);
+    expect(wrapper.get('[data-testid="target-user-empty"]').text()).toContain("请选择有可管理账号的分组");
+
+    await wrapper.get('[data-testid="concurrency-group"]').setValue("3");
+    await flushPromises();
+    await nextTick();
+
+    expect(wrapper.get('[data-testid="concurrency-user"]').text()).toContain("创作者甲");
+    expect(wrapper.get('[data-testid="save-group-policy"]').exists()).toBe(true);
+  });
+
   it("applies status, type and user filters", async () => {
     wrapper = await mountPage("super_admin");
 

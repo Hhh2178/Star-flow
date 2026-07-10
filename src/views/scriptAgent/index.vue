@@ -15,11 +15,14 @@
               :status="message.status"
               allowContentSegmentCustom></t-chat-message>
           </t-chat-list>
+          <div v-if="agentJobStatusText || agentJobError" class="agentQueueStatus" role="status">
+            {{ agentJobError || agentJobStatusText }}
+          </div>
           <t-chat-sender
             class="inputBox"
-            :disabled="status === 'pending' || status === 'streaming'"
+            :disabled="agentJobBusy || status === 'pending' || status === 'streaming'"
             v-model="inputValue"
-            :loading="status === 'pending' || status === 'streaming'"
+            :loading="agentJobBusy || status === 'pending' || status === 'streaming'"
             placeholder="$t('workbench.scriptAgent.inputPlaceholder')"
             @send="handleSend"
             @stop="handleStop">
@@ -217,7 +220,8 @@ import projectStore from "@/stores/project";
 const { project } = storeToRefs(projectStore());
 import editMdPreivew from "@/components/editMdPreivew.vue";
 import scriptAgentStore from "@/stores/scriptAgent";
-const { connected, messages, status, planData, thinkLevel } = storeToRefs(scriptAgentStore());
+const { connected, messages, status, planData, thinkLevel, activeAgentJob, agentJobDetail, agentJobStatusText, agentJobError, agentSubmissionPending } = storeToRefs(scriptAgentStore());
+const agentJobBusy = computed(() => agentSubmissionPending.value || ["queued", "running", "recovering"].includes(agentJobDetail.value?.status ?? activeAgentJob.value?.status ?? ""));
 const thinkLevelOptions = [
   { label: $t("workbench.scriptAgent.thinkLevel.off"), value: 0 },
   { label: $t("workbench.scriptAgent.thinkLevel.light"), value: 1 },
@@ -534,6 +538,12 @@ function toggleAllCards() {
         .inputBox {
           padding-right: 8px;
           padding-bottom: 8px;
+        }
+        .agentQueueStatus {
+          padding: 6px 10px;
+          color: var(--td-text-color-secondary);
+          font-size: 12px;
+          line-height: 18px;
         }
         .dot {
           position: absolute;

@@ -16,21 +16,9 @@
         <div class="settingContent">
           <uiConfig v-if="activeMenu === 'ui'" />
           <languageConfig v-if="activeMenu === 'language'" />
-          <vendorConfig v-if="activeMenu === 'vendorConfig'" />
-          <requestConfig v-if="activeMenu === 'requestConfig'" />
           <loginConfig v-if="activeMenu === 'loginConfig'" />
-          <userManagement v-if="activeMenu === 'userManagement'" />
-          <agentConfog v-if="activeMenu === 'agentConfog'" />
-          <promptManage v-if="activeMenu === 'promptManage'" />
-          <otherConfig v-if="activeMenu === 'otherConfig'" />
-          <dbConfig v-if="activeMenu === 'dbConfig'" />
           <about v-if="activeMenu === 'about'" />
           <logoutConfig v-if="activeMenu === 'logoutConfig'" />
-          <memoryConfig v-if="activeMenu === 'memoryConfig'" />
-          <fileManagement v-if="activeMenu === 'fileManagement'" />
-          <skillManagement v-if="activeMenu === 'skillManagement'" />
-          <devConfig v-if="activeMenu === 'devConfig'" />
-          <modelMap v-if="activeMenu === 'modelMap'" />
         </div>
       </div>
     </div>
@@ -48,21 +36,9 @@ const { currentUser } = storeToRefs(currentUserStore);
 
 import uiConfig from "./components/uiConfig.vue";
 import languageConfig from "./components/languageConfig.vue";
-import requestConfig from "./components/requestConfig.vue";
 import loginConfig from "./components/loginConfig.vue";
-import agentConfog from "./components/agentConfog.vue";
-import dbConfig from "./components/dbConfig.vue";
-import otherConfig from "./components/otherConfig.vue";
 import about from "./components/about.vue";
 import logoutConfig from "./components/logoutConfig.vue";
-import vendorConfig from "./components/vendorConfig.vue";
-import memoryConfig from "./components/memoryConfig.vue";
-import fileManagement from "./components/fileManagement.vue";
-import skillManagement from "./components/skillManagement.vue";
-import devConfig from "./components/devConfig.vue";
-import promptManage from "./components/promptManage.vue";
-import modelMap from "./components/modelMap.vue";
-import userManagement from "./components/userManagement.vue";
 
 const visibleMenuItems = computed(() => getVisibleSettingMenuItems(currentUser.value?.role));
 

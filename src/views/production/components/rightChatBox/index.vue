@@ -27,11 +27,14 @@
           </template> -->
         </t-chat-message>
       </t-chat-list>
+      <div v-if="agentJobStatusText || agentJobError" class="agentQueueStatus" role="status">
+        {{ agentJobError || agentJobStatusText }}
+      </div>
       <t-chat-sender
         class="inputBox"
-        :disabled="status === 'pending' || status === 'streaming' || !connected"
+        :disabled="agentJobBusy || status === 'pending' || status === 'streaming' || !connected"
         v-model="inputValue"
-        :loading="status === 'pending' || status === 'streaming'"
+        :loading="agentJobBusy || status === 'pending' || status === 'streaming'"
         :placeholder="$t('workbench.production.chatBox.inputPlaceholder')"
         @send="handleSend"
         @stop="handleStop">
@@ -65,7 +68,7 @@
               </template>
             </t-popup>
             <t-popup trigger="click" placement="top" v-if="showThink">
-              <t-button size="small" variant="outline" :theme="['default', 'success', 'warning', 'danger'][thinkLevel] || 'default'">
+              <t-button size="small" variant="outline" :theme="thinkLevelThemes[thinkLevel] || 'default'">
                 <template #icon>
                   <i-tips size="16" />
                 </template>
@@ -98,13 +101,27 @@ import axios from "@/utils/axios";
 import productionAgentStore from "@/stores/productionAgent";
 import projectStore from "@/stores/project";
 const { project } = storeToRefs(projectStore());
-const { connected, messages, status, episodesId, loadingHistory, thinkLevel } = storeToRefs(productionAgentStore());
+const {
+  connected,
+  messages,
+  status,
+  episodesId,
+  loadingHistory,
+  thinkLevel,
+  activeAgentJob,
+  agentJobDetail,
+  agentJobStatusText,
+  agentJobError,
+  agentSubmissionPending,
+} = storeToRefs(productionAgentStore());
+const agentJobBusy = computed(() => agentSubmissionPending.value || ["queued", "running", "recovering"].includes(agentJobDetail.value?.status ?? activeAgentJob.value?.status ?? ""));
 const thinkLevelOptions = [
   { label: $t("workbench.scriptAgent.thinkLevel.off"), value: 0 },
   { label: $t("workbench.scriptAgent.thinkLevel.light"), value: 1 },
   { label: $t("workbench.scriptAgent.thinkLevel.deep"), value: 2 },
   { label: $t("workbench.scriptAgent.thinkLevel.extreme"), value: 3 },
 ];
+const thinkLevelThemes: Array<"default" | "success" | "warning" | "danger"> = ["default", "success", "warning", "danger"];
 
 const props = defineProps({ title: String });
 
@@ -234,6 +251,12 @@ watch(connected, (newVal) => {
     padding-left: 8px;
     .inputBox {
       padding-right: 8px;
+    }
+    .agentQueueStatus {
+      padding: 6px 10px 6px 2px;
+      color: var(--td-text-color-secondary);
+      font-size: 12px;
+      line-height: 18px;
     }
   }
   :deep(.t-chat__list) {
