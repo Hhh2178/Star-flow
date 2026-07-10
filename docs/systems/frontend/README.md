@@ -6,7 +6,7 @@ The frontend system covers the user-facing project creation, script, storyboard,
 
 ## Runtime Shape
 
-Frontend source lives in the `web/` submodule, forked from Toonflow-web. R3 uses two independent Vite entries: Creator runs at `/` (local port `50188`) and Admin runs at `/admin/` (local port `50189`). Both talk to the app backend at `http://localhost:10588/api` by default and share only session/API/design primitives.
+Frontend source lives in the `web/` submodule, forked from Toonflow-web. R3 uses two independent Vite entries: Creator runs at `/` and Admin runs at `/admin/`. Hosted builds use same-origin `/api` and Socket.IO; Electron `file:` builds use the configured backend URL. The applications share only session/API/design primitives.
 
 Compiled output is separated as `web/dist/creator` and `web/dist/admin`, then copied to `app/data/web` and `app/data/web/admin`. Creator routes, layout and chunks must have no import path to Admin pages or global setting editors.
 

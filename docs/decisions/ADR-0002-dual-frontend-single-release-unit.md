@@ -21,6 +21,8 @@ The applications may share session, typed API, design tokens and low-level contr
 
 The app remains one Express/Socket.IO service. It serves both static outputs, exposes management operations under `/api/admin/*`, and owns authorization, queue state and concurrency enforcement.
 
+Hosted Creator and Admin builds use same-origin `/api` and same-origin Socket.IO so random local ports and reverse proxies need no runtime frontend rewrite. Electron `file:` builds keep the configured backend URL. Browser acceptance runs against an isolated `data/acceptance.sqlite`; `STARS_ACCEPTANCE_MODE=1` swaps only paid Provider execution for deterministic delayed/failing handlers while retaining the real scheduler, queue, leases, concurrency, cancellation and persistence paths.
+
 ## Consequences
 
 - Creator artifacts can be scanned for forbidden Admin modules and global configuration code.

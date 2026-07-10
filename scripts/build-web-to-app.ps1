@@ -3,7 +3,8 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $appWebDir = Join-Path $root "app\data\web"
 $webDir = Join-Path $root "web"
-$distDir = Join-Path $webDir "dist"
+$creatorDistDir = Join-Path $webDir "dist\creator"
+$adminDistDir = Join-Path $webDir "dist\admin"
 
 if (-not (Test-Path $webDir)) {
   throw "Missing web directory: $webDir"
@@ -21,11 +22,14 @@ try {
   Pop-Location
 }
 
-if (-not (Test-Path $distDir)) {
-  throw "Web dist was not created: $distDir"
+if (-not (Test-Path $creatorDistDir)) {
+  throw "Creator dist was not created: $creatorDistDir"
+}
+if (-not (Test-Path $adminDistDir)) {
+  throw "Admin dist was not created: $adminDistDir"
 }
 
-New-Item -ItemType Directory -Force $appWebDir | Out-Null
-Copy-Item -Path (Join-Path $distDir "*") -Destination $appWebDir -Recurse -Force
+node (Join-Path $PSScriptRoot "release-layout.mjs") $creatorDistDir $adminDistDir $appWebDir
+if ($LASTEXITCODE -ne 0) { throw "Web release copy failed with exit code $LASTEXITCODE" }
 
-Write-Output "Copied web dist to $appWebDir"
+Write-Output "Copied Creator to $appWebDir and Admin to $appWebDir\admin"

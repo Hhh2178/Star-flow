@@ -91,6 +91,8 @@ npm run harness:verify:project
 
 R3 浏览器就绪检查以 `docs/superpowers/plans/2026-07-10-r3-browser-test-readiness-execution.md` 的命令矩阵为准。外层统一构建最终必须同时产出 `app/data/web/` Creator 静态文件和 `app/data/web/admin/` Admin 静态文件。
 
+本地无付费验收入口：进入当前 app 工作树运行 `yarn start:acceptance`。该入口使用独立的 `data/acceptance.sqlite`、确定性测试数据和假 Provider 执行器，不得连接真实 Provider，也不得把验收账号密码写入文档或日志。
+
 ## Documentation Rules
 
 - 路线和架构决策写入 `docs/decisions/`。

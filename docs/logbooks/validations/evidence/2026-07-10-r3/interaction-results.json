@@ -1,0 +1,24 @@
+{
+  "date": "2026-07-10",
+  "environment": "local-acceptance",
+  "database": "data/acceptance.sqlite",
+  "providerMode": "deterministic-fake-execution",
+  "roles": ["super_admin", "admin", "creator"],
+  "results": {
+    "authenticationAndRoleDenial": "passed",
+    "strictGroupIsolation": "passed",
+    "userLifecycle": "passed",
+    "groupAndPersonalConcurrency": "passed",
+    "queueStatesAndPriority": "passed",
+    "quotaRechargeShellAndAudit": "passed",
+    "agentPersistenceAndCancellation": "passed",
+    "creatorImageAndVideoGeneration": "passed",
+    "restartRecoveryAndNoResubmission": "passed",
+    "desktopAndNarrowResponsiveLayout": "passed"
+  },
+  "screenshots": [
+    "admin-queue-desktop-verified.png",
+    "admin-queue-narrow.png"
+  ],
+  "secretsIncluded": false
+}

@@ -11,7 +11,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | R0 | Planning and tracking | Done | Low | Roadmap and plans created | Start R1 |
 | R1 | Account/auth foundation | Done | Medium | `app/dev` commits `f379dbd`, `a9a45ea`; validation log added | Start R2 |
 | R2 | Setting-center permissions | Done | Medium | `app/dev` commit `1c4d6be`; `web/dev` commit `8551e77`; validation log added | Start separate admin-console redesign |
-| R3 | Separate admin console | In Progress | High | R3B queue core is committed through `dbe5a4f`; dual frontend has not started | Execute browser-readiness plan: close queue entries, build Admin/Creator, run interaction matrix |
+| R3 | Separate admin console | Integration Pending | Medium | Full automated gate and real browser matrix passed; validation record and screenshots added | Merge app/web features to `dev`, update gitlinks, rerun unified release gate |
 | R4 | Production closed-loop audit | Planned | Medium | Toonflow flow identified | Run full chain after R1-R3 basics |
 | R5 | Provider/admin hardening | Deferred | Medium | Provider setting exists | Revisit after R1-R4 |
 
@@ -28,6 +28,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-10 | R3 | In Progress -> In Progress | Completed and validated R3A group ownership, strict resource isolation, Socket guards, and redacted audit foundation; R3B-R3D remain |
 | 2026-07-10 | R3 | In Progress -> In Progress | R3B core queue, policy, recovery, handlers, usage/quota debit and scoped queue APIs reached `dbe5a4f`; remaining route/Agent coverage and full-suite evidence are still open |
 | 2026-07-10 | R3 | In Progress -> In Progress | Added the browser-readiness convergence plan, dual-frontend release ADR and mandatory real role/state interaction matrix; implementation continues in isolated app/web worktrees |
+| 2026-07-10 | R3 | In Progress -> Integration Pending | Backend queue, dual frontend, operations console and real browser matrix passed; feature merges and post-merge release gate remain |
 
 ## Required Status Update Format
 

@@ -36,6 +36,7 @@ Read in order:
 | Deployment evidence | `references/deployment-assessment-2026-07-09.md` and `logbooks/validations/` | New deployment validation or incident |
 | Governance rules | `governance/*.md` | Process, documentation, branch, or safety rules change |
 | System contracts | `systems/*/README.md` | Runtime, interface, data, permission, or verification changes |
+| R3 browser acceptance evidence | `logbooks/validations/2026-07-10-r3-browser-readiness.md` | R3 interaction matrix, acceptance launcher, or residual risk changes |
 | Daily work evidence | `logbooks/daily/*.md` | Meaningful work occurs |
 | Current R3 browser-readiness execution | `superpowers/plans/2026-07-10-r3-browser-test-readiness-execution.md` | Remaining implementation, verification matrix, or browser acceptance scope changes |
 

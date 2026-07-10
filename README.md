@@ -4,7 +4,7 @@ Stars Flow 是新的 AI 漫剧/短剧生产工具主线，计划以 Toonflow-app
 
 ## Current Status
 
-当前处于 R3 前后台分离与持久化生成队列实施阶段。Toonflow 后端和前端 fork 已分别作为 `app/`、`web/` submodule 纳入外层治理仓库；R1 账号认证、R2 设置权限、R3A 分组隔离以及 R3B 队列核心已完成，双前端和管理运营页面正在实施，尚未达到完整浏览器验收状态。
+R3 前后台分离、严格分组隔离、持久化生成队列、分层并发、额度台账和管理运营页面已经完成本地真实浏览器验收。Toonflow 后端和前端 fork 分别作为 `app/`、`web/` submodule 纳入外层治理仓库；当前进入 feature 分支合并、gitlink 更新和合并后统一发布门禁阶段。
 
 ## Project Direction
 
@@ -88,6 +88,14 @@ Visual and UI work uses the Toonflow-web fork as a local `web/` working copy. Du
 - Admin: `app/data/web/admin/`
 
 当前收敛执行计划：`docs/superpowers/plans/2026-07-10-r3-browser-test-readiness-execution.md`。
+
+无真实 Provider 的本地验收由 app 工作树提供：
+
+```powershell
+yarn start:acceptance
+```
+
+启动器使用独立 `data/acceptance.sqlite`，并输出 Creator、Admin 和 API 的实际随机端口 URL。浏览器托管版统一使用同源 `/api` 和同源 Socket；Electron `file:` 构建继续使用显式后端地址。
 
 ## Non-Goals For Phase 1
 
