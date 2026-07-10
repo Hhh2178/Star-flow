@@ -11,7 +11,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | R0 | Planning and tracking | Done | Low | Roadmap and plans created | Start R1 |
 | R1 | Account/auth foundation | Done | Medium | `app/dev` commits `f379dbd`, `a9a45ea`; validation log added | Start R2 |
 | R2 | Setting-center permissions | Done | Medium | `app/dev` commit `1c4d6be`; `web/dev` commit `8551e77`; validation log added | Start separate admin-console redesign |
-| R3 | Separate admin console | In Progress | High | R3A isolated worktree created; app lint, R2 test, and build baseline passed | Execute R3A Task 1 group ownership schema |
+| R3 | Separate admin console | In Progress | High | R3A group/resource isolation and audit foundation validated on `feature/r3a-group-access` | Execute R3B persistent queue and hierarchical concurrency |
 | R4 | Production closed-loop audit | Planned | Medium | Toonflow flow identified | Run full chain after R1-R3 basics |
 | R5 | Provider/admin hardening | Deferred | Medium | Provider setting exists | Revisit after R1-R4 |
 
@@ -25,6 +25,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-10 | R3 | Planned -> Replanned | User superseded project-ownership-first R3 with a new requirement to split creator frontend and admin console |
 | 2026-07-10 | R3 | Replanned -> Planned | Approved dual-build admin architecture, strict group isolation, cost/quota ledger, and Chinese-first UI requirements |
 | 2026-07-10 | R3 | Planned -> In Progress | Started R3A on `feature/r3a-group-access` after clean app lint, R2 test, and build baselines |
+| 2026-07-10 | R3 | In Progress -> In Progress | Completed and validated R3A group ownership, strict resource isolation, Socket guards, and redacted audit foundation; R3B-R3D remain |
 
 ## Required Status Update Format
 
