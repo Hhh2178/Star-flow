@@ -29,6 +29,21 @@ describe("createApiClient", () => {
     expect(requestConfig?.headers.Authorization).toBe("Bearer admin-token");
   });
 
+  it("preserves an explicit request Authorization header", async () => {
+    let requestConfig: InternalAxiosRequestConfig | undefined;
+    const client = createApiClient({ getToken: () => "Bearer current-token" });
+    client.defaults.adapter = async (config) => {
+      requestConfig = config;
+      return response(config);
+    };
+
+    await client.get("/admin/auth/session", {
+      headers: { Authorization: "Bearer request-token" },
+    });
+
+    expect(requestConfig?.headers.Authorization).toBe("Bearer request-token");
+  });
+
   it("calls the supplied callback when the server returns 401", async () => {
     const onUnauthorized = vi.fn();
     const client = createApiClient({ onUnauthorized });
@@ -37,11 +52,17 @@ describe("createApiClient", () => {
       throw new AxiosError("Unauthorized", "ERR_BAD_REQUEST", config, undefined, unauthorized);
     };
 
-    await expect(client.get("/admin/auth/session")).rejects.toMatchObject({
+    await expect(client.get("/admin/auth/session", {
+      headers: { Authorization: "Bearer request-token" },
+    })).rejects.toMatchObject({
       status: 401,
       message: "登录已失效",
     });
     expect(onUnauthorized).toHaveBeenCalledTimes(1);
+    expect(onUnauthorized.mock.calls[0]?.[0]).toBeInstanceOf(AxiosError);
+    expect(onUnauthorized.mock.calls[0]?.[0].config?.headers.Authorization).toBe(
+      "Bearer request-token",
+    );
   });
 
   it("reads the base URL and timeout for every request", async () => {

@@ -17,39 +17,64 @@
       <form class="login-form" @submit.prevent="submit">
         <label for="admin-username">账号</label>
         <t-input
+          ref="usernameInput"
           id="admin-username"
           v-model="form.username"
           size="large"
           autocomplete="username"
           placeholder="请输入账号"
+          :disabled="loading"
+          :aria-invalid="Boolean(errors.username)"
+          :aria-describedby="errors.username ? 'admin-username-error' : undefined"
           :status="errors.username ? 'error' : 'default'"
           @input="errors.username = ''"
         >
           <template #prefix-icon><i-user theme="outline" /></template>
         </t-input>
-        <span v-if="errors.username" class="field-error">{{ errors.username }}</span>
+        <span
+          v-if="errors.username"
+          id="admin-username-error"
+          class="field-error"
+          role="alert"
+        >{{ errors.username }}</span>
 
         <label for="admin-password">密码</label>
         <t-input
+          ref="passwordInput"
           id="admin-password"
           v-model="form.password"
           type="password"
           size="large"
           autocomplete="current-password"
           placeholder="请输入密码"
+          :disabled="loading"
+          :aria-invalid="Boolean(errors.password)"
+          :aria-describedby="errors.password ? 'admin-password-error' : undefined"
           :status="errors.password ? 'error' : 'default'"
           @input="errors.password = ''"
         >
           <template #prefix-icon><i-lock theme="outline" /></template>
         </t-input>
-        <span v-if="errors.password" class="field-error">{{ errors.password }}</span>
+        <span
+          v-if="errors.password"
+          id="admin-password-error"
+          class="field-error"
+          role="alert"
+        >{{ errors.password }}</span>
 
         <div v-if="errorMessage" class="login-error" role="alert">
           <i-attention theme="outline" size="18" />
           <span>{{ errorMessage }}</span>
         </div>
 
-        <t-button type="submit" theme="primary" size="large" block :loading="loading">
+        <t-button
+          type="submit"
+          theme="primary"
+          size="large"
+          block
+          :loading="loading"
+          :disabled="loading"
+        >
           登录
         </t-button>
       </form>
@@ -63,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { nextTick, reactive, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";
 import { useAdminSessionStore } from "../session";
@@ -74,14 +99,28 @@ const sessionStore = useAdminSessionStore();
 const { loading, errorMessage } = storeToRefs(sessionStore);
 const form = reactive({ username: "", password: "" });
 const errors = reactive({ username: "", password: "" });
+const usernameInput = ref<{ focus: () => void } | null>(null);
+const passwordInput = ref<{ focus: () => void } | null>(null);
+
+function focusFirstError() {
+  void nextTick(() => {
+    if (errors.username) {
+      usernameInput.value?.focus();
+      return;
+    }
+    if (errors.password) passwordInput.value?.focus();
+  });
+}
 
 function validate() {
   errors.username = form.username.trim() ? "" : "请输入账号";
   errors.password = form.password ? "" : "请输入密码";
+  if (errors.username || errors.password) focusFirstError();
   return !errors.username && !errors.password;
 }
 
 async function submit() {
+  if (loading.value) return;
   if (!validate()) return;
   try {
     await sessionStore.login({

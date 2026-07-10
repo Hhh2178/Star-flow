@@ -34,7 +34,7 @@ export function createApiClient(options: ApiClientOptions = {}): AxiosInstance {
     if (timeout !== undefined) config.timeout = timeout;
 
     const token = (options.getToken ?? getStoredToken)();
-    if (token) {
+    if (token && !config.headers.has("Authorization")) {
       config.headers.Authorization = token;
     }
     return config;
