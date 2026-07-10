@@ -16,9 +16,12 @@ import {
   createUser,
   getPolicies,
   getQuotaOverview,
+  getUsageOverview,
   listAudit,
   listGroups,
   listJobs,
+  listProjects,
+  listTasks,
   listUsers,
   reprioritizeJob,
   resetUserPassword,
@@ -96,6 +99,9 @@ const validAuditItem = {
   requestId: null,
   createdAt: 1,
 };
+const validProject = { id: 201, name: "项目一", projectType: "series", type: "漫剧", ownerUserId: 7, ownerName: "创作者甲", groupId: 3, groupName: "内容一组", createTime: 1, taskCount: 2 };
+const validTask = { id: 301, projectId: 201, projectName: "项目一", ownerUserId: 7, ownerName: "创作者甲", groupId: 3, groupName: "内容一组", taskClass: "image", model: "image-a", description: null, state: "failed", startTime: 2, reason: "生成失败" };
+const validUsage = { id: 501, jobId: 401, groupId: 3, groupName: "内容一组", userId: 7, userName: "创作者甲", projectId: 201, projectName: "项目一", providerId: "provider-a", modelId: "image-a", taskType: "image", estimatedCost: 1.2, currency: "CNY", result: "succeeded", createdAt: 3 };
 
 const endpointCases = [
   { name: "listJobs", call: () => listJobs(), invalid: { items: [{ ...validJob, id: "12" }], counts: validCounts } },
@@ -109,6 +115,9 @@ const endpointCases = [
   { name: "getQuotaOverview", call: () => getQuotaOverview(), invalid: { ...validQuotaOverview, summary: { ...validQuotaOverview.summary, balance: "11" } } },
   { name: "adjustQuota", call: () => adjustQuota({ groupId: 3, entryType: "manual_credit", amount: 1, reason: "运营补偿" }), invalid: { account: { groupId: 3, balance: "11", updatedAt: 1 }, ledger: validLedger } },
   { name: "listAudit", call: () => listAudit(), invalid: { page: 1, pageSize: 20, total: 1, items: [{ ...validAuditItem, id: "90" }] } },
+  { name: "listProjects", call: () => listProjects(), invalid: { page: 1, pageSize: 20, total: 1, items: [{ ...validProject, taskCount: "2" }] } },
+  { name: "listTasks", call: () => listTasks(), invalid: { page: 1, pageSize: 20, total: 1, items: [{ ...validTask, id: "301" }] } },
+  { name: "getUsageOverview", call: () => getUsageOverview(), invalid: { summary: { recordCount: 1, estimatedCost: 1.2 }, breakdown: [], page: 1, pageSize: 20, total: 1, items: [{ ...validUsage, estimatedCost: "1.2" }] } },
 ] as const;
 
 describe("adminApi", () => {
@@ -259,6 +268,21 @@ describe("adminApi", () => {
       ["/admin/groups/updateGroup", { id: 3, name: "内容新一组", creatorLimit: 8, status: "enabled" }],
       ["/admin/users/updateUser", { id: 7, status: "disabled" }],
       ["/admin/users/resetPassword", { id: 7, password: "ResetPass123" }],
+    ]);
+  });
+
+  it("sends monitoring filters as query parameters", async () => {
+    client.get
+      .mockResolvedValueOnce(ok({ page: 1, pageSize: 20, total: 1, items: [validProject] }))
+      .mockResolvedValueOnce(ok({ page: 1, pageSize: 20, total: 1, items: [validTask] }))
+      .mockResolvedValueOnce(ok({ summary: { recordCount: 1, estimatedCost: 1.2 }, breakdown: [{ taskType: "image", recordCount: 1, estimatedCost: 1.2 }], page: 1, pageSize: 20, total: 1, items: [validUsage] }));
+    await listProjects({ page: 1, pageSize: 20, groupId: 3, search: "项目" });
+    await listTasks({ page: 1, pageSize: 20, state: "failed", projectId: 201 });
+    await getUsageOverview({ page: 1, pageSize: 20, taskType: "image", ownerUserId: 7 });
+    expect(client.get.mock.calls).toEqual([
+      ["/admin/projects/listProjects", { params: { page: 1, pageSize: 20, groupId: 3, search: "项目" } }],
+      ["/admin/tasks/listTasks", { params: { page: 1, pageSize: 20, state: "failed", projectId: 201 } }],
+      ["/admin/usage/getOverview", { params: { page: 1, pageSize: 20, taskType: "image", ownerUserId: 7 } }],
     ]);
   });
 

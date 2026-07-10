@@ -55,10 +55,28 @@ export const adminRoutes: RouteRecordRaw[] = [
         meta: { title: "用户管理", ...ADMIN_ROUTE_ACCESS.users },
       },
       {
+        path: "projects",
+        name: "projects",
+        component: () => import("./pages/ProjectsPage.vue"),
+        meta: { title: "项目监管", ...ADMIN_ROUTE_ACCESS.projects },
+      },
+      {
+        path: "tasks",
+        name: "tasks",
+        component: () => import("./pages/TasksPage.vue"),
+        meta: { title: "任务监控", ...ADMIN_ROUTE_ACCESS.tasks },
+      },
+      {
         path: "queue",
         name: "queue",
         component: () => import("./pages/QueuePage.vue"),
         meta: { title: "队列与并发", ...ADMIN_ROUTE_ACCESS.queue },
+      },
+      {
+        path: "usage",
+        name: "usage",
+        component: () => import("./pages/UsagePage.vue"),
+        meta: { title: "成本与用量", ...ADMIN_ROUTE_ACCESS.usage },
       },
       {
         path: "quota",

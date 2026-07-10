@@ -197,6 +197,97 @@ export interface AuditListResult {
   items: AuditItem[];
 }
 
+export interface MonitoringFilters {
+  page?: number;
+  pageSize?: number;
+  groupId?: number;
+  ownerUserId?: number;
+  search?: string;
+}
+
+export interface ProjectListItem {
+  id: number;
+  name: string;
+  projectType: string | null;
+  type: string | null;
+  ownerUserId: number | null;
+  ownerName: string | null;
+  groupId: number;
+  groupName: string;
+  createTime: number | null;
+  taskCount: number;
+}
+
+export interface ProjectListResult {
+  page: number;
+  pageSize: number;
+  total: number;
+  items: ProjectListItem[];
+}
+
+export interface TaskListFilters extends MonitoringFilters {
+  projectId?: number;
+  state?: string;
+  taskClass?: string;
+}
+
+export interface TaskListItem {
+  id: number;
+  projectId: number;
+  projectName: string;
+  ownerUserId: number | null;
+  ownerName: string | null;
+  groupId: number;
+  groupName: string;
+  taskClass: string | null;
+  model: string | null;
+  description: string | null;
+  state: string | null;
+  startTime: number | null;
+  reason: string | null;
+}
+
+export interface TaskListResult {
+  page: number;
+  pageSize: number;
+  total: number;
+  items: TaskListItem[];
+}
+
+export interface UsageFilters extends MonitoringFilters {
+  projectId?: number;
+  taskType?: string;
+  providerId?: string;
+  modelId?: string;
+}
+
+export interface UsageListItem {
+  id: number;
+  jobId: number;
+  groupId: number;
+  groupName: string;
+  userId: number;
+  userName: string;
+  projectId: number | null;
+  projectName: string | null;
+  providerId: string | null;
+  modelId: string | null;
+  taskType: string;
+  estimatedCost: number | null;
+  currency: string | null;
+  result: string;
+  createdAt: number;
+}
+
+export interface UsageOverview {
+  summary: { recordCount: number; estimatedCost: number };
+  breakdown: Array<{ taskType: string; recordCount: number; estimatedCost: number }>;
+  page: number;
+  pageSize: number;
+  total: number;
+  items: UsageListItem[];
+}
+
 export class AdminApiError extends Error {
   constructor(
     message: string,
@@ -397,6 +488,78 @@ function isAuditListResult(value: unknown): value is AuditListResult {
     && isArrayOf(value.items, isAuditItem);
 }
 
+function isPageEnvelope(value: unknown): value is Record<string, unknown> {
+  return isRecord(value) && isInteger(value.page) && isInteger(value.pageSize) && isInteger(value.total);
+}
+
+function isProjectItem(value: unknown): value is ProjectListItem {
+  return isRecord(value)
+    && isInteger(value.id)
+    && typeof value.name === "string"
+    && isNullableString(value.projectType)
+    && isNullableString(value.type)
+    && isNullableNumber(value.ownerUserId)
+    && isNullableString(value.ownerName)
+    && isInteger(value.groupId)
+    && typeof value.groupName === "string"
+    && isNullableNumber(value.createTime)
+    && isInteger(value.taskCount);
+}
+
+function isProjectListResult(value: unknown): value is ProjectListResult {
+  return isPageEnvelope(value) && isArrayOf(value.items, isProjectItem);
+}
+
+function isTaskItem(value: unknown): value is TaskListItem {
+  return isRecord(value)
+    && isInteger(value.id)
+    && isInteger(value.projectId)
+    && typeof value.projectName === "string"
+    && isNullableNumber(value.ownerUserId)
+    && isNullableString(value.ownerName)
+    && isInteger(value.groupId)
+    && typeof value.groupName === "string"
+    && isNullableString(value.taskClass)
+    && isNullableString(value.model)
+    && isNullableString(value.description)
+    && isNullableString(value.state)
+    && isNullableNumber(value.startTime)
+    && isNullableString(value.reason);
+}
+
+function isTaskListResult(value: unknown): value is TaskListResult {
+  return isPageEnvelope(value) && isArrayOf(value.items, isTaskItem);
+}
+
+function isUsageItem(value: unknown): value is UsageListItem {
+  return isRecord(value)
+    && isInteger(value.id)
+    && isInteger(value.jobId)
+    && isInteger(value.groupId)
+    && typeof value.groupName === "string"
+    && isInteger(value.userId)
+    && typeof value.userName === "string"
+    && isNullableNumber(value.projectId)
+    && isNullableString(value.projectName)
+    && isNullableString(value.providerId)
+    && isNullableString(value.modelId)
+    && typeof value.taskType === "string"
+    && isNullableNumber(value.estimatedCost)
+    && isNullableString(value.currency)
+    && typeof value.result === "string"
+    && isFiniteNumber(value.createdAt);
+}
+
+function isUsageOverview(value: unknown): value is UsageOverview {
+  return isPageEnvelope(value)
+    && isRecord(value.summary)
+    && isInteger(value.summary.recordCount)
+    && isFiniteNumber(value.summary.estimatedCost)
+    && Array.isArray(value.breakdown)
+    && value.breakdown.every((item) => isRecord(item) && typeof item.taskType === "string" && isInteger(item.recordCount) && isFiniteNumber(item.estimatedCost))
+    && isArrayOf(value.items, isUsageItem);
+}
+
 function errorCode(value: unknown): string | number | undefined {
   if (typeof value !== "object" || value === null) return undefined;
   const code = (value as { code?: unknown }).code;
@@ -521,4 +684,16 @@ export function adjustQuota(input: QuotaAdjustmentInput) {
 
 export function listAudit(filters: AuditListFilters = {}) {
   return unwrap<AuditListResult>(client.get("/admin/audit/listAudit", { params: filters }), isAuditListResult);
+}
+
+export function listProjects(filters: MonitoringFilters = {}) {
+  return unwrap<ProjectListResult>(client.get("/admin/projects/listProjects", { params: filters }), isProjectListResult);
+}
+
+export function listTasks(filters: TaskListFilters = {}) {
+  return unwrap<TaskListResult>(client.get("/admin/tasks/listTasks", { params: filters }), isTaskListResult);
+}
+
+export function getUsageOverview(filters: UsageFilters = {}) {
+  return unwrap<UsageOverview>(client.get("/admin/usage/getOverview", { params: filters }), isUsageOverview);
 }
