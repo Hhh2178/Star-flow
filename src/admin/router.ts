@@ -42,6 +42,24 @@ export const adminRoutes: RouteRecordRaw[] = [
         component: () => import("./pages/AdminHome.vue"),
         meta: { title: "总览", ...ADMIN_ROUTE_ACCESS.home },
       },
+      {
+        path: "queue",
+        name: "queue",
+        component: () => import("./pages/QueuePage.vue"),
+        meta: { title: "队列与并发", ...ADMIN_ROUTE_ACCESS.queue },
+      },
+      {
+        path: "quota",
+        name: "quota",
+        component: () => import("./pages/QuotaPage.vue"),
+        meta: { title: "额度与充值", ...ADMIN_ROUTE_ACCESS.quota },
+      },
+      {
+        path: "audit",
+        name: "audit",
+        component: () => import("./pages/AuditPage.vue"),
+        meta: { title: "审计日志", ...ADMIN_ROUTE_ACCESS.audit },
+      },
     ],
   },
   {

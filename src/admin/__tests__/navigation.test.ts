@@ -18,4 +18,11 @@ describe("admin navigation", () => {
       routeName: "groups",
     });
   });
+
+  it.each(["admin", "super_admin"] as const)("automatically shows registered operations pages to %s", (role) => {
+    const labels = getAdminNavigation(role, new Set(["home", "queue", "quota", "audit"]))
+      .map((item) => item.label);
+
+    expect(labels).toEqual(["总览", "队列与并发", "额度与充值", "审计日志"]);
+  });
 });

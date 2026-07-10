@@ -4,11 +4,16 @@ import { ADMIN_HISTORY_BASE, adminRoutes } from "../router";
 import { ADMIN_ROUTE_ACCESS, decideAdminGuard } from "../router-policy";
 
 describe("admin route policy", () => {
-  it("uses the /admin/ history base and registers only the implemented home page", () => {
+  it("uses the /admin/ history base and registers the first operations pages", () => {
     const layoutRoute = adminRoutes.find((route) => route.name === "layout");
 
     expect(ADMIN_HISTORY_BASE).toBe("/admin/");
-    expect(layoutRoute?.children?.map((route) => route.name)).toEqual(["home"]);
+    expect(layoutRoute?.children?.map((route) => route.name)).toEqual(["home", "queue", "quota", "audit"]);
+    expect(
+      layoutRoute?.children
+        ?.filter((route) => ["queue", "quota", "audit"].includes(String(route.name)))
+        .every((route) => route.meta?.roles?.join(",") === "admin,super_admin"),
+    ).toBe(true);
   });
 
   it("redirects unfinished direct routes to the safe home fallback", async () => {
@@ -22,6 +27,14 @@ describe("admin route policy", () => {
     expect(fallbackRoute?.redirect).toBe("/");
     await router.push("/groups");
     expect(router.currentRoute.value).toMatchObject({ path: "/", name: "home" });
+  });
+
+  it.each(["queue", "quota", "audit"])("allows both admin roles on %s", (routeName) => {
+    const layoutRoute = adminRoutes.find((route) => route.name === "layout");
+    expect(layoutRoute?.children?.find((route) => route.name === routeName)?.meta?.roles).toEqual([
+      "admin",
+      "super_admin",
+    ]);
   });
 
   it("marks login and forbidden as public routes", () => {
