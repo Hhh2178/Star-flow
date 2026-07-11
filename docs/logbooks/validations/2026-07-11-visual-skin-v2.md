@@ -2,13 +2,13 @@
 
 ## Status
 
-Partial pass. Shared visual foundation, desktop authenticated Creator routes and desktop group Admin routes are verified. Mobile authenticated coverage and Super Admin-only pages remain open.
+Pass for the Visual Skin V2 milestone. Shared visual foundations, authenticated Creator/Admin desktop and mobile routes, and Super Admin-only Provider/groups/system pages are verified.
 
 ## Automated Evidence
 
 | Gate | Result |
 | --- | --- |
-| `yarn vitest run src` | Pass: 25 files, 192 tests |
+| `yarn vitest run src` | Pass: 25 files, 194 tests |
 | `yarn build-only` | Pass: Creator and Admin |
 | Build-boundary tests and scan | Pass: 7 tests and Creator/Admin output isolation |
 | Product identity tests and scan | Pass: source and compiled output expose Stars Flow identity only |
@@ -26,6 +26,11 @@ Partial pass. Shared visual foundation, desktop authenticated Creator routes and
 | Creator authenticated routes | Desktop | Pass: project, novel, script, Agent, assets, storyboard and production; no document overflow or visible green/teal values |
 | Group Admin authenticated routes | Desktop | Pass: users, projects, tasks, queue, usage, quota, Provider, AI config, audit and profile; no document overflow or visible green/teal values |
 | Creator project after rebuilt runtime | Desktop | Pass: no model-provider/Agent configuration guide, configuration button or dialog |
+| Creator authenticated routes | `390x844` | Pass: novel, script, assets and storyboard/voice-binding controls remain visible; no document overflow |
+| Group Admin authenticated routes | `390x844` | Pass: users, projects, tasks, queue, usage, quota, Provider, AI config, audit and profile; wide tables scroll internally |
+| Super Admin Provider | `1440x900`, `390x844` | Pass: Stars Flow identity and alias only; no upstream identity, document overflow or visible green/teal values |
+| Super Admin groups | `1440x900`, `390x844` | Pass: group fixture data visible; table scroll remains internal |
+| Super Admin system | `1440x900`, `390x844` | Pass: runtime, development switch and database table inventory visible without overlap |
 
 The first Admin mobile capture occurred during the 220ms entrance animation and was discarded. A second capture after animation completion showed the full panel and controls.
 
@@ -36,11 +41,16 @@ The first Admin mobile capture occurred during the 220ms entrance animation and 
 - Panel border: `rgb(220, 229, 242)`.
 - Panel radius: `8px`.
 
-## Open Validation
+## Runtime Evidence
 
-- Capture authenticated Creator and group Admin routes at mobile width.
-- Capture Super Admin-only groups and system configuration pages.
-- Exercise hover, focus, active, disabled, queued, running, completed, failed, cancelled and needs-attention states.
-- Repeat the full matrix at `1920x1080` and `768x1024` in addition to the tested viewports.
+- Provider catalog migration tests passed and the acceptance database upgraded the compatibility adapter to version `3.3`.
+- Admin Provider displays `Stars Flow 服务平台` and `#stars-flow-service`; the internal compatibility ID is not rendered.
+- Current acceptance-origin browser console errors: none.
+- App gates passed: `yarn test:r3o`, `yarn test:r3l`, and `yarn lint`.
+
+## Extended Matrix
+
+- Repeat the full route matrix at `1920x1080` and `768x1024` during release-candidate QA.
+- Recheck hover, focus and long-running queue transitions after the final deployment target and browser versions are fixed.
 
 No fixture password, Provider key or user media is recorded in this validation file.
