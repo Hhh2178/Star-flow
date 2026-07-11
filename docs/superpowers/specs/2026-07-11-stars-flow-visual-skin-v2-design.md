@@ -58,6 +58,39 @@ Compatibility and legal boundary:
 - Dependency licenses, legally required copyright notices and source-level provenance remain in source/distribution license material. They are not promoted as in-app product content.
 - Technical governance documentation may retain upstream history where needed for traceability. Product UI, screenshots and user-facing help must not expose that history.
 
+## Brand Asset Registry
+
+This phase does not finalize the permanent Stars Flow logo. It establishes one replacement boundary so a later logo package can be installed without editing individual pages.
+
+Create a canonical brand asset directory and registry in the frontend:
+
+```text
+web/src/assets/brand/
+  brand-mark.svg
+  brand-wordmark.svg
+  brand-favicon.svg
+  brand.ts
+```
+
+`brand.ts` owns the product name, Chinese descriptor, accessible labels and asset URLs. Existing Vue pages must not import legacy `logo.png`, `logo.svg` or upstream icons directly. They consume one shared brand component or the registry.
+
+The temporary mark is a restrained `SF` identifier with a small star-light cue. It is an implementation placeholder, not the approved permanent logo. It must remain legible at favicon, 24px navigation, 40px login and high-resolution display sizes. It uses the approved teal and neutral palette, has transparent-background and inverse variants where required, and does not use gradients or decorative glow effects.
+
+Association points covered by the registry:
+
+- Creator login, title bar, shell and welcome surfaces.
+- Admin login, sidebar and narrow header.
+- Browser title, favicon and install metadata.
+- Empty/error surfaces that currently use a product logo.
+- Electron-rendered title and product-visible labels.
+
+Replacement requirements:
+
+- A future formal logo replacement changes only files in `assets/brand/` and, where unavoidable, one build metadata reference.
+- Tests reject direct imports of legacy logo assets from application components.
+- Tests verify both Creator and Admin consume the Stars Flow brand name and contain no legacy logo accessible labels.
+- Legacy logo files may remain temporarily only when no runtime import or generated HTML reference exists; cleanup can remove them after the dependency scan is green.
+
 ## Visual Foundation
 
 | Token | Value | Purpose |
@@ -179,13 +212,14 @@ Browser gates:
 ## Delivery Sequence
 
 1. Audit current surfaces, hard-coded presentation values and upstream product identity.
-2. Remove user-visible upstream branding, open-source promotion and repository actions.
-3. Normalize shared tokens and TDesign mappings.
-4. Skin Creator shell and P0 surfaces.
-5. Skin Admin shell and P0 surfaces.
-6. Complete P1/P2 surfaces and production-specific chrome.
-7. Run automated gates and desktop/narrow browser regression.
-8. Update visual registries, validation evidence and progress logs.
+2. Create the brand asset registry and route every current logo association through it.
+3. Remove user-visible upstream branding, open-source promotion and repository actions.
+4. Normalize shared tokens and TDesign mappings.
+5. Skin Creator shell and P0 surfaces.
+6. Skin Admin shell and P0 surfaces.
+7. Complete P1/P2 surfaces and production-specific chrome.
+8. Run automated gates and desktop/narrow browser regression.
+9. Update visual registries, validation evidence and progress logs.
 
 ## Completion Criteria
 
