@@ -2,11 +2,7 @@
   <div class="admin-shell" :class="{ 'sidebar-open': sidebarOpen }">
     <aside class="admin-sidebar">
       <div class="admin-brand">
-        <span class="admin-brand-mark">SF</span>
-        <span class="admin-brand-copy">
-          <strong>Stars Flow</strong>
-          <small>管理后台</small>
-        </span>
+        <BrandIdentity compact show-descriptor />
       </div>
 
       <nav class="admin-nav" aria-label="管理后台导航">
@@ -75,6 +71,7 @@ import type { DropdownOption } from "tdesign-vue-next";
 import { getAdminNavigation } from "../navigation";
 import { useAdminSessionStore } from "../session";
 import type { AdminRole } from "../../shared/auth";
+import BrandIdentity from "../../components/brand/BrandIdentity.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -116,7 +113,7 @@ async function handleUserCommand(option: DropdownOption) {
   display: grid;
   min-height: 100vh;
   grid-template-columns: 224px minmax(0, 1fr);
-  background: var(--stars-page-bg);
+  background: var(--stars-page-gradient);
 }
 
 .admin-sidebar {
@@ -127,45 +124,20 @@ async function handleUserCommand(option: DropdownOption) {
   height: 100vh;
   flex-direction: column;
   border-right: 1px solid var(--stars-border);
-  background: #17211f;
-  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--stars-text);
+  box-shadow: 8px 0 24px rgba(42, 68, 126, 0.06);
+  backdrop-filter: blur(16px);
 }
 
 .admin-brand {
   display: flex;
-  height: 56px;
-  flex: 0 0 56px;
+  min-height: 72px;
+  flex: 0 0 72px;
   align-items: center;
   gap: 10px;
   padding: 0 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.admin-brand-mark {
-  display: grid;
-  width: 30px;
-  height: 30px;
-  place-items: center;
-  border: 1px solid #5eead4;
-  border-radius: 6px;
-  color: #5eead4;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.admin-brand-copy {
-  display: grid;
-  line-height: 1.15;
-}
-
-.admin-brand-copy strong {
-  font-size: 14px;
-}
-
-.admin-brand-copy small {
-  margin-top: 3px;
-  color: #9fb1ad;
-  font-size: 11px;
+  border-bottom: 1px solid var(--stars-border);
 }
 
 .admin-nav {
@@ -183,15 +155,15 @@ async function handleUserCommand(option: DropdownOption) {
   align-items: center;
   gap: 8px;
   padding: 0 10px;
-  border-radius: 5px;
-  color: #c6d1ce;
+  border-radius: var(--stars-radius-control);
+  color: var(--stars-text-muted);
   font-size: 13px;
   text-decoration: none;
 }
 
 .admin-nav-item:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #ffffff;
+  background: var(--stars-brand-subtle);
+  color: var(--stars-brand-hover);
 }
 
 .admin-nav-item.router-link-exact-active {
@@ -213,7 +185,8 @@ async function handleUserCommand(option: DropdownOption) {
   justify-content: space-between;
   padding: 0 20px;
   border-bottom: 1px solid var(--stars-border);
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
 }
 
 .topbar-leading {
@@ -244,7 +217,7 @@ async function handleUserCommand(option: DropdownOption) {
   gap: 8px;
   padding: 4px 6px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--stars-radius-control);
   background: transparent;
   color: var(--stars-text);
   cursor: pointer;
@@ -261,7 +234,7 @@ async function handleUserCommand(option: DropdownOption) {
   flex: 0 0 30px;
   place-items: center;
   border-radius: 50%;
-  background: var(--stars-brand);
+  background: var(--stars-brand-gradient);
   color: #ffffff;
   font-size: 12px;
   font-weight: 700;

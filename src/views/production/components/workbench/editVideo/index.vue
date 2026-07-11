@@ -206,12 +206,12 @@ const clipConfigs = ref({
     backgroundColor: "linear-gradient(45deg, #f093fb 0%, #f5576c 100%)",
     height: 36,
     selected: {
-      borderColor: "#4ecdc4",
+      borderColor: "#7060f6",
     },
   },
   image: {
-    backgroundColor: "linear-gradient(45deg, #43e97b 0%, #38f9d7 100%)",
-    borderColor: "#43e97b",
+    backgroundColor: "linear-gradient(45deg, #2f7df4 0%, #7060f6 100%)",
+    borderColor: "#2f7df4",
     height: 60,
     selected: {
       borderColor: "#ff6b6b",

@@ -194,7 +194,7 @@ const currentRow = ref<{
   referanceImages: [],
 });
 
-const tagColors = ["#5bccb3", "#9c7cfc", "#fbbf24", "#5b9afc", "#e86b6b", "#7cb8fc", "#e8a855", "#34d399"];
+const tagColors = ["#356df3", "#9c7cfc", "#fbbf24", "#5b9afc", "#e86b6b", "#7cb8fc", "#e8a855", "#6941c6"];
 
 function closePreview() {
   previewImages.value = [];

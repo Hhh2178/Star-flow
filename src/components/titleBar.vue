@@ -8,7 +8,7 @@
         <i-round theme="filled" size="13" fill="#febc2e" />
       </div>
       <div class="titleBar-btn" @click="handleMaximize">
-        <i-round theme="filled" size="13" fill="#28c840" />
+        <i-round theme="filled" size="13" fill="#5f8ff8" />
       </div>
       <div class="titleBar-btn" @click="handleClose">
         <i-round theme="filled" size="13" fill="#ff5f57" />

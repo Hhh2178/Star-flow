@@ -188,16 +188,19 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .main {
   width: 100vw;
-  padding: 16px;
+  padding: 12px;
   display: flex;
+  background: var(--stars-page-gradient);
 
   .menu {
     width: 64px;
     height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
-    background-color: var(--page);
-    border-radius: 16px;
+    border: 1px solid var(--stars-border);
+    border-radius: var(--stars-radius-panel);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: var(--td-shadow-1);
     padding-top: 16px;
     padding-bottom: 16px;
     color: var(--td-text-color-primary);
@@ -224,13 +227,15 @@ onUnmounted(() => {
           font-size: 24px;
         }
         &:hover {
-          background-color: var(--td-bg-color-container-hover);
-          border-radius: 16px;
+          background: var(--stars-brand-subtle);
+          color: var(--stars-brand-hover);
+          border-radius: var(--stars-radius-control);
         }
       }
       .active {
-        background-color: var(--stars-nav-active-bg) !important;
-        border-radius: 16px;
+        background: var(--stars-brand-gradient) !important;
+        color: #fff;
+        border-radius: var(--stars-radius-control);
       }
     }
   }
@@ -249,9 +254,11 @@ onUnmounted(() => {
   }
   .view {
     flex: 1;
-    margin-left: 16px;
-    background-color: var(--page);
-    border-radius: 16px;
+    margin-left: 12px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(183, 199, 227, 0.72);
+    border-radius: var(--stars-radius-panel);
+    box-shadow: var(--td-shadow-1);
     width: 100%;
     overflow-x: hidden;
     overflow-y: auto;
@@ -259,7 +266,8 @@ onUnmounted(() => {
     padding-left: 32px;
     padding-right: 32px;
     .topMenu {
-      height: 50px;
+      height: 54px;
+      border-bottom: 1px solid var(--stars-border);
       .rightBtnList {
         .item {
           margin-bottom: 0px !important;
@@ -297,14 +305,15 @@ onUnmounted(() => {
     color: var(--td-text-color-primary);
   }
   &:hover {
-    background-color: var(--td-bg-color-container-hover);
-    border-radius: 16px;
+    background: var(--stars-brand-subtle);
+    color: var(--stars-brand-hover);
+    border-radius: var(--stars-radius-control);
   }
 }
 .active {
-  background-color: var(--td-brand-color) !important;
-  color: var(--td-font-white-1);
-  border-radius: 16px;
+  background: var(--stars-brand-gradient) !important;
+  color: #fff;
+  border-radius: var(--stars-radius-control);
 }
 .divider {
   width: 50px;
@@ -320,5 +329,26 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+@media (max-width: 760px) {
+  .main {
+    padding: 8px;
+
+    .menu {
+      width: 56px;
+    }
+
+    .view {
+      margin-left: 8px;
+      padding-right: 14px;
+      padding-left: 14px;
+    }
+  }
+
+  .item {
+    width: 44px;
+    height: 44px;
+  }
 }
 </style>

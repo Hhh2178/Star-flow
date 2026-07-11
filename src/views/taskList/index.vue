@@ -25,7 +25,7 @@
           <template #default="{ row }">
             <span
               :style="{
-                color: row.state === '进行中' ? '#1890ff' : '#52c41a',
+                color: row.state === '进行中' ? '#175cd3' : '#344054',
                 fontWeight: 'bold',
               }">
               {{ row.state }}

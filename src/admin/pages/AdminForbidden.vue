@@ -41,7 +41,7 @@ function returnToCreator() {
   min-height: 100vh;
   place-items: center;
   padding: 24px;
-  background: #f3f6f5;
+  background: var(--stars-page-gradient);
 }
 
 .forbidden-panel {

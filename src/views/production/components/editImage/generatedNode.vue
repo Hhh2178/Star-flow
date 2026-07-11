@@ -289,7 +289,7 @@ onUnmounted(() => generationTrackingController.abort());
           width: 36px;
           height: 36px;
           border: 3px solid #d0d0d0;
-          border-top-color: #5bccb3;
+          border-top-color: #7060f6;
           border-radius: 50%;
           animation: spin 1s linear infinite;
         }
@@ -382,8 +382,8 @@ onUnmounted(() => generationTrackingController.abort());
 
       .generateBtn {
         margin-left: auto;
-        --td-brand-color: #5bccb3;
-        --td-brand-color-hover: #4ab8a0;
+        --td-brand-color: #7060f6;
+        --td-brand-color-hover: #624fdf;
       }
     }
   }

@@ -28,6 +28,7 @@ describe("Stars Flow luminous theme", () => {
   it("pairs primary and secondary action colors for readable controls", () => {
     expect(theme).toMatch(/\.t-button--theme-primary[\s\S]*background:\s*var\(--stars-brand-gradient\)[\s\S]*color:\s*#fff/);
     expect(theme).toMatch(/\.stars-button-secondary[\s\S]*background:\s*var\(--stars-surface\)[\s\S]*color:\s*var\(--stars-text\)/);
+    expect(theme).toMatch(/\.t-button--theme-primary\.t-button--variant-outline[\s\S]*background:\s*var\(--stars-surface\)[\s\S]*color:\s*var\(--stars-brand-hover\)/);
     expect(theme).toContain(".t-button .t-icon");
     expect(theme).toContain("color: inherit");
   });
@@ -39,7 +40,7 @@ describe("Stars Flow luminous theme", () => {
   });
 
   it("keeps known green and teal visual values out of Creator and Admin sources", () => {
-    const forbidden = /#(?:0f766e|115e59|134e4a|16a34a|15803d|14b8a6|2dd4bf|10b981|059669|22c55e|00a870|008858|006c45|005334|003b23|002515|2ba471|56c08d|92dab2|c6f3d7|e3f9e9|237804)|rgba?\(15,\s*118,\s*110/i;
+    const forbidden = /#(?:0f766e|115e59|134e4a|16a34a|15803d|14b8a6|2dd4bf|10b981|059669|22c55e|00a870|008858|006c45|005334|003b23|002515|2ba471|56c08d|92dab2|c6f3d7|e3f9e9|237804|047857|28c840|2da68a|34d399|38f9d7|43e97b|4ab8a0|4ecdc4|52c41a|5bccb3|d8f5ef|e5faf6|edfaf7|f0fdfb|f3f6f5)|rgba?\(15,\s*118,\s*110/i;
     const offenders = collectVisualSources(srcRoot).filter((path) => forbidden.test(fs.readFileSync(path, "utf8")));
 
     expect(offenders).toEqual([]);

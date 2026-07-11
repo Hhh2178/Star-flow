@@ -171,7 +171,7 @@ async function getTaskList() {
     color: #1890ff;
   }
   .stateSuccess {
-    color: #52c41a;
+    color: var(--stars-completed);
   }
   .paginationWrap {
     margin-top: 10px;

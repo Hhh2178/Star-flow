@@ -2,11 +2,7 @@
   <main class="admin-login">
     <section class="login-panel" aria-labelledby="login-title">
       <div class="login-brand">
-        <span class="brand-mark">SF</span>
-        <div>
-          <strong>Stars Flow</strong>
-          <span>管理后台</span>
-        </div>
+        <BrandIdentity show-descriptor />
       </div>
 
       <div class="login-heading">
@@ -105,6 +101,7 @@ import { nextTick, reactive, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";
 import { useAdminSessionStore } from "../session";
+import BrandIdentity from "../../components/brand/BrandIdentity.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -158,16 +155,17 @@ function goToCreator() {
   min-height: 100vh;
   place-items: center;
   padding: 24px;
-  background: #f3f6f5;
+  background: var(--stars-page-gradient);
 }
 
 .login-panel {
   width: min(100%, 390px);
   padding: 28px 30px;
   border: 1px solid var(--stars-border);
-  border-radius: 6px;
-  background: #ffffff;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+  border-radius: var(--stars-radius-panel);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--stars-shadow-soft);
+  backdrop-filter: blur(16px);
 }
 
 .login-brand {
@@ -176,34 +174,6 @@ function goToCreator() {
   gap: 11px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--stars-border);
-}
-
-.brand-mark {
-  display: grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  border-radius: 6px;
-  background: #17211f;
-  color: #5eead4;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.login-brand div {
-  display: grid;
-  line-height: 1.2;
-}
-
-.login-brand strong {
-  color: var(--stars-text);
-  font-size: 16px;
-}
-
-.login-brand span:last-child {
-  margin-top: 3px;
-  color: var(--stars-text-muted);
-  font-size: 12px;
 }
 
 .login-heading {
@@ -242,7 +212,7 @@ function goToCreator() {
   align-items: center;
   overflow: hidden;
   border: 1px solid var(--stars-border);
-  border-radius: 4px;
+  border-radius: var(--stars-radius-input);
   background: #ffffff;
   transition: border-color 120ms ease-out, box-shadow 120ms ease-out;
 }

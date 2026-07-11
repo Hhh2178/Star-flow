@@ -517,7 +517,7 @@ function handlePaste(e: ClipboardEvent) {
   gap: 4px;
   border-radius: 5px;
   border: 1px solid rgba(91, 204, 179, 0.5);
-  background: linear-gradient(135deg, #edfaf7 0%, #f0fdfb 100%);
+  background: linear-gradient(135deg, #f5f8ff 0%, #f7f1ff 100%);
   padding: 1px 6px 1px 3px;
   cursor: pointer;
   vertical-align: middle;
@@ -527,15 +527,15 @@ function handlePaste(e: ClipboardEvent) {
     background 0.15s;
   font-size: 12px;
   font-weight: 500;
-  color: #2da68a;
+  color: var(--stars-brand-hover);
   user-select: none;
   position: relative;
   top: -1px;
   margin-left: 5px;
 
   &:hover {
-    border-color: #5bccb3;
-    background: linear-gradient(135deg, #d8f5ef 0%, #e5faf6 100%);
+    border-color: var(--stars-brand);
+    background: linear-gradient(135deg, #eaf1ff 0%, #f2f5ff 100%);
   }
 
   img {

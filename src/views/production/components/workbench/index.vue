@@ -178,7 +178,7 @@ function editFootage() {
         name: item.name,
         duration: item.duration || 5,
         icon: "🖼️",
-        color: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+        color: "linear-gradient(135deg, #2f7df4 0%, #7060f6 100%)",
         url: item.filePath,
         loading: true,
       }));

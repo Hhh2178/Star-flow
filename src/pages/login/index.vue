@@ -113,13 +113,17 @@ const handleLogin = () => {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 24px;
+  background: var(--stars-page-gradient);
 
   .formBox {
-    width: 380px;
+    width: min(100%, 400px);
     padding: 40px 40px 30px;
-    background: var(--td-bg-color-container);
-    border-radius: 20px;
-    box-shadow: var(--td-shadow-3);
+    border: 1px solid var(--stars-border);
+    border-radius: var(--stars-radius-panel);
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: var(--stars-shadow-soft);
+    backdrop-filter: blur(16px);
 
     .logoBox {
       display: flex;
@@ -133,7 +137,7 @@ const handleLogin = () => {
     .login-form {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
 
       .input-icon {
         color: var(--td-text-color-placeholder);
@@ -146,7 +150,7 @@ const handleLogin = () => {
     }
   }
   .tips {
-    opacity: 0.5;
+    color: var(--stars-text-muted);
     font-size: 12px;
     margin-top: 18px;
   }
@@ -194,5 +198,20 @@ const handleLogin = () => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .loginPage {
+    padding: 16px;
+
+    .formBox {
+      padding: 32px 24px 24px;
+    }
+  }
+
+  .settingBtn {
+    right: 16px;
+    bottom: 16px;
+  }
 }
 </style>
