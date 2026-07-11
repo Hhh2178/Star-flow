@@ -43,7 +43,7 @@
     }
   },
   "settings": {
-    "title": "Настройки ToonFlow",
+    "title": "Настройки Stars Flow",
     "menu": {
       "language": "Язык",
       "vendorConfig": "Поставщики моделей",
@@ -191,14 +191,14 @@
       "confirm": "ОК",
       "cancel": "Отмена",
       "selectModel": "Выберите модель",
-      "fillKeyHeader": "Введите официальный KEY платформы Toonflow",
+      "fillKeyHeader": "Введите официальный KEY платформы Stars Flow",
       "keyPlaceholder": "Пожалуйста, введите KEY",
       "save": "Сохранить",
       "msg": {
         "notAvailable": "Эта функция пока недоступна. Следите за обновлениями!",
         "configSuccess": "Успешно настроено",
         "updateConfigFailed": "Ошибка обновления конфигурации: ",
-        "keyValid": "KEY действителен. Успешное подключение к платформе Toonflow",
+        "keyValid": "KEY действителен. Успешное подключение к платформе Stars Flow",
         "keyInvalid": "KEY недействителен. Пожалуйста, проверьте и введите снова: ",
         "enterKey": "Пожалуйста, введите KEY",
         "saveFailed": "Ошибка сохранения: ",
@@ -385,13 +385,13 @@
       "latestVersion": "У вас установлена последняя версия",
       "checkUpdate": "Проверить обновления",
       "codeRepository": "Репозиторий кода",
-      "githubRepo": "Репозиторий GitHub",
-      "giteeRepo": "Репозиторий Gitee",
+      "githubRepo": "",
+      "giteeRepo": "",
       "versionUpdate": "Обновление версии",
-      "checkUpdateGithub": "Проверить (GitHub)",
-      "getFromGithub": "Скачать последний релиз с GitHub",
-      "checkUpdateGitee": "Проверить (Gitee)",
-      "getFromGitee": "Скачать последний релиз с Gitee",
+      "checkUpdateGithub": "",
+      "getFromGithub": "",
+      "checkUpdateGitee": "",
+      "getFromGitee": "",
       "license": "Лицензия",
       "licenseDesc": "Лицензионное соглашение · Нажмите для подробностей",
       "updateAvailable": "найдена новая версия",
@@ -439,9 +439,9 @@
       "warning": "Ниже приведены инструменты разработчика, будьте осторожны!",
       "openDevtool": "Открыть",
       "devtoolsDoc": "Адрес документа",
-      "devtoolsDesc": "После включения в каталоге установки Toonflow будет создана папка .devtools. Убедитесь, что у Toonflow есть права на запись (запуск от имени администратора).",
+      "devtoolsDesc": "После включения в каталоге установки Stars Flow будет создана папка .devtools. Убедитесь, что у Stars Flow есть права на запись (запуск от имени администратора).",
       "devtoolsDesc2": "Запустите npx {'@'}ai-sdk/devtools в этом каталоге, чтобы включить отладку телеметрии.",
-      "openDevtoolFailed": "Не удалось открыть инструменты разработчика. Убедитесь, что установлен рабочий стол Toonflow.",
+      "openDevtoolFailed": "Не удалось открыть инструменты разработчика. Убедитесь, что установлен рабочий стол Stars Flow.",
       "notInElectron": "Для веб-среды откройте консоль браузера вручную."
     }
   },
@@ -704,7 +704,7 @@
       "selectAssets": "Выбрать ассеты",
       "noAssets": "Нет связанных ассетов",
       "selectAssetsTitle": "Выбор связанных ассетов",
-      "welcomeMsg": "Привет! Я ИИ-ассистент Toonflow. Хотите, чтобы я начал генерировать сценарий?",
+      "welcomeMsg": "Привет! Я ИИ-ассистент Stars Flow. Хотите, чтобы я начал генерировать сценарий?",
       "start": "Начать",
       "memoryType": {
         "message": "Память сообщений",
@@ -1455,7 +1455,7 @@
     "prompt": "подсказать слово"
   },
   "hello": {
-    "welcomeTitle": "Добро пожаловать в ToonFlow",
+    "welcomeTitle": "Добро пожаловать в Stars Flow",
     "welcomeDesc": "Платформа рабочего процесса создания комиксов, управляемая искусственным интеллектом, давайте потратим минуту, чтобы завершить первоначальную настройку.",
     "startConfig": "Начать настройку",
     "skip": "Пропустить загрузку",

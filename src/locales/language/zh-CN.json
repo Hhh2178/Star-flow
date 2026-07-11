@@ -53,7 +53,7 @@
     }
   },
   "settings": {
-    "title": "ToonFlow设置",
+    "title": "Stars Flow设置",
     "modelMap": {
       "imageModel": "图像模型",
       "videoModel": "视频模型",
@@ -273,19 +273,19 @@
       "confirm": "确认",
       "cancel": "取消",
       "selectModel": "选择模型",
-      "fillKeyHeader": "填入Toonflow平台的官方KEY",
+      "fillKeyHeader": "填入Stars Flow平台的官方KEY",
       "keyPlaceholder": "请输入 KEY",
       "save": "保存",
       "msg": {
         "notAvailable": "该功能暂未开放，敬请期待",
         "configSuccess": "配置成功",
         "updateConfigFailed": "更新配置失败：",
-        "keyValid": "KEY有效，已成功连接Toonflow平台",
+        "keyValid": "KEY有效，已成功连接Stars Flow平台",
         "keyInvalid": "KEY无效，请检查后重新输入：",
         "enterKey": "请输入 KEY",
         "saveFailed": "保存失败：",
         "getAgentListFailed": "获取Agent配置列表失败：",
-        "toonflowNotFound": "Toonflow官方中转站不存在"
+        "toonflowNotFound": "Stars Flow官方中转站不存在"
       },
       "temperature": "温度"
     },
@@ -441,7 +441,7 @@
     "skill": {
       "scanSkills": "扫描Skills",
       "addSkill": "新增 Skill",
-      "importFromHub": "Toonflow-Hub 导入",
+      "importFromHub": "Stars Flow-Hub 导入",
       "filterType": "类型",
       "filterAttribution": "归属",
       "searchPlaceholder": "按名称搜索 skill",
@@ -461,7 +461,7 @@
       "embedding": "向量化",
       "edit": "编辑",
       "delete": "删除",
-      "importFromHubDialog": "从 Toonflow-Hub 导入",
+      "importFromHubDialog": "从 Stars Flow-Hub 导入",
       "shareLink": "分享链接",
       "editSkillTitle": "编辑 Skill-",
       "addSkillTitle": "新增 Skill",
@@ -544,25 +544,25 @@
       "refresh": "刷新"
     },
     "about": {
-      "slogan": "开源的AI驱动漫画 / 分镜创作工具",
+      "slogan": "AI 漫剧与短剧生产工作台",
       "latestVersion": "当前为最新版本",
       "checkUpdate": "检查更新",
       "codeRepository": "代码仓库",
-      "githubRepo": "GitHub 仓库",
-      "giteeRepo": "Gitee 仓库",
+      "githubRepo": "",
+      "giteeRepo": "",
       "versionUpdate": "版本更新",
-      "checkUpdateGithub": "检查更新(GitHub)",
-      "getFromGithub": "从GitHub Release 获取最新版本",
-      "checkUpdateGitee": "检查更新(Gitee)",
-      "getFromGitee": "从Gitee Release获取最新版本",
+      "checkUpdateGithub": "",
+      "getFromGithub": "",
+      "checkUpdateGitee": "",
+      "getFromGitee": "",
       "license": "许可证",
-      "licenseDesc": "开源许可协议·点击查看详情",
+      "licenseDesc": "AI 漫剧与短剧生产工作台",
       "updateAvailable": "发现新版本",
       "currentVersion": "当前版本",
       "latestVersionLabel": "最新版本",
       "selectUpdateSource": "选择更新源",
-      "github": "GitHub",
-      "gitee": "Gitee",
+      "github": "",
+      "gitee": "",
       "confirmUpdate": "确认更新",
       "cancel": "取消",
       "updating": "正在更新...",
@@ -635,9 +635,9 @@
       "warning": "以下为开发者工具，谨慎操作！",
       "openDevtool": "打开",
       "devtoolsDoc": "文档地址",
-      "devtoolsDesc": "开启后会在Toonflow安装目录创建.devtools文件夹，请确保Toonflow有写入权限（管理员身份运行）。",
+      "devtoolsDesc": "开启后会在Stars Flow安装目录创建.devtools文件夹，请确保Stars Flow有写入权限（管理员身份运行）。",
       "devtoolsDesc2": "在该目录运行 npx {'@'}ai-sdk/devtools 开启遥测调试",
-      "openDevtoolFailed": "打开开发者工具失败，请确保已安装Toonflow桌面端",
+      "openDevtoolFailed": "打开开发者工具失败，请确保已安装Stars Flow桌面端",
       "notInElectron": "WEB环境请手动打开浏览器控制台",
       "msg": {
         "localStorageKeyRequired": "请输入 localStorage 的 key",
@@ -676,7 +676,7 @@
       "production": "视频生产",
       "assetCenter": "资产中心",
       "settings": "设置",
-      "jumpGithub": "跳转Github",
+      "jumpGithub": "",
       "feedbackQuestions": "反馈问题"
     },
     "project": {
@@ -924,7 +924,7 @@
       "selectAssets": "选择资产",
       "noAssets": "暂未关联资产",
       "selectAssetsTitle": "选择关联资产",
-      "welcomeMsg": "你好！我是 Toonflow 智能助手，需要我开始为您生成剧本吗？",
+      "welcomeMsg": "你好！我是 Stars Flow 智能助手，需要我开始为您生成剧本吗？",
       "start": "开始",
       "memoryType": {
         "message": "消息记忆",
@@ -1712,7 +1712,7 @@
   "workbench.production.node.storyboard.deleteNode": "删除",
   "workbench.production.node.storyboard.confirmDeleteBody": "确认是否删除该分镜",
   "hello": {
-    "welcomeTitle": "欢迎使用 ToonFlow",
+    "welcomeTitle": "欢迎使用 Stars Flow",
     "welcomeDesc": "AI 驱动的漫画创作工作流平台，让我们花一分钟完成初始配置。",
     "startConfig": "开始配置",
     "skip": "跳过引导",
@@ -1730,7 +1730,7 @@
     "finishTitle": "🎉 一切就绪！",
     "finishDesc": "配置完成，现在你可以开始使用所有功能了。如需调整，随时可以在设置中修改。",
     "qrcodeLabel": "加入微信交流群，获取更多帮助：",
-    "githubLabel": "如果觉得好用，请给我们一个 ⭐ Star 吧！",
+    "githubLabel": "",
     "prevStep": "上一步",
     "nextStep": "下一步",
     "finish": "开始使用"

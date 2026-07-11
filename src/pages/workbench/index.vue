@@ -2,7 +2,7 @@
   <div class="main" :style="{ height: isElectron ? 'calc(100vh - 32px)' : '100vh' }">
     <div class="menu fc jb">
       <div class="logoBox c">
-        <div class="logo"></div>
+        <BrandIdentity compact />
       </div>
       <div class="itemBox fc ac">
         <t-tooltip
@@ -29,11 +29,6 @@
             <t-badge :count="needUpdate ? 1 : 0" dot>
               <i-setting-one class="icon" />
             </t-badge>
-          </div>
-        </t-tooltip>
-        <t-tooltip :content="$t('workbench.menu.jumpGithub')" placement="right" destroyOnClose :showArrow="false">
-          <div class="item c" @click="jumpGithub">
-            <i-github-one class="icon" />
           </div>
         </t-tooltip>
       </div>
@@ -77,6 +72,7 @@
 import axios from "@/utils/axios";
 import setting from "@/components/setting/index.vue";
 import hello from "@/components/hello.vue";
+import BrandIdentity from "@/components/brand/BrandIdentity.vue";
 import projectStore from "@/stores/project";
 const { project } = storeToRefs(projectStore());
 import settingStore from "@/stores/setting";
@@ -113,14 +109,6 @@ function handleClick(menu: any) {
   if (menu.needProject && !project.value) return;
   router.push(menu.path);
   activeMenu.value = menu.path;
-}
-
-async function jumpGithub() {
-  if (isElectron.value) {
-    await fetch("toonflow://openurlwithbrowser?url=https://github.com/HBAI-Ltd/Toonflow-app");
-  } else {
-    window.open("https://github.com/HBAI-Ltd/Toonflow-app");
-  }
 }
 
 async function openFeedback() {
@@ -216,15 +204,6 @@ onUnmounted(() => {
     .logoBox {
       width: 100%;
       height: fit-content;
-      .logo {
-        width: 60%;
-        aspect-ratio: 1/1;
-        background-color: var(--td-text-color-primary);
-        mask: url("@/assets/logo.svg") no-repeat center;
-        mask-size: contain;
-        -webkit-mask: url("@/assets/logo.svg") no-repeat center;
-        -webkit-mask-size: contain;
-      }
     }
     .itemBox {
       flex: 1;

@@ -42,7 +42,7 @@
     }
   },
   "settings": {
-    "title": "Cài đặt ToonFlow",
+    "title": "Cài đặt Stars Flow",
     "menu": {
       "language": "Cài đặt ngôn ngữ",
       "vendorConfig": "Dịch vụ mô hình",
@@ -190,19 +190,19 @@
       "confirm": "Xác nhận",
       "cancel": "Hủy",
       "selectModel": "Chọn mô hình",
-      "fillKeyHeader": "Điền KEY chính thức của nền tảng Toonflow",
+      "fillKeyHeader": "Điền KEY chính thức của nền tảng Stars Flow",
       "keyPlaceholder": "Vui lòng nhập KEY",
       "save": "Lưu",
       "msg": {
         "notAvailable": "Tính năng này hiện chưa khả dụng, vui lòng chờ",
         "configSuccess": "Cấu hình thành công",
         "updateConfigFailed": "Cập nhật cấu hình thất bại:",
-        "keyValid": "KEY hợp lệ, kết nối với nền tảng Toonflow thành công",
+        "keyValid": "KEY hợp lệ, kết nối với nền tảng Stars Flow thành công",
         "keyInvalid": "KEY không hợp lệ, vui lòng kiểm tra và nhập lại:",
         "enterKey": "Vui lòng nhập KEY",
         "saveFailed": "Lưu thất bại:",
         "getAgentListFailed": "Lấy danh sách cấu hình Agent thất bại:",
-        "toonflowNotFound": "Trạm trung chuyển chính thức của Toonflow không tồn tại"
+        "toonflowNotFound": "Trạm trung chuyển chính thức của Stars Flow không tồn tại"
       },
       "temperature": "nhiệt độ"
     },
@@ -380,13 +380,13 @@
       "latestVersion": "Đây là phiên bản mới nhất",
       "checkUpdate": "Kiểm tra cập nhật",
       "codeRepository": "Kho lưu trữ mã nguồn",
-      "githubRepo": "Kho GitHub",
-      "giteeRepo": "Kho Gitee",
+      "githubRepo": "",
+      "giteeRepo": "",
       "versionUpdate": "Cập nhật phiên bản",
-      "checkUpdateGithub": "Kiểm tra cập nhật (GitHub)",
-      "getFromGithub": "Lấy phiên bản mới nhất từ GitHub Release",
-      "checkUpdateGitee": "Kiểm tra cập nhật (Gitee)",
-      "getFromGitee": "Lấy phiên bản mới nhất từ Gitee Release",
+      "checkUpdateGithub": "",
+      "getFromGithub": "",
+      "checkUpdateGitee": "",
+      "getFromGitee": "",
       "license": "Giấy phép",
       "licenseDesc": "Thỏa thuận giấy phép mã nguồn mở · Nhấn để xem chi tiết",
       "updateAvailable": "phiên bản mới được tìm thấy",
@@ -430,9 +430,9 @@
       "warning": "Sau đây là các công cụ dành cho nhà phát triển, vui lòng sử dụng thận trọng!",
       "openDevtool": "Mở",
       "devtoolsDoc": "Địa chỉ tài liệu",
-      "devtoolsDesc": "Sau khi bật lên sẽ tạo một thư mục .devtools trong thư mục cài đặt Toonflow. Hãy đảm bảo rằng Toonflow có quyền ghi (chạy với tư cách quản trị viên).",
+      "devtoolsDesc": "Sau khi bật lên sẽ tạo một thư mục .devtools trong thư mục cài đặt Stars Flow. Hãy đảm bảo rằng Stars Flow có quyền ghi (chạy với tư cách quản trị viên).",
       "devtoolsDesc2": "Chạy npx {'@'}ai-sdk/devtools trong thư mục này để bật gỡ lỗi đo từ xa",
-      "openDevtoolFailed": "Không mở được công cụ dành cho nhà phát triển, vui lòng đảm bảo đã cài đặt Toonflow desktop",
+      "openDevtoolFailed": "Không mở được công cụ dành cho nhà phát triển, vui lòng đảm bảo đã cài đặt Stars Flow desktop",
       "notInElectron": "Đối với môi trường WEB, vui lòng mở bảng điều khiển trình duyệt theo cách thủ công"
     }
   },
@@ -448,7 +448,7 @@
       "production": "Sản xuất video",
       "assetCenter": "Trung tâm tài nguyên",
       "settings": "Cài đặt",
-      "jumpGithub": "Chuyển tới Github",
+      "jumpGithub": "",
       "feedbackQuestions": "Câu hỏi phản hồi"
     },
     "project": {
@@ -695,7 +695,7 @@
       "selectAssets": "Chọn tài nguyên",
       "noAssets": "Chưa liên kết tài nguyên",
       "selectAssetsTitle": "Chọn tài nguyên liên kết",
-      "welcomeMsg": "Xin chào! Tôi là trợ lý thông minh Toonflow, bạn có muốn tôi bắt đầu tạo kịch bản cho bạn không?",
+      "welcomeMsg": "Xin chào! Tôi là trợ lý thông minh Stars Flow, bạn có muốn tôi bắt đầu tạo kịch bản cho bạn không?",
       "start": "Bắt đầu",
       "memoryType": {
         "message": "Bộ nhớ tin nhắn",
@@ -1447,7 +1447,7 @@
     "prompt": "lời nhắc"
   },
   "hello": {
-    "welcomeTitle": "Chào mừng đến với ToonFlow",
+    "welcomeTitle": "Chào mừng đến với Stars Flow",
     "welcomeDesc": "Nền tảng quy trình tạo truyện tranh do AI điều khiển, chúng ta hãy dành một phút để hoàn thành cấu hình ban đầu.",
     "startConfig": "Bắt đầu cấu hình",
     "skip": "Bỏ qua khởi động",

@@ -4,7 +4,7 @@
       <!-- 欢迎首页 -->
       <template v-if="currentStep === 0">
         <div class="welcomePage">
-          <img src="@/assets/logo.png" alt="ToonFlow Logo" class="welcomeLogo" />
+          <BrandIdentity show-descriptor />
           <h1 class="welcomeTitle">{{ $t("hello.welcomeTitle") }}</h1>
           <p class="welcomeDesc">{{ $t("hello.welcomeDesc") }}</p>
           <t-button theme="primary" size="large" @click="currentStep = 1">{{ $t("hello.startConfig") }}</t-button>
@@ -65,20 +65,13 @@
           <!-- Step 3: 完成 -->
           <div v-if="currentStep === 3" class="stepItem">
             <div class="stepIcon">
-              <t-icon name="check-circle" size="48px" color="var(--td-success-color)" />
+              <t-icon name="check-circle" size="48px" color="var(--td-brand-color)" />
             </div>
             <h2 class="stepTitle">{{ $t("hello.finishTitle") }}</h2>
             <p class="stepDesc">{{ $t("hello.finishDesc") }}</p>
             <div class="qrcodeBox">
               <p class="qrcodeLabel">{{ $t("hello.qrcodeLabel") }}</p>
               <t-qrcode value="https://work.weixin.qq.com/u/vc36adcc89845edcbe?v=5.0.3.63936&bb=85b8d228e8" level="Q" type="svg" />
-            </div>
-            <div class="githubBox">
-              <p class="qrcodeLabel">{{ $t("hello.githubLabel")}}</p>
-              <t-button theme="danger" size="large" @click="jumpGithub">
-                <template #icon><t-icon name="logo-github" /></template>
-                Star on GitHub
-              </t-button>
             </div>
           </div>
         </div>
@@ -102,7 +95,8 @@ import { useI18n } from "vue-i18n";
 import JSConfetti from "js-confetti";
 import settingStore from "@/stores/setting";
 import { languageList, cachedLocale } from "@/locales";
-const { showSetting, activeMenu, isElectron } = storeToRefs(settingStore());
+import BrandIdentity from "@/components/brand/BrandIdentity.vue";
+const { showSetting, activeMenu } = storeToRefs(settingStore());
 
 const { locale } = useI18n();
 const langOptions = languageList.map((item) => ({
@@ -140,13 +134,6 @@ function handleFinish() {
   jsConfetti.addConfetti();
 }
 
-async function jumpGithub() {
-  if (isElectron.value) {
-    await fetch("toonflow://openurlwithbrowser?url=https://github.com/HBAI-Ltd/Toonflow-app");
-  } else {
-    window.open("https://github.com/HBAI-Ltd/Toonflow-app");
-  }
-}
 </script>
 
 <style lang="scss" scoped>

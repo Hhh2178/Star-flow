@@ -52,10 +52,12 @@ test("singlefile 配置显式保留当前应用 base", async () => {
 });
 
 test("Admin 构建 HTML 使用 /admin/ base 和中文元数据", async () => {
+  const sourceHtml = await readFile(join(projectRoot, "index.html"), "utf8");
   const adminHtml = await readFile(join(projectRoot, "dist", "admin", "index.html"), "utf8");
+  assert.ok(sourceHtml.includes('href="/src/assets/brand/brand-favicon.svg"'), "源码未使用品牌 favicon");
   assert.ok(adminHtml.includes('<html lang="zh-CN">'), "Admin HTML 缺少 lang=zh-CN");
   assert.ok(adminHtml.includes("<title>Stars Flow 管理后台</title>"), "Admin HTML 标题不正确");
-  assert.ok(adminHtml.includes('href="/admin/favicon.ico"'), "Admin HTML 未保留 /admin/ base");
+  assert.match(adminHtml, /href="\/admin\/brand-favicon-[^"]+\.svg"/, "Admin 品牌 favicon 未保留 /admin/ base");
 });
 
 test("test:admin 会先运行单测再重建双端产物和检查边界", async () => {

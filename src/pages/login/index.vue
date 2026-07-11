@@ -10,11 +10,7 @@
         </t-form>
       </t-dialog>
       <div class="logoBox fc">
-        <div class="logoImg"></div>
-        <div class="fc c">
-          <span class="logoText">ToonFlow</span>
-          <span class="slogan">{{ $t("login.slogan") }}</span>
-        </div>
+        <BrandIdentity show-descriptor />
       </div>
       <div class="login-form">
         <t-input v-model="state.user.username" :placeholder="$t('login.username')" autocomplete="username" size="large"></t-input>
@@ -45,7 +41,7 @@
 <script setup>
 import { useI18n } from "vue-i18n";
 import Router from "@/router/index.ts";
-import logo from "@/assets/logo.png";
+import BrandIdentity from "@/components/brand/BrandIdentity.vue";
 import axios from "@/utils/axios";
 import settingStore from "@/stores/setting";
 import { storeToRefs } from "pinia";
@@ -132,26 +128,6 @@ const handleLogin = () => {
       margin-bottom: 30px;
       gap: 12px;
 
-      .logoImg {
-        width: 64px;
-        height: 64px;
-        background-color: var(--td-text-color-primary);
-        mask: url("@/assets/logo.svg") no-repeat center;
-        mask-size: contain;
-        -webkit-mask: url("@/assets/logo.svg") no-repeat center;
-        -webkit-mask-size: contain;
-      }
-
-      .logoText {
-        font-size: 36px;
-        font-weight: 800;
-        color: var(--td-text-color-primary);
-        letter-spacing: 1px;
-      }
-      .slogan {
-        opacity: 0.5;
-        white-space: nowrap;
-      }
     }
 
     .login-form {

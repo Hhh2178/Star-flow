@@ -43,7 +43,7 @@
     }
   },
   "settings": {
-    "title": "ToonFlow Settings",
+    "title": "Stars Flow Settings",
     "menu": {
       "language": "Language",
       "vendorConfig": "Model Providers",
@@ -192,19 +192,19 @@
       "confirm": "Confirm",
       "cancel": "Cancel",
       "selectModel": "Select Model",
-      "fillKeyHeader": "Enter official KEY from Toonflow platform",
+      "fillKeyHeader": "Enter official KEY from Stars Flow platform",
       "keyPlaceholder": "Please enter KEY",
       "save": "Save",
       "msg": {
         "notAvailable": "This feature is not yet available. Stay tuned!",
         "configSuccess": "Configured successfully",
         "updateConfigFailed": "Failed to update config: ",
-        "keyValid": "KEY is valid. Successfully connected to the Toonflow platform",
+        "keyValid": "KEY is valid. Successfully connected to the Stars Flow platform",
         "keyInvalid": "KEY is invalid. Please check and re-enter: ",
         "enterKey": "Please enter KEY",
         "saveFailed": "Save failed: ",
         "getAgentListFailed": "Failed to fetch Agent config list: ",
-        "toonflowNotFound": "Toonflow official transfer station does not exist"
+        "toonflowNotFound": "Stars Flow official transfer station does not exist"
       },
       "temperature": "temperature"
     },
@@ -349,7 +349,7 @@
     "skill": {
       "scanSkills": "Scan Skills",
       "addSkill": "Add Skill",
-      "importFromHub": "Import from Toonflow-Hub",
+      "importFromHub": "Import from Stars Flow-Hub",
       "filterType": "Type",
       "filterAttribution": "Attribution",
       "searchPlaceholder": "Search skill by name",
@@ -369,7 +369,7 @@
       "embedding": "Embed",
       "edit": "Edit",
       "delete": "Delete",
-      "importFromHubDialog": "Import from Toonflow-Hub",
+      "importFromHubDialog": "Import from Stars Flow-Hub",
       "shareLink": "Share Link",
       "editSkillTitle": "Edit Skill - ",
       "addSkillTitle": "Add Skill",
@@ -452,25 +452,25 @@
       }
     },
     "about": {
-      "slogan": "Open-source AI-driven Comic / Storyboard creation tool",
+      "slogan": "AI manga and short-drama production workspace",
       "latestVersion": "You are on the latest version",
       "checkUpdate": "Check for Updates",
       "codeRepository": "Code Repository",
-      "githubRepo": "GitHub Repository",
-      "giteeRepo": "Gitee Repository",
+      "githubRepo": "",
+      "giteeRepo": "",
       "versionUpdate": "Version Update",
-      "checkUpdateGithub": "Check Update (GitHub)",
-      "getFromGithub": "Get the latest release from GitHub",
-      "checkUpdateGitee": "Check Update (Gitee)",
-      "getFromGitee": "Get the latest release from Gitee",
+      "checkUpdateGithub": "",
+      "getFromGithub": "",
+      "checkUpdateGitee": "",
+      "getFromGitee": "",
       "license": "License",
-      "licenseDesc": "Open-source license agreement · Click for details",
+      "licenseDesc": "AI manga and short-drama production workspace",
       "updateAvailable": "new version found",
       "currentVersion": "Current Version",
       "latestVersionLabel": "Latest Version",
       "selectUpdateSource": "Select Update Source",
-      "github": "GitHub",
-      "gitee": "Gitee",
+      "github": "",
+      "gitee": "",
       "confirmUpdate": "Confirm Update",
       "cancel": "Cancel",
       "updating": "Updating...",
@@ -543,9 +543,9 @@
       "warning": "The following are developer tools, please operate with caution!",
       "openDevtool": "Open",
       "devtoolsDoc": "Document address",
-      "devtoolsDesc": "After being turned on, a .devtools folder will be created in the Toonflow installation directory. Please ensure that Toonflow has write permissions (run as administrator).",
+      "devtoolsDesc": "After being turned on, a .devtools folder will be created in the Stars Flow installation directory. Please ensure that Stars Flow has write permissions (run as administrator).",
       "devtoolsDesc2": "Run npx {'@'}ai-sdk/devtools in this directory to enable telemetry debugging",
-      "openDevtoolFailed": "Failed to open developer tools, please make sure Toonflow desktop is installed",
+      "openDevtoolFailed": "Failed to open developer tools, please make sure Stars Flow desktop is installed",
       "notInElectron": "For WEB environment, please open the browser console manually",
       "msg": {
         "localStorageKeyRequired": "Please enter a localStorage key",
@@ -581,7 +581,7 @@
       "production": "Video Production",
       "assetCenter": "Asset Center",
       "settings": "Settings",
-      "jumpGithub": "Jump to Github",
+      "jumpGithub": "",
       "feedbackQuestions": "Feedback question"
     },
     "project": {
@@ -829,7 +829,7 @@
       "selectAssets": "Select Assets",
       "noAssets": "No related assets",
       "selectAssetsTitle": "Select Related Assets",
-      "welcomeMsg": "Hello! I am the Toonflow AI Assistant. Would you like me to start generating a script?",
+      "welcomeMsg": "Hello! I am the Stars Flow AI Assistant. Would you like me to start generating a script?",
       "start": "Start",
       "memoryType": {
         "message": "Message Memory",
@@ -1595,7 +1595,7 @@
     "prompt": "prompt word"
   },
   "hello": {
-    "welcomeTitle": "Welcome to ToonFlow",
+    "welcomeTitle": "Welcome to Stars Flow",
     "welcomeDesc": "AI-driven comic creation workflow platform, let us spend a minute to complete the initial configuration.",
     "startConfig": "Start configuration",
     "skip": "Skip boot",
@@ -1613,7 +1613,7 @@
     "finishTitle": "🎉 Everything is ready!",
     "finishDesc": "The configuration is complete and now you can start using all the features. \nIf you need to adjust it, you can modify it in the settings at any time.",
     "qrcodeLabel": "Join the WeChat communication group to get more help:",
-    "githubLabel": "If you find it useful, please give us a ⭐ Star!",
+    "githubLabel": "",
     "prevStep": "Previous step",
     "nextStep": "Next step",
     "finish": "Get started"

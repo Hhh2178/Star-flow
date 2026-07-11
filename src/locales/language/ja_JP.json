@@ -43,7 +43,7 @@
     }
   },
   "settings": {
-    "title": "ToonFlow 設定",
+    "title": "Stars Flow 設定",
     "menu": {
       "language": "言語設定",
       "vendorConfig": "モデルサービス",
@@ -191,19 +191,19 @@
       "confirm": "確定",
       "cancel": "キャンセル",
       "selectModel": "モデルを選択",
-      "fillKeyHeader": "Toonflowプラットフォームの公式KEYを入力",
+      "fillKeyHeader": "Stars Flowプラットフォームの公式KEYを入力",
       "keyPlaceholder": "KEYを入力してください",
       "save": "保存",
       "msg": {
         "notAvailable": "この機能は現在準備中です。ご期待ください",
         "configSuccess": "設定に成功しました",
         "updateConfigFailed": "設定の更新に失敗しました：",
-        "keyValid": "KEYが有効です。Toonflowプラットフォームに接続しました",
+        "keyValid": "KEYが有効です。Stars Flowプラットフォームに接続しました",
         "keyInvalid": "KEYが無効です。確認して再入力してください：",
         "enterKey": "KEYを入力してください",
         "saveFailed": "保存に失敗しました：",
         "getAgentListFailed": "Agent設定リストの取得に失敗しました：",
-        "toonflowNotFound": "トゥーンフロー公式乗換駅は存在しない"
+        "toonflowNotFound": "Stars Flow サービスが設定されていません"
       },
       "temperature": "温度"
     },
@@ -385,13 +385,13 @@
       "latestVersion": "現在は最新バージョンです",
       "checkUpdate": "アップデートの確認",
       "codeRepository": "コードリポジトリ",
-      "githubRepo": "GitHub リポジトリ",
-      "giteeRepo": "Gitee リポジトリ",
+      "githubRepo": "",
+      "giteeRepo": "",
       "versionUpdate": "バージョンアップデート",
-      "checkUpdateGithub": "アップデート確認 (GitHub)",
-      "getFromGithub": "GitHub Releaseから最新版を取得",
-      "checkUpdateGitee": "アップデート確認 (Gitee)",
-      "getFromGitee": "Gitee Releaseから最新版を取得",
+      "checkUpdateGithub": "",
+      "getFromGithub": "",
+      "checkUpdateGitee": "",
+      "getFromGitee": "",
       "license": "ライセンス",
       "licenseDesc": "オープンソースライセンス・クリックして詳細を確認",
       "updateAvailable": "新しいバージョンが見つかりました",
@@ -439,9 +439,9 @@
       "warning": "以下は開発者ツールです。注意して操作してください。",
       "openDevtool": "開ける",
       "devtoolsDoc": "書類のアドレス",
-      "devtoolsDesc": "オンにすると、Toonflow のインストール ディレクトリに .devtools フォルダーが作成されます。 Toonflow に書き込み権限があることを確認してください (管理者として実行)。",
+      "devtoolsDesc": "オンにすると、Stars Flow のインストール ディレクトリに .devtools フォルダーが作成されます。 Stars Flow に書き込み権限があることを確認してください (管理者として実行)。",
       "devtoolsDesc2": "このディレクトリで npx {'@'}ai-sdk/devtools を実行して、テレメトリのデバッグを有効にします",
-      "openDevtoolFailed": "開発者ツールを開けませんでした。Toonflow デスクトップがインストールされていることを確認してください",
+      "openDevtoolFailed": "開発者ツールを開けませんでした。Stars Flow デスクトップがインストールされていることを確認してください",
       "notInElectron": "WEB環境の場合はブラウザコンソールを手動で開いてください"
     }
   },
@@ -457,7 +457,7 @@
       "production": "動画制作",
       "assetCenter": "アセットセンター",
       "settings": "設定",
-      "jumpGithub": "Githubにジャンプ",
+      "jumpGithub": "",
       "feedbackQuestions": "フィードバックの質問"
     },
     "project": {
@@ -704,7 +704,7 @@
       "selectAssets": "アセットを選択",
       "noAssets": "関連アセットがありません",
       "selectAssetsTitle": "関連アセットの選択",
-      "welcomeMsg": "こんにちは！Toonflow アシスタントです。シナリオの生成を開始しましょうか？",
+      "welcomeMsg": "こんにちは！Stars Flow アシスタントです。シナリオの生成を開始しましょうか？",
       "start": "開始",
       "memoryType": {
         "message": "メッセージメモリ",
@@ -1455,7 +1455,7 @@
     "prompt": "即効性のある言葉"
   },
   "hello": {
-    "welcomeTitle": "トゥーンフローへようこそ",
+    "welcomeTitle": "Stars Flow へようこそ",
     "welcomeDesc": "AI 主導のコミック作成ワークフロー プラットフォーム。1 分ほどかけて初期構成を完了してみましょう。",
     "startConfig": "設定を開始する",
     "skip": "スキップブート",

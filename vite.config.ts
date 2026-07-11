@@ -29,7 +29,7 @@ function appEntryPlugin(isAdmin: boolean): Plugin {
 
         const withAdminEntry = replaceRequired(html, creatorEntry, adminEntry, " Creator 入口 /src/main.ts");
         const withChineseLanguage = replaceRequired(withAdminEntry, '<html lang="">', '<html lang="zh-CN">', " html lang 属性");
-        return replaceRequired(withChineseLanguage, "<title>Toonflow</title>", "<title>Stars Flow 管理后台</title>", " Creator 标题");
+        return replaceRequired(withChineseLanguage, "<title>Stars Flow</title>", "<title>Stars Flow 管理后台</title>", " Creator 标题");
       },
     },
   };

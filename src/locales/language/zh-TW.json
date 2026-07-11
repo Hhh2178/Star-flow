@@ -51,7 +51,7 @@
     }
   },
   "settings": {
-    "title": "ToonFlow 設定",
+    "title": "Stars Flow 設定",
     "menu": {
       "language": "語言設定",
       "vendorConfig": "模型服務",
@@ -199,14 +199,14 @@
       "confirm": "確認",
       "cancel": "取消",
       "selectModel": "選擇模型",
-      "fillKeyHeader": "填入 Toonflow 平台的官方 KEY",
+      "fillKeyHeader": "填入 Stars Flow 平台的官方 KEY",
       "keyPlaceholder": "請輸入 KEY",
       "save": "儲存",
       "msg": {
         "notAvailable": "該功能暫未開放，敬請期待",
         "configSuccess": "設定成功",
         "updateConfigFailed": "更新設定失敗：",
-        "keyValid": "KEY 有效，已成功連接 Toonflow 平台",
+        "keyValid": "KEY 有效，已成功連接 Stars Flow 平台",
         "keyInvalid": "KEY 無效，請檢查後重新輸入：",
         "enterKey": "請輸入 KEY",
         "saveFailed": "儲存失敗：",
@@ -391,13 +391,13 @@
       "latestVersion": "目前為最新版本",
       "checkUpdate": "檢查更新",
       "codeRepository": "程式碼儲存庫",
-      "githubRepo": "GitHub 儲存庫",
-      "giteeRepo": "Gitee 儲存庫",
+      "githubRepo": "",
+      "giteeRepo": "",
       "versionUpdate": "版本更新",
-      "checkUpdateGithub": "檢查更新(GitHub)",
-      "getFromGithub": "從 GitHub Release 取得最新版本",
-      "checkUpdateGitee": "檢查更新(Gitee)",
-      "getFromGitee": "從 Gitee Release 取得最新版本",
+      "checkUpdateGithub": "",
+      "getFromGithub": "",
+      "checkUpdateGitee": "",
+      "getFromGitee": "",
       "license": "授權條款",
       "licenseDesc": "開源授權條款·點擊查看詳情",
       "updateAvailable": "發現新版本",
@@ -444,8 +444,8 @@
       "warning": "以下為開發者工具，謹慎操作！",
       "openDevtool": "打開",
       "devtoolsDoc": "文件地址",
-      "devtoolsDesc": "開啟後會在Toonflow安裝目錄建立.devtools資料夾，請確保Toonflow有寫入權限（管理員身分執行）。",
-      "openDevtoolFailed": "開啟開發者工具失敗，請確保已安裝Toonflow桌面端",
+      "devtoolsDesc": "開啟後會在Stars Flow安裝目錄建立.devtools資料夾，請確保Stars Flow有寫入權限（管理員身分執行）。",
+      "openDevtoolFailed": "開啟開發者工具失敗，請確保已安裝Stars Flow桌面端",
       "notInElectron": "WEB環境請手動開啟瀏覽器控制台"
     }
   },
@@ -461,7 +461,7 @@
       "production": "影片製作",
       "assetCenter": "資產中心",
       "settings": "設定",
-      "jumpGithub": "跳轉Github",
+      "jumpGithub": "",
       "feedbackQuestions": "回饋問題"
     },
     "project": {
@@ -708,7 +708,7 @@
       "selectAssets": "選擇資產",
       "noAssets": "暫未關聯資產",
       "selectAssetsTitle": "選擇關聯資產",
-      "welcomeMsg": "你好！我是 Toonflow 智慧助手，需要我開始為您生成劇本嗎？",
+      "welcomeMsg": "你好！我是 Stars Flow 智慧助手，需要我開始為您生成劇本嗎？",
       "start": "開始",
       "memoryType": {
         "message": "訊息記憶",
@@ -1438,7 +1438,7 @@
     "prompt": "提示詞"
   },
   "hello": {
-    "welcomeTitle": "歡迎使用 ToonFlow",
+    "welcomeTitle": "歡迎使用 Stars Flow",
     "welcomeDesc": "AI 驅動的漫畫創作工作流程平台，讓我們花一分鐘完成初始設定。",
     "startConfig": "開始配置",
     "skip": "跳過引導",
@@ -1456,7 +1456,7 @@
     "finishTitle": "🎉 一切就緒！",
     "finishDesc": "配置完成，現在你可以開始使用所有功能了。\n如需調整，隨時可以在設定中修改。",
     "qrcodeLabel": "加入微信交流群，獲得更多協助：",
-    "githubLabel": "如果覺得好用，請給我們一個 ⭐ Star 吧！",
+    "githubLabel": "",
     "prevStep": "上一步",
     "nextStep": "下一步",
     "finish": "開始使用"
