@@ -85,6 +85,9 @@ export default defineConfig(({ mode }) => {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
       },
     },
+    test: {
+      exclude: ["**/.worktrees/**", "**/node_modules/**", "**/dist/**", "**/.git/**", "**/.cache/**"],
+    },
     css: {
       preprocessorOptions: {
         scss: {
