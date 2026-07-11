@@ -168,7 +168,7 @@ void loadData();
 .table-scroll { overflow-x: auto; } table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 12px; }
 th { padding: 8px 10px; background: var(--stars-surface-muted); color: var(--stars-text-muted); font-weight: 600; text-align: left; white-space: nowrap; }
 td { padding: 8px 10px; border-top: 1px solid var(--stars-border); color: var(--stars-text); } td small { display: block; margin-top: 2px; color: var(--stars-text-muted); }
-.status-label { font-weight: 600; }.status-label.enabled { color: #237804; }.status-label.disabled { color: #667085; }
-.operation-message { margin: 0; padding: 8px 12px; border-bottom: 1px solid var(--stars-border); color: #237804; font-size: 12px; }.operation-message.error, .field-error { color: #b42318; }
+.status-label { font-weight: 600; }.status-label.enabled { color: var(--stars-completed); }.status-label.disabled { color: #667085; }
+.operation-message { margin: 0; padding: 8px 12px; border-bottom: 1px solid var(--stars-border); color: var(--stars-completed); font-size: 12px; }.operation-message.error, .field-error { color: #b42318; }
 .dialog-form { display: grid; gap: 12px; }.dialog-form label { display: grid; gap: 5px; color: var(--stars-text-muted); font-size: 12px; }.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }.field-error { margin: 0; font-size: 12px; }
 </style>

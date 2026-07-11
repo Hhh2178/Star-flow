@@ -249,7 +249,7 @@ function goToCreator() {
 
 .input-control:focus-within {
   border-color: var(--stars-brand);
-  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.12);
+  box-shadow: 0 0 0 3px rgba(53, 109, 243, 0.14);
 }
 
 .input-control--error {

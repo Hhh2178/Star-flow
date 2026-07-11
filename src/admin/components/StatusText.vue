@@ -20,8 +20,8 @@ const label = computed(() => labels[props.status]);
 <style scoped>
 .status-text { font-size: 12px; font-weight: 600; white-space: nowrap; }
 .status-queued, .status-recovering { color: #8a5a00; }
-.status-running { color: #0f766e; }
+.status-running { color: var(--stars-running); }
 .status-needs_attention, .status-failed { color: #b42318; }
-.status-succeeded { color: #237804; }
+.status-succeeded { color: var(--stars-completed); }
 .status-cancelled { color: #667085; }
 </style>

@@ -195,7 +195,7 @@ async function handleUserCommand(option: DropdownOption) {
 }
 
 .admin-nav-item.router-link-exact-active {
-  background: #0f766e;
+  background: var(--stars-brand-gradient);
   color: #ffffff;
 }
 

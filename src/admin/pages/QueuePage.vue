@@ -453,7 +453,7 @@ td { max-width: 180px; padding: 8px 10px; border-top: 1px solid var(--stars-bord
 td small { display: block; margin-top: 3px; color: var(--stars-text-muted); }
 .error-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row-actions { display: flex; gap: 3px; white-space: nowrap; }
-.operation-message { margin: 0; padding: 8px 12px; border-top: 1px solid var(--stars-border); color: #237804; font-size: 12px; }
+.operation-message { margin: 0; padding: 8px 12px; border-top: 1px solid var(--stars-border); color: var(--stars-completed); font-size: 12px; }
 .operation-message.error, .field-error { color: #b42318; }
 .target-grid { grid-template-columns: repeat(2, minmax(180px, 300px)); padding: 12px; margin: 0; }
 .policy-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--stars-border); }

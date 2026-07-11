@@ -239,7 +239,7 @@ td { max-width: 280px; padding: 9px 10px; border-top: 1px solid var(--stars-bord
 td small { display: block; margin-top: 3px; color: var(--stars-text-muted); }
 .summary-list { display: flex; flex-wrap: wrap; gap: 4px 10px; line-height: 1.5; }
 .summary-list span { overflow-wrap: anywhere; }
-.result-text { color: #237804; font-weight: 600; }
+.result-text { color: var(--stars-completed); font-weight: 600; }
 .result-text.failed { color: #b42318; }
 .pagination { display: flex; min-height: 48px; align-items: center; justify-content: flex-end; gap: 10px; padding: 8px 12px; border-top: 1px solid var(--stars-border); color: var(--stars-text-muted); font-size: 12px; }
 @media (max-width: 640px) { .group-filter { width: 100%; } .pagination { justify-content: space-between; } }
