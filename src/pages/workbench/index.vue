@@ -64,14 +64,12 @@
       </div>
     </div>
   </div>
-  <hello />
   <setting />
 </template>
 
 <script setup lang="ts">
 import axios from "@/utils/axios";
 import setting from "@/components/setting/index.vue";
-import hello from "@/components/hello.vue";
 import BrandIdentity from "@/components/brand/BrandIdentity.vue";
 import projectStore from "@/stores/project";
 const { project } = storeToRefs(projectStore());
@@ -187,7 +185,7 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .main {
-  width: 100vw;
+  width: 100%;
   padding: 12px;
   display: flex;
   background: var(--stars-page-gradient);
@@ -254,12 +252,13 @@ onUnmounted(() => {
   }
   .view {
     flex: 1;
+    min-width: 0;
     margin-left: 12px;
     background: rgba(255, 255, 255, 0.72);
     border: 1px solid rgba(183, 199, 227, 0.72);
     border-radius: var(--stars-radius-panel);
     box-shadow: var(--td-shadow-1);
-    width: 100%;
+    width: auto;
     overflow-x: hidden;
     overflow-y: auto;
     scrollbar-gutter: stable;

@@ -190,6 +190,26 @@ button {
   box-shadow: 0 4px 12px rgba(53, 109, 243, 0.12);
 }
 
+.t-button--theme-primary.t-button--variant-text {
+  border-color: transparent;
+  background: transparent;
+  color: var(--stars-brand-hover);
+  box-shadow: none;
+}
+
+.t-button--theme-primary.t-button--variant-text:not(.t-is-disabled):hover {
+  background: var(--stars-brand-soft);
+  color: var(--stars-brand-hover);
+  box-shadow: none;
+}
+
+.t-button--theme-primary.t-is-disabled {
+  border-color: var(--stars-border);
+  background: var(--stars-brand-subtle);
+  color: var(--stars-text-muted);
+  box-shadow: none;
+}
+
 .stars-button-secondary {
   border: 1px solid var(--stars-border-strong);
   background: var(--stars-surface);
@@ -245,6 +265,14 @@ button {
 
 .t-tag--theme-success,
 .t-tag--success {
+  border-color: #d0d5dd;
+  background: var(--stars-completed-bg);
+  color: var(--stars-completed);
+}
+
+.t-tag.t-tag--success.t-tag--outline,
+.t-tag.t-tag--success.t-tag--light,
+.t-tag.t-tag--success.t-tag--light-outline {
   border-color: #d0d5dd;
   background: var(--stars-completed-bg);
   color: var(--stars-completed);

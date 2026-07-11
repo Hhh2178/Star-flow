@@ -17,7 +17,7 @@
     </div>
     <div class="list">
       <t-card hoverShadow class="card" v-for="project in allProject" :key="project.id" @click="openProject(project.id)">
-        <div class="jb ac">
+        <div class="cardHeader">
           <div class="title">
             {{ project.name }}
           </div>
@@ -233,8 +233,8 @@ function delProjcer(projectId: string | undefined) {
   }
   .list {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
     .card {
       width: 100%;
       height: 100%;
@@ -242,10 +242,21 @@ function delProjcer(projectId: string | undefined) {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      min-width: 0;
+      .cardHeader {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+      }
       .title {
+        min-width: 0;
+        overflow: hidden;
         font-size: 20px;
         font-weight: bold;
         margin-bottom: 8px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .intro {
         height: 100%;

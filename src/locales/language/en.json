@@ -1570,7 +1570,6 @@
   },
   "login": {
     "slogan": "Intelligent Short Drama Creation Platform",
-    "tips": "Default Account: admin / admin123",
     "settings": "Server Settings",
     "requestAddress": "Request URL",
     "username": "Username",
@@ -1593,30 +1592,6 @@
   "workbench.script.extractAssets": "Extract Assets",
   "promptManage": {
     "prompt": "prompt word"
-  },
-  "hello": {
-    "welcomeTitle": "Welcome to Stars Flow",
-    "welcomeDesc": "AI-driven comic creation workflow platform, let us spend a minute to complete the initial configuration.",
-    "startConfig": "Start configuration",
-    "skip": "Skip boot",
-    "configModel": "Add model service",
-    "configData": "Configure Agent",
-    "startUse": "Get started",
-    "configModelTitle": "Add model service provider",
-    "configModelDesc": "First, you need to add at least one AI model service provider (such as OpenAI, Claude, etc.) in the settings and fill in the corresponding API Key.",
-    "configModelTip": "Clicking the button below will open the \"Model Service\" tab of the settings page. After adding the supplier, return here to continue.",
-    "configModelBtn": "Go to configure model service",
-    "configAgentTitle": "Assign Agent Model",
-    "configAgentDesc": "Next, assign models to each functional module in the Agent configuration so that the system knows which model to call to complete the task.",
-    "configAgentTip": "Clicking the button below will open the \"Agent Configuration\" tab of the settings page. Return here after assigning models to each function.",
-    "configAgentBtn": "Go to configure Agent",
-    "finishTitle": "🎉 Everything is ready!",
-    "finishDesc": "The configuration is complete and now you can start using all the features. \nIf you need to adjust it, you can modify it in the settings at any time.",
-    "qrcodeLabel": "Join the WeChat communication group to get more help:",
-    "githubLabel": "",
-    "prevStep": "Previous step",
-    "nextStep": "Next step",
-    "finish": "Get started"
   },
   "setting": {
     "skillManagement": {

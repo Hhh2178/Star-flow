@@ -19,7 +19,6 @@
           {{ $t("login.login") }}
         </t-button>
       </div>
-      <div class="tips c">{{ $t("login.tips") }}</div>
     </div>
   </div>
   <div class="settingBtn">
@@ -148,11 +147,6 @@ const handleLogin = () => {
         border-radius: 8px;
       }
     }
-  }
-  .tips {
-    color: var(--stars-text-muted);
-    font-size: 12px;
-    margin-top: 18px;
   }
 }
 

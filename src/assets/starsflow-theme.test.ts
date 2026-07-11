@@ -29,6 +29,8 @@ describe("Stars Flow luminous theme", () => {
     expect(theme).toMatch(/\.t-button--theme-primary[\s\S]*background:\s*var\(--stars-brand-gradient\)[\s\S]*color:\s*#fff/);
     expect(theme).toMatch(/\.stars-button-secondary[\s\S]*background:\s*var\(--stars-surface\)[\s\S]*color:\s*var\(--stars-text\)/);
     expect(theme).toMatch(/\.t-button--theme-primary\.t-button--variant-outline[\s\S]*background:\s*var\(--stars-surface\)[\s\S]*color:\s*var\(--stars-brand-hover\)/);
+    expect(theme).toMatch(/\.t-button--theme-primary\.t-button--variant-text[\s\S]*background:\s*transparent[\s\S]*color:\s*var\(--stars-brand-hover\)/);
+    expect(theme).toMatch(/\.t-button--theme-primary\.t-is-disabled[\s\S]*background:\s*var\(--stars-brand-subtle\)[\s\S]*color:\s*var\(--stars-text-muted\)/);
     expect(theme).toContain(".t-button .t-icon");
     expect(theme).toContain("color: inherit");
   });
@@ -37,6 +39,7 @@ describe("Stars Flow luminous theme", () => {
     expect(theme).not.toMatch(/#0f766e|#115e59|#134e4a|#16a34a|#15803d|#14b8a6|#2dd4bf|15,\s*118,\s*110/i);
     expect(theme).toContain("--td-success-color: var(--stars-completed)");
     expect(theme).toContain("--stars-completed: #344054");
+    expect(theme).toMatch(/\.t-tag\.t-tag--success\.t-tag--outline[\s\S]*background:\s*var\(--stars-completed-bg\)[\s\S]*color:\s*var\(--stars-completed\)/);
   });
 
   it("keeps known green and teal visual values out of Creator and Admin sources", () => {

@@ -1417,7 +1417,6 @@
   },
   "login": {
     "slogan": "ショードラ制作支援ツール",
-    "tips": "デフォルトアカウント：admin / admin123",
     "settings": "サーバー設定",
     "requestAddress": "リクエストアドレス",
     "username": "ユーザー名",
@@ -1453,30 +1452,6 @@
   "workbench.script.extractAssets": "アセットを抽出",
   "promptManage": {
     "prompt": "即効性のある言葉"
-  },
-  "hello": {
-    "welcomeTitle": "Stars Flow へようこそ",
-    "welcomeDesc": "AI 主導のコミック作成ワークフロー プラットフォーム。1 分ほどかけて初期構成を完了してみましょう。",
-    "startConfig": "設定を開始する",
-    "skip": "スキップブート",
-    "configModel": "モデルサービスの追加",
-    "configData": "エージェントの構成",
-    "startUse": "始めましょう",
-    "configModelTitle": "モデルサービスプロバイダーを追加",
-    "configModelDesc": "まず、設定に少なくとも 1 つの AI モデル サービス プロバイダー (OpenAI、Claude など) を追加し、対応する API キーを入力する必要があります。",
-    "configModelTip": "下のボタンをクリックすると、設定ページの「モデルサービス」タブが開きます。サプライヤーを追加したら、ここに戻って続行します。",
-    "configModelBtn": "モデルサービスの構成に移動します",
-    "configAgentTitle": "エージェントモデルの割り当て",
-    "configAgentDesc": "次に、エージェント構成内の各機能モジュールにモデルを割り当て、タスクを完了するためにどのモデルを呼び出すべきかをシステムが認識できるようにします。",
-    "configAgentTip": "下のボタンをクリックすると、設定ページの「エージェント構成」タブが開きます。各機能にモデルを割り当てた後、ここに戻ります。",
-    "configAgentBtn": "エージェントの構成に移動します",
-    "finishTitle": "🎉 準備は万端です！",
-    "finishDesc": "設定が完了したので、すべての機能を使用できるようになります。調整する必要がある場合は、いつでも設定で変更できます。",
-    "qrcodeLabel": "さらに詳しいサポートを得るには、WeChat コミュニケーション グループに参加してください。",
-    "githubLabel": "役に立ったと思ったら、⭐スターをお願いします！",
-    "prevStep": "前のステップ",
-    "nextStep": "次のステップ",
-    "finish": "始めましょう"
   },
   "setting": {
     "skillManagement": {

@@ -1674,7 +1674,6 @@
   },
   "login": {
     "slogan": "智能短剧创作平台",
-    "tips": "默认账号：admin / admin123",
     "settings": "服务器设置",
     "requestAddress": "请求地址",
     "username": "用户名",
@@ -1711,30 +1710,6 @@
   "workbench.production.node.storyboard.editNode": "编辑",
   "workbench.production.node.storyboard.deleteNode": "删除",
   "workbench.production.node.storyboard.confirmDeleteBody": "确认是否删除该分镜",
-  "hello": {
-    "welcomeTitle": "欢迎使用 Stars Flow",
-    "welcomeDesc": "AI 驱动的漫画创作工作流平台，让我们花一分钟完成初始配置。",
-    "startConfig": "开始配置",
-    "skip": "跳过引导",
-    "configModel": "添加模型服务",
-    "configData": "配置 Agent",
-    "startUse": "开始使用",
-    "configModelTitle": "添加模型服务供应商",
-    "configModelDesc": "首先，你需要在设置中添加至少一个 AI 模型服务供应商（如 OpenAI、Claude 等），并填写对应的 API Key。",
-    "configModelTip": "点击下方按钮将打开设置页面的「模型服务」选项卡，添加供应商后回到此处继续。",
-    "configModelBtn": "前往配置模型服务",
-    "configAgentTitle": "分配 Agent 模型",
-    "configAgentDesc": "接下来，在 Agent 配置中为各个功能模块分配模型，这样系统才知道调用哪个模型来完成任务。",
-    "configAgentTip": "点击下方按钮将打开设置页面的「Agent 配置」选项卡，为各功能分配模型后回到此处。",
-    "configAgentBtn": "前往配置 Agent",
-    "finishTitle": "🎉 一切就绪！",
-    "finishDesc": "配置完成，现在你可以开始使用所有功能了。如需调整，随时可以在设置中修改。",
-    "qrcodeLabel": "加入微信交流群，获取更多帮助：",
-    "githubLabel": "",
-    "prevStep": "上一步",
-    "nextStep": "下一步",
-    "finish": "开始使用"
-  },
   "setting": {
     "skillManagement": {
       "search": "搜索文件名",
