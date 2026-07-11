@@ -31,6 +31,9 @@ Pass for the Visual Skin V2 milestone. Shared visual foundations, authenticated 
 | Super Admin Provider | `1440x900`, `390x844` | Pass: Stars Flow identity and alias only; no upstream identity, document overflow or visible green/teal values |
 | Super Admin groups | `1440x900`, `390x844` | Pass: group fixture data visible; table scroll remains internal |
 | Super Admin system | `1440x900`, `390x844` | Pass: runtime, development switch and database table inventory visible without overlap |
+| Creator authenticated routes | `1920x1080` | Pass: novel, script, assets, storyboard/voice-binding, production and task routes; no global configuration UI or document overflow |
+| Group Admin authenticated routes | `1920x1080` | Pass: ten Admin routes remain group-scoped; groups/system direct access returns `403` |
+| Super Admin authenticated routes | `1920x1080` | Pass: both fixture groups, global Provider/AI/system and aggregate pages visible without document overflow |
 
 The first Admin mobile capture occurred during the 220ms entrance animation and was discarded. A second capture after animation completion showed the full panel and controls.
 
@@ -47,10 +50,15 @@ The first Admin mobile capture occurred during the 220ms entrance animation and 
 - Admin Provider displays `Stars Flow 服务平台` and `#stars-flow-service`; the internal compatibility ID is not rendered.
 - Current acceptance-origin browser console errors: none.
 - App gates passed: `yarn test:r3o`, `yarn test:r3l`, and `yarn lint`.
+- Canonical integrated revisions: Web `048ebad`, App `603adc5`.
+- `1920x1080` computed visible-style scan found no green/teal text, background or border colors.
+- Creator/Admin role-switch regression produced no acceptance-origin browser console errors.
+- Queue fixture renders completed, failed, cancelled and needs-attention rows plus queued/running status counters; queue behavior remains covered by 18 Admin queue unit tests and App queue integration tests.
 
-## Extended Matrix
+## Known Type Debt
 
-- Repeat the full route matrix at `1920x1080` and `768x1024` during release-candidate QA.
-- Recheck hover, focus and long-running queue transitions after the final deployment target and browser versions are fixed.
+- `vue-tsc --build` reports 21 pre-existing errors in legacy Markdown/editor, Electron, production-copy and select-control files.
+- The release command remains `yarn build-only`; the type-debt cleanup should be completed as a separate bounded task.
+- `768x1024` was explicitly omitted from this release-candidate matrix by product-owner direction.
 
 No fixture password, Provider key or user media is recorded in this validation file.
