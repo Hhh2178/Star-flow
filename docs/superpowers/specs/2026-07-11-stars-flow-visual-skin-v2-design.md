@@ -30,6 +30,34 @@ This phase must not change:
 - Table columns, form fields, commands or production semantics.
 - Creator/Admin build boundaries.
 
+## Product Identity Cleanup
+
+The shipped product surface is Stars Flow only. Creator, Admin and Electron-rendered pages must not present Toonflow, Toolflow or another open-source project as the product identity.
+
+Remove or replace all user-visible instances of:
+
+- Toonflow, ToonFlow, Toolflow or upstream product names.
+- "Open source", `开源` and equivalent product-positioning copy in every bundled locale.
+- GitHub, Gitee, AtomGit, repository, release-source, star request or upstream community promotion copy.
+- Repository buttons, icons, links, click handlers and tooltips.
+- Upstream welcome, About, update-source and official-platform descriptions.
+- Upstream names in page titles, logos, accessible image labels, assistant greetings, exported backup filenames and visible errors.
+
+Replacement rules:
+
+- Product name: `Stars Flow`.
+- Chinese product description: `AI 漫剧与短剧生产工作台`.
+- Assistant description: role-specific neutral text such as `剧本创作助手` or `制片助手`; do not claim an upstream official service.
+- Backup filename prefix: `stars-flow-backup`.
+- Update and About surfaces may show Stars Flow version/runtime information, but no external repository or open-source promotion.
+- A removed repository action leaves no empty menu row, separator, tooltip or unreachable click target.
+
+Compatibility and legal boundary:
+
+- Internal protocol names such as `toonflow://`, persisted Provider IDs, migration keys and API compatibility constants may remain when changing them would break Electron, existing data or Provider execution. They must never be rendered as product copy.
+- Dependency licenses, legally required copyright notices and source-level provenance remain in source/distribution license material. They are not promoted as in-app product content.
+- Technical governance documentation may retain upstream history where needed for traceability. Product UI, screenshots and user-facing help must not expose that history.
+
 ## Visual Foundation
 
 | Token | Value | Purpose |
@@ -145,17 +173,20 @@ Browser gates:
 - Exercise hover, focus, active, disabled, loading, empty, success, failure, queued, running, cancelled and needs-attention states where available.
 - Check for old default blue branding, isolated hard-coded colors, inconsistent radius, excessive shadows, clipping, overlap and document-level overflow.
 - Compare screenshots against the approved calm production-console direction, not only against functional correctness.
+- Search rendered Creator/Admin pages and built user-facing strings for `Toonflow`, `Toolflow`, `GitHub`, `Gitee`, `AtomGit`, `open source` and `开源`; expected result is zero product-facing matches.
+- Verify repository icons, links, update-source actions and upstream welcome/About promotions are absent and leave no dead spacing.
 
 ## Delivery Sequence
 
-1. Audit current surfaces and hard-coded presentation values.
-2. Normalize shared tokens and TDesign mappings.
-3. Skin Creator shell and P0 surfaces.
-4. Skin Admin shell and P0 surfaces.
-5. Complete P1/P2 surfaces and production-specific chrome.
-6. Run automated gates and desktop/narrow browser regression.
-7. Update visual registries, validation evidence and progress logs.
+1. Audit current surfaces, hard-coded presentation values and upstream product identity.
+2. Remove user-visible upstream branding, open-source promotion and repository actions.
+3. Normalize shared tokens and TDesign mappings.
+4. Skin Creator shell and P0 surfaces.
+5. Skin Admin shell and P0 surfaces.
+6. Complete P1/P2 surfaces and production-specific chrome.
+7. Run automated gates and desktop/narrow browser regression.
+8. Update visual registries, validation evidence and progress logs.
 
 ## Completion Criteria
 
-The visual skin is complete when all matrix surfaces use the shared visual language, no known page retains dominant Toonflow default styling, all required responsive screenshots pass visual review, and the dual-build release gate remains green without functional or authorization regressions.
+The visual skin is complete when all matrix surfaces use the shared visual language, no product-facing surface retains upstream branding, open-source promotion, repository actions or dominant upstream styling, all required responsive screenshots pass visual review, and the dual-build release gate remains green without functional or authorization regressions.
