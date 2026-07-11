@@ -397,4 +397,48 @@ onUnmounted(() => {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+@media (max-width: 640px) {
+  .novel {
+    min-width: 0;
+
+    .headBtn {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      margin-top: 12px;
+
+      :deep(.t-space) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px !important;
+        width: 100%;
+      }
+
+      :deep(.t-button) {
+        width: 100%;
+        min-width: 0;
+      }
+
+      > .f {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+
+        :deep(.t-input__wrap) {
+          width: auto !important;
+          min-width: 0;
+          flex: 1;
+        }
+
+        > :deep(.t-button) {
+          width: auto;
+          margin-left: 0 !important;
+        }
+      }
+    }
+  }
+}
 </style>

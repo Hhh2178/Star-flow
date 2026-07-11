@@ -56,6 +56,17 @@ describe("admin settings pages", () => {
     expect(api.updateAiUseMode).toHaveBeenCalledWith("1");
   });
 
+  it("Provider 页面不暴露上游兼容标识", async () => {
+    api.getProviderOverview.mockResolvedValue({
+      providers: [{ ...provider, id: "toonflow", name: "Stars Flow 服务平台" }],
+      capabilities: { read: true, update: true },
+    });
+
+    const providers = await mountPage(ProvidersPage);
+    expect(providers.text()).toContain("#stars-flow-service");
+    expect(providers.text()).not.toContain("#toonflow");
+  });
+
   it("系统页显示运行状态并更新开发开关", async () => {
     const system = await mountPage(SystemPage); expect(system.text()).toContain("o_user"); expect(system.text()).toContain("v22");
     await system.get('[data-testid="switch"]').trigger("click"); await flushPromises();

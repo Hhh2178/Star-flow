@@ -61,4 +61,18 @@ describe("Stars Flow application shells", () => {
     expect(project).toContain("grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))");
     expect(project).toMatch(/\.cardHeader\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\) auto/);
   });
+
+  it("stacks dense Creator production controls at mobile width", () => {
+    const novel = read("../views/novel/index.vue");
+    const script = read("../views/script/index.vue");
+    const assets = read("../views/assets/index.vue");
+    const cornerScape = read("../views/cornerScape/index.vue");
+
+    expect(novel).toMatch(/@media \(max-width: 640px\)[\s\S]*?\.headBtn[\s\S]*?flex-direction:\s*column/);
+    expect(novel).toMatch(/> \.f[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\) auto/);
+    expect(script).toMatch(/@media \(max-width: 640px\)[\s\S]*?\.actionBar-left[\s\S]*?grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
+    expect(assets).toMatch(/@media \(max-width: 640px\)[\s\S]*?\.toolbar[\s\S]*?flex-direction:\s*column/);
+    expect(assets).toMatch(/> \.f[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\) auto/);
+    expect(cornerScape).toMatch(/@media \(max-width: 640px\)[\s\S]*?\.cornerScape[\s\S]*?flex-direction:\s*column/);
+  });
 });

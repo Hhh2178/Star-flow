@@ -1570,6 +1570,70 @@ async function getBigImageUrl(row: Asset, fn: Function) {
     }
   }
 }
+
+@media (max-width: 640px) {
+  .assets {
+    min-width: 0;
+
+    .data {
+      :deep(.t-tabs__nav-wrap) {
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      :deep(.t-tabs__nav-scroll) {
+        min-width: max-content;
+      }
+
+      .panelContent {
+        margin-top: 12px;
+
+        .toolbar {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+          margin-bottom: 10px;
+          padding-bottom: 10px;
+
+          :deep(.t-space) {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px !important;
+            width: 100%;
+          }
+
+          :deep(.t-button) {
+            width: 100%;
+            min-width: 0;
+          }
+
+          > .f {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 8px;
+            width: 100%;
+            min-width: 0;
+
+            :deep(.t-input__wrap) {
+              width: auto !important;
+              min-width: 0;
+              flex: 1;
+            }
+
+            > :deep(.t-button) {
+              width: auto;
+              margin-left: 0 !important;
+            }
+          }
+        }
+
+        .assetsList {
+          overflow-x: auto;
+        }
+      }
+    }
+  }
+}
 </style>
 
 <style lang="scss">

@@ -1302,4 +1302,34 @@ async function selectAudio() {
     flex: 1;
   }
 }
+
+@media (max-width: 640px) {
+  .cornerScape {
+    flex-direction: column;
+    align-items: stretch;
+    overflow-y: auto;
+    gap: 12px;
+
+    .left {
+      width: 100%;
+      height: auto;
+      min-height: auto;
+      margin-right: 0;
+      margin-bottom: 0;
+
+      .card {
+        height: auto;
+        max-height: none;
+      }
+    }
+
+    .content {
+      width: 100%;
+      height: auto;
+      min-height: 280px;
+      overflow: visible;
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}
 </style>

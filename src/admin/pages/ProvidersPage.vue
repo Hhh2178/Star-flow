@@ -14,7 +14,7 @@
         <div v-else class="table-scroll">
           <table><thead><tr><th>Provider</th><th>配置</th><th>模型类型</th><th>模型</th><th>状态</th><th v-if="overview.capabilities.update">操作</th></tr></thead>
             <tbody><tr v-for="provider in overview.providers" :key="provider.id">
-              <td><strong>{{ provider.name }}</strong><small>#{{ provider.id }}</small></td>
+              <td><strong>{{ provider.name }}</strong><small>#{{ providerDisplayId(provider.id) }}</small></td>
               <td><t-tag :theme="provider.configured ? 'success' : 'warning'" variant="light">{{ provider.configured ? "完整" : "待配置" }}</t-tag></td>
               <td><span class="tag-list"><t-tag v-for="item in provider.modelTypes" :key="item.type" variant="light">{{ typeLabel(item.type) }} {{ item.count }}</t-tag></span></td>
               <td><span class="model-list"><span v-for="model in provider.models" :key="`${model.type}:${model.name}`">{{ model.name }}<small>{{ typeLabel(model.type) }}</small></span></span></td>
@@ -45,6 +45,7 @@ type Provider = ProviderOverview["providers"][number];
 const credentialVisible=ref(false);const credentialProvider=ref<Provider|null>(null);const credentialValues=reactive<Record<string,string>>({});const credentialError=ref("");const savingCredentials=ref(false);
 const labels: Record<string, string> = { text: "文本", image: "图片", video: "视频" };
 const typeLabel = (type: string) => labels[type] || type;
+const providerDisplayId = (id: string) => id === "toonflow" ? "stars-flow-service" : id;
 
 async function load(silent = false) {
   if (silent) refreshing.value = true; else loading.value = true;

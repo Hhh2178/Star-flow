@@ -433,4 +433,53 @@ onUnmounted(() => {
   justify-content: flex-end;
   margin-top: 24px;
 }
+
+@media (max-width: 640px) {
+  .script {
+    min-width: 0;
+
+    .actionBar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      margin-top: 12px;
+      margin-bottom: 14px;
+
+      .actionBar-left,
+      .actionBar-right {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        width: 100%;
+        min-width: 0;
+
+        :deep(.t-button) {
+          width: 100%;
+          min-width: 0;
+        }
+      }
+
+      .searchInput {
+        grid-column: 1 / -1;
+        width: 100% !important;
+        min-width: 0;
+      }
+    }
+
+    .contentArea .scriptsList {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      width: 100%;
+
+      .scriptCard {
+        width: 100%;
+        min-width: 0;
+
+        :deep(.t-card) {
+          width: 100% !important;
+        }
+      }
+    }
+  }
+}
 </style>
