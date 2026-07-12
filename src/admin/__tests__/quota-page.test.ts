@@ -44,10 +44,10 @@ const TInputStub = defineComponent({
 });
 
 const overview = {
-  summary: { balance: 120.5, totalRecharge: 200, totalUsage: 79.5 },
+  summary: { balance: 120.5, reservedBalance: 30, availableBalance: 90.5, billingStatus: "debt", totalRecharge: 200, totalUsage: 79.5 },
   groups: [
-    { groupId: 3, groupName: "内容一组", balance: 70.5, totalRecharge: 120, totalUsage: 49.5 },
-    { groupId: 4, groupName: "内容二组", balance: 50, totalRecharge: 80, totalUsage: 30 },
+    { groupId: 3, groupName: "内容一组", balance: 70.5, reservedBalance: 20, availableBalance: 50.5, billingStatus: "active", totalRecharge: 120, totalUsage: 49.5 },
+    { groupId: 4, groupName: "内容二组", balance: 50, reservedBalance: 10, availableBalance: 40, billingStatus: "debt", totalRecharge: 80, totalUsage: 30 },
   ],
   logs: [
     { id: 9, groupId: 3, entryType: "manual_topup", amount: 100, balanceBefore: 0, balanceAfter: 100, actorUserId: 1, usageLedgerId: null, reason: "月度充值", createdAt: 1000 },
@@ -105,11 +105,26 @@ describe("QuotaPage", () => {
     wrapper = await mountPage();
 
     expect(wrapper.text()).toContain("120.500000");
+    expect(wrapper.text()).toContain("30.000000");
+    expect(wrapper.text()).toContain("90.500000");
+    expect(wrapper.text()).toContain("已冻结");
+    expect(wrapper.text()).toContain("可用额度");
+    expect(wrapper.get('[data-testid="summary-billing-status"]').text()).toBe("欠费");
     expect(wrapper.text()).toContain("累计充值");
     expect(wrapper.text()).toContain("累计用量");
     expect(wrapper.text()).toContain("内容一组");
     expect(wrapper.text()).toContain("月度充值");
     expect(wrapper.text()).toContain("在线支付未开放");
+  });
+
+  it.each([
+    ["debt", "欠费"],
+    ["active", "正常"],
+  ] as const)("shows the exact %s summary billing status", async (billingStatus, label) => {
+    api.getQuotaOverview.mockResolvedValueOnce({ ...overview, summary: { ...overview.summary, billingStatus } });
+    wrapper = await mountPage();
+
+    expect(wrapper.get('[data-testid="summary-billing-status"]').text()).toBe(label);
   });
 
   it("keeps quota read-only for Admin", async () => {
@@ -121,7 +136,7 @@ describe("QuotaPage", () => {
   });
 
   it("renders empty and failed states", async () => {
-    api.getQuotaOverview.mockResolvedValueOnce({ summary: { balance: 0, totalRecharge: 0, totalUsage: 0 }, groups: [], logs: [] });
+    api.getQuotaOverview.mockResolvedValueOnce({ summary: { balance: 0, reservedBalance: 0, availableBalance: 0, billingStatus: "active", totalRecharge: 0, totalUsage: 0 }, groups: [], logs: [] });
     wrapper = await mountPage();
     expect(wrapper.text()).toContain("暂无额度流水");
     wrapper.unmount();

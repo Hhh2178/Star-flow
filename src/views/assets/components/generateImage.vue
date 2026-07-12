@@ -60,8 +60,16 @@
               </t-select>
             </div>
           </div>
+          <div
+            class="pricingStatus"
+            :class="{ error: pricingError }"
+            :role="pricingError ? 'alert' : 'status'"
+            :aria-live="pricingError ? 'assertive' : 'polite'">
+            <t-loading v-if="pricingLoading" size="small" text="正在计算预计费用" />
+            <span v-else>{{ pricingError || pricingText }}</span>
+          </div>
           <div class="generateButton" style="margin-top: 20px">
-            <t-button theme="primary" size="large" block :loading="generateLoading" @click="handleGenerate">
+            <t-button theme="primary" size="large" block :loading="generateLoading" :disabled="pricingBlocked" @click="handleGenerate">
               {{ $t("workbench.assets.gen.generateBtn") }}
             </t-button>
           </div>
@@ -143,6 +151,13 @@ import modelSelect from "@/components/modelSelect.vue";
 import projectStore from "@/stores/project";
 const { project } = storeToRefs(projectStore());
 import axios from "@/utils/axios";
+import {
+  createLatestPricingEstimate,
+  formatEstimatedCost,
+  mapPricingError,
+  runCreatorPricingGuard,
+  type PricingEstimate,
+} from "@/utils/creatorPricing";
 import { assertGenerationJobsSucceeded, startGenerationJobTracking } from "@/utils/generationJobTracker";
 const props = defineProps<{
   formData: {
@@ -163,6 +178,7 @@ const generateImageShow = defineModel({
 
 //关闭生成图片的弹窗
 function handleCancel() {
+  latestPricing.invalidate();
   generateImageShow.value = false;
   generateLoading.value = false;
   stopPolling();
@@ -174,6 +190,45 @@ const autoUpload = ref(false);
 const showImageFileName = ref(false);
 const generateLoading = ref(false);
 const selectValue = ref(""); //选择的模型
+const pricingEstimate = ref<PricingEstimate | null>(null);
+const pricingLoading = ref(false);
+const pricingError = ref("");
+const pricingText = computed(() => pricingEstimate.value ? formatEstimatedCost(pricingEstimate.value) : "请选择模型以查看预计费用");
+const pricingBlocked = computed(() => {
+  const estimate = pricingEstimate.value;
+  return pricingLoading.value
+    || Boolean(pricingError.value)
+    || !estimate
+    || estimate.account.billingStatus === "debt"
+    || estimate.account.availableBalance < estimate.estimatedCost;
+});
+const latestPricing = createLatestPricingEstimate();
+
+function estimateImagePricing() {
+  if (!generateImageShow.value || !selectValue.value) {
+    latestPricing.invalidate();
+    pricingEstimate.value = null;
+    pricingError.value = "";
+    pricingLoading.value = false;
+    return;
+  }
+  pricingEstimate.value = null;
+  pricingError.value = "";
+  pricingLoading.value = true;
+  latestPricing.run(
+    { taskType: "image", model: selectValue.value, units: { requests: 1, images: 1 } },
+    (estimate) => {
+      pricingEstimate.value = estimate;
+      pricingLoading.value = false;
+      if (estimate.account.billingStatus === "debt") pricingError.value = "当前分组存在欠费，请联系管理员充值";
+      else if (estimate.account.availableBalance < estimate.estimatedCost) pricingError.value = "分组可用额度不足";
+    },
+    (message) => {
+      pricingError.value = message;
+      pricingLoading.value = false;
+    },
+  );
+}
 
 const value2 = ref("");
 //智能生成提示词
@@ -205,11 +260,23 @@ async function generatePrompt() {
     promptLoading.value = false;
   }
 }
-onUnmounted(() => generationTrackingController.abort());
+onUnmounted(() => {
+  latestPricing.invalidate();
+  generationTrackingController.abort();
+});
 const emit = defineEmits(["update"]);
 const resolution = ref("1K");
 //生成图片
 async function handleGenerate() {
+  await runCreatorPricingGuard({
+    blocked: pricingBlocked.value,
+    message: pricingError.value || "请等待预计费用计算完成",
+    onBlocked: (message) => window.$message.error(message),
+    submit: submitImageGeneration,
+  });
+}
+
+async function submitImageGeneration() {
   if (!props.formData.prompt) {
     window.$message.error($t("workbench.assets.gen.fillPrompt"));
     return;
@@ -244,7 +311,7 @@ async function handleGenerate() {
     await fetchGeneratedImages();
   } catch (e: any) {
     if (e?.name === "AbortError") return;
-    window.$message.error(e.message ?? $t("workbench.assets.gen.assetGenFail"));
+    window.$message.error(mapPricingError(e, e.message ?? $t("workbench.assets.gen.assetGenFail")));
     fetchGeneratedImages();
   } finally {
     generateLoading.value = false;
@@ -299,6 +366,7 @@ watch(
     }
   },
 );
+watch([() => generateImageShow.value, () => selectValue.value], estimateImagePricing, { immediate: true });
 // 获取图片列表
 let pollingTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -404,6 +472,15 @@ async function onClick() {
     }
     .selectModel {
       margin-top: 20px;
+    }
+    .pricingStatus {
+      min-height: 22px;
+      margin-top: 10px;
+      color: var(--td-brand-color);
+      font-size: 13px;
+      &.error {
+        color: var(--td-error-color);
+      }
     }
     .resultImages {
       height: 600px;

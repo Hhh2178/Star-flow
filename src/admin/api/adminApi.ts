@@ -3,6 +3,17 @@ import { createApiClient } from "../../shared/api";
 import type { ApiResponse, UserRole } from "../../shared/auth";
 
 export type GenerationTaskType = "text" | "image" | "video";
+export type BillingMode = "per_request" | "per_second" | "per_token";
+export interface BillingUnits { requests?: number; images?: number; seconds?: number; inputTokens?: number; outputTokens?: number }
+export interface ModelPricing {
+  pricingId: number; providerId: string; modelId: string; taskType: GenerationTaskType; billingMode: BillingMode;
+  requestPrice: number | null; secondPrice: number | null; inputPricePerMillion: number | null;
+  outputPricePerMillion: number | null; fallbackRequestPrice: number | null; currency: "CNY"; version: number; effectiveAt: number;
+}
+export type PricingSnapshot = Omit<ModelPricing, "requestPrice" | "secondPrice" | "inputPricePerMillion" | "outputPricePerMillion" | "fallbackRequestPrice">
+  & Partial<Pick<ModelPricing, "requestPrice" | "secondPrice" | "inputPricePerMillion" | "outputPricePerMillion" | "fallbackRequestPrice">>;
+export type UpdatePricingInput = Pick<ModelPricing, "providerId" | "modelId" | "taskType" | "billingMode" | "currency">
+  & Partial<Pick<ModelPricing, "requestPrice" | "secondPrice" | "inputPricePerMillion" | "outputPricePerMillion" | "fallbackRequestPrice">>;
 export type GenerationJobStatus =
   | "queued"
   | "running"
@@ -112,6 +123,9 @@ export interface UpdateGroupInput {
 
 export interface QuotaSummary {
   balance: number;
+  reservedBalance: number;
+  availableBalance: number;
+  billingStatus: "active" | "debt";
   totalRecharge: number;
   totalUsage: number;
 }
@@ -277,6 +291,10 @@ export interface UsageListItem {
   currency: string | null;
   result: string;
   createdAt: number;
+  units: BillingUnits;
+  pricingSnapshot: PricingSnapshot | null;
+  billingMode: BillingMode | null;
+  finalCost: number | null;
 }
 
 export interface UsageOverview {
@@ -302,7 +320,7 @@ export interface ProviderOverview {
     inputs: Array<{ key: string; label: string; type: string; required: boolean; configured: boolean }>;
     modelCount: number;
     modelTypes: Array<{ type: string; count: number }>;
-    models: Array<{ name: string; type: string }>;
+    models: Array<{ name: string; modelName: string; type: GenerationTaskType }>;
   }>;
   capabilities: AdminCapability;
 }
@@ -322,6 +340,15 @@ export interface AiConfigOverview {
     configured: boolean;
   }>;
   capabilities: AdminCapability;
+}
+
+export interface ProviderConnectionResult {
+  providerId: string;
+  modelName: string;
+  status: "available";
+  modelAvailable: boolean;
+  latencyMs: number;
+  checkedAt: number;
 }
 
 export interface SystemOverview {
@@ -463,9 +490,13 @@ function isUser(value: unknown): value is UserDto {
 
 function isQuotaSummary(value: unknown): value is QuotaSummary & Record<string, unknown> {
   return isRecord(value)
-    && isFiniteNumber(value.balance)
-    && isFiniteNumber(value.totalRecharge)
-    && isFiniteNumber(value.totalUsage);
+    && isMoneyAmount(value.balance)
+    && isPrice(value.reservedBalance)
+    && isMoneyAmount(value.availableBalance)
+    && moneyMicros(value.availableBalance) === moneyMicros(value.balance) - moneyMicros(value.reservedBalance)
+    && (value.billingStatus === "active" || value.billingStatus === "debt")
+    && isPrice(value.totalRecharge)
+    && isPrice(value.totalUsage);
 }
 
 function isQuotaGroup(value: unknown): value is QuotaGroupSummary {
@@ -591,11 +622,68 @@ function isUsageItem(value: unknown): value is UsageListItem {
     && isNullableString(value.projectName)
     && isNullableString(value.providerId)
     && isNullableString(value.modelId)
-    && typeof value.taskType === "string"
+    && isOneOf(value.taskType, generationTaskTypes)
     && isNullableNumber(value.estimatedCost)
     && isNullableString(value.currency)
     && typeof value.result === "string"
+    && isBillingUnits(value.units)
+    && (value.pricingSnapshot === null || isPricingSnapshot(value.pricingSnapshot))
+    && (value.billingMode === null || ["per_request", "per_second", "per_token"].includes(String(value.billingMode)))
+    && (value.pricingSnapshot === null ? value.billingMode === null : value.billingMode === value.pricingSnapshot.billingMode)
+    && isNullableNumber(value.finalCost)
     && isFiniteNumber(value.createdAt);
+}
+
+const priceKeys = ["requestPrice", "secondPrice", "inputPricePerMillion", "outputPricePerMillion", "fallbackRequestPrice"] as const;
+
+function isPrice(value: unknown): value is number {
+  return isMoneyAmount(value) && value >= 0;
+}
+
+function isMoneyAmount(value: unknown): value is number {
+  return isFiniteNumber(value) && Math.abs(value * 1_000_000 - Math.round(value * 1_000_000)) < 1e-7;
+}
+
+function moneyMicros(value: number) {
+  return Math.round(value * 1_000_000);
+}
+
+function hasPricingBase(value: Record<string, unknown>) {
+  return isInteger(value.pricingId)
+    && typeof value.providerId === "string"
+    && typeof value.modelId === "string"
+    && isOneOf(value.taskType, generationTaskTypes)
+    && ["per_request", "per_second", "per_token"].includes(String(value.billingMode))
+    && value.currency === "CNY"
+    && isInteger(value.version)
+    && isFiniteNumber(value.effectiveAt);
+}
+
+function hasModePrices(value: Record<string, unknown>, absent: null | undefined) {
+  const isAbsent = (key: typeof priceKeys[number]) => value[key] === absent;
+  if (value.billingMode === "per_request") {
+    return isPrice(value.requestPrice) && isAbsent("secondPrice") && isAbsent("inputPricePerMillion") && isAbsent("outputPricePerMillion") && isAbsent("fallbackRequestPrice");
+  }
+  if (value.billingMode === "per_second") {
+    return isAbsent("requestPrice") && isPrice(value.secondPrice) && isAbsent("inputPricePerMillion") && isAbsent("outputPricePerMillion") && isAbsent("fallbackRequestPrice");
+  }
+  return isAbsent("requestPrice") && isAbsent("secondPrice") && isPrice(value.inputPricePerMillion) && isPrice(value.outputPricePerMillion) && isPrice(value.fallbackRequestPrice);
+}
+
+function isModelPricing(value: unknown): value is ModelPricing {
+  return isRecord(value) && hasPricingBase(value) && priceKeys.every((key) => key in value) && hasModePrices(value, null);
+}
+
+function isPricingSnapshot(value: unknown): value is PricingSnapshot {
+  return isRecord(value) && hasPricingBase(value) && hasModePrices(value, undefined);
+}
+
+function isBillingUnits(value: unknown): value is BillingUnits {
+  if (!isRecord(value)) return false;
+  const allowed = new Set(["requests", "images", "seconds", "inputTokens", "outputTokens"]);
+  if (!Object.keys(value).every((key) => allowed.has(key))) return false;
+  return Object.entries(value).every(([key, unit]) => isFiniteNumber(unit) && unit >= 0
+    && (!(["requests", "images", "inputTokens", "outputTokens"].includes(key)) || Number.isInteger(unit)));
 }
 
 function isUsageOverview(value: unknown): value is UsageOverview {
@@ -632,7 +720,10 @@ function isProviderOverview(value: unknown): value is ProviderOverview {
       && Array.isArray(provider.modelTypes)
       && provider.modelTypes.every((item) => isRecord(item) && typeof item.type === "string" && isInteger(item.count))
       && Array.isArray(provider.models)
-      && provider.models.every((model) => isRecord(model) && typeof model.name === "string" && typeof model.type === "string"));
+      && provider.models.every((model) => isRecord(model)
+        && typeof model.name === "string"
+        && typeof model.modelName === "string"
+        && (model.type === "text" || model.type === "image" || model.type === "video")));
 }
 
 function isAiConfigOverview(value: unknown): value is AiConfigOverview {
@@ -815,6 +906,30 @@ export function getProviderOverview() {
 
 export function updateProvider(input: { id: string; enabled?: boolean; inputValues?: Record<string, string> }) {
   return unwrap<{ id: string; updated: boolean }>(client.post("/admin/providers/updateProvider", input), (value): value is { id: string; updated: boolean } => isRecord(value) && typeof value.id === "string" && value.updated === true);
+}
+
+export function getModelPricing() {
+  return unwrap<{ items: ModelPricing[] }>(
+    client.get("/admin/providers/getPricing"),
+    (value): value is { items: ModelPricing[] } => isRecord(value) && isArrayOf(value.items, isModelPricing),
+  );
+}
+
+export function updateModelPricing(input: UpdatePricingInput) {
+  return unwrap<ModelPricing>(
+    client.post("/admin/providers/updatePricing", input),
+    isModelPricing,
+  );
+}
+
+export function testProviderConnection(input: { id: string; modelName: string }) {
+  return unwrap<ProviderConnectionResult>(client.post("/admin/providers/testConnection", input), (value): value is ProviderConnectionResult => isRecord(value)
+    && typeof value.providerId === "string"
+    && typeof value.modelName === "string"
+    && value.status === "available"
+    && value.modelAvailable === true
+    && isFiniteNumber(value.latencyMs)
+    && isFiniteNumber(value.checkedAt));
 }
 
 export function getAiConfigOverview() {

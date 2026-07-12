@@ -170,4 +170,20 @@ describe("generation job tracker", () => {
     ])).toThrow("外部状态未知");
     expect(() => assertGenerationJobsSucceeded([job("cancelled")])).toThrow("生成任务已取消");
   });
+
+  it.each([
+    ["PRICING_NOT_CONFIGURED", "当前模型尚未配置价格"],
+    ["INSUFFICIENT_QUOTA", "分组可用额度不足"],
+    ["ACCOUNT_IN_DEBT", "当前分组存在欠费，请联系管理员充值"],
+  ])("maps failed job code %s to stable Chinese copy", (errorCode, message) => {
+    expect(() => assertGenerationJobsSucceeded([
+      job("failed", { errorCode, errorMessage: "provider detail" }),
+    ])).toThrow(message);
+  });
+
+  it("maps pricing errors when a job needs administrator attention", () => {
+    expect(() => assertGenerationJobsSucceeded([
+      job("needs_attention", { errorCode: "ACCOUNT_IN_DEBT", errorMessage: "provider detail" }),
+    ])).toThrow("当前分组存在欠费，请联系管理员充值");
+  });
 });

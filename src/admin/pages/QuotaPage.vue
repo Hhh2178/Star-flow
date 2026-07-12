@@ -17,6 +17,9 @@
     <template v-else>
       <section class="summary-strip" aria-label="额度汇总">
         <div><span>当前余额</span><strong>{{ formatMoney(overview.summary.balance) }}</strong></div>
+        <div><span>已冻结</span><strong>{{ formatMoney(overview.summary.reservedBalance) }}</strong></div>
+        <div><span>可用额度</span><strong>{{ formatMoney(overview.summary.availableBalance) }}</strong></div>
+        <div><span>账户状态</span><t-tag data-testid="summary-billing-status" :theme="overview.summary.billingStatus==='debt'?'danger':'default'" variant="light">{{ overview.summary.billingStatus==='debt'?'欠费':'正常' }}</t-tag></div>
         <div><span>累计充值</span><strong>{{ formatMoney(overview.summary.totalRecharge) }}</strong></div>
         <div><span>累计用量</span><strong>{{ formatMoney(overview.summary.totalUsage) }}</strong></div>
       </section>
@@ -29,8 +32,8 @@
         <EmptyState v-if="overview.groups.length === 0" text="暂无分组额度" />
         <div v-else class="table-scroll">
           <table>
-            <thead><tr><th>分组</th><th>余额</th><th>累计充值</th><th>累计用量</th></tr></thead>
-            <tbody><tr v-for="group in overview.groups" :key="group.groupId"><td><strong>{{ group.groupName }}</strong><small>#{{ group.groupId }}</small></td><td>{{ formatMoney(group.balance) }}</td><td>{{ formatMoney(group.totalRecharge) }}</td><td>{{ formatMoney(group.totalUsage) }}</td></tr></tbody>
+            <thead><tr><th>分组</th><th>余额</th><th>冻结</th><th>可用</th><th>状态</th><th>累计充值</th><th>累计用量</th></tr></thead>
+            <tbody><tr v-for="group in overview.groups" :key="group.groupId"><td><strong>{{ group.groupName }}</strong><small>#{{ group.groupId }}</small></td><td>{{ formatMoney(group.balance) }}</td><td>{{ formatMoney(group.reservedBalance) }}</td><td>{{ formatMoney(group.availableBalance) }}</td><td><t-tag :theme="group.billingStatus==='debt'?'danger':'default'" variant="light">{{ group.billingStatus==='debt'?'欠费':'正常' }}</t-tag></td><td>{{ formatMoney(group.totalRecharge) }}</td><td>{{ formatMoney(group.totalUsage) }}</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -87,7 +90,7 @@ import {
   type QuotaOverview,
 } from "../api/adminApi";
 
-const emptyOverview = (): QuotaOverview => ({ summary: { balance: 0, totalRecharge: 0, totalUsage: 0 }, groups: [], logs: [] });
+const emptyOverview = (): QuotaOverview => ({ summary: { balance: 0, reservedBalance: 0, availableBalance: 0, billingStatus: "active", totalRecharge: 0, totalUsage: 0 }, groups: [], logs: [] });
 const entryTypeLabels: Record<QuotaEntryType, string> = {
   manual_topup: "手工充值", manual_credit: "手工加额", manual_debit: "手工扣减", usage_debit: "用量扣减",
 };
@@ -186,7 +189,7 @@ onMounted(() => void loadOverview());
 <style scoped lang="scss">
 .admin-page { width: min(100%, 1240px); margin: 0 auto; }
 .payment-status { display: inline-flex; min-height: 32px; align-items: center; padding: 0 9px; border: 1px solid var(--stars-border); border-radius: 5px; color: var(--stars-text-muted); font-size: 12px; white-space: nowrap; }
-.summary-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 12px; border: 1px solid var(--stars-border); border-radius: 6px; background: #fff; }
+.summary-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin-bottom: 12px; border: 1px solid var(--stars-border); border-radius: 6px; background: #fff; }
 .summary-strip div { display: grid; gap: 5px; padding: 12px 14px; border-right: 1px solid var(--stars-border); }
 .summary-strip div:last-child { border-right: 0; }
 .summary-strip span { color: var(--stars-text-muted); font-size: 12px; }

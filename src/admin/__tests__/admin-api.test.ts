@@ -74,11 +74,11 @@ const validMutationJob = {
 };
 const validLimit = { total: 8, text: 4, image: 3, video: 2 };
 const validGroup = { id: 3, name: "内容一组", adminUserId: 2, creatorLimit: 5, status: "enabled", createdAt: 1, updatedAt: 1 };
-const validUser = { id: 7, name: "创作者甲", role: "creator", status: "enabled", groupId: 3, mustChangePassword: false, createdAt: 1, updatedAt: 1, lastLoginAt: null };
+const validUser = { id: 7, name: "创作者甲", role: "creator", status: "enabled", groupId: 3, mustChangePassword: false, balance: 11, reservedBalance: 2, availableBalance: 9, billingStatus: "active", totalRecharge: 20, totalUsage: 9, createdAt: 1, updatedAt: 1, lastLoginAt: null };
 const validLedger = { id: 9, groupId: 3, entryType: "manual_credit", amount: 1, balanceBefore: 10, balanceAfter: 11, actorUserId: 1, usageLedgerId: null, reason: "运营补偿", createdAt: 1 };
 const validQuotaOverview = {
-  summary: { balance: 11, totalRecharge: 20, totalUsage: 9 },
-  groups: [{ groupId: 3, groupName: "内容一组", balance: 11, totalRecharge: 20, totalUsage: 9 }],
+  summary: { balance: 11, reservedBalance: 2, availableBalance: 9, billingStatus: "active", totalRecharge: 20, totalUsage: 9 },
+  groups: [{ groupId: 3, groupName: "内容一组", balance: 11, reservedBalance: 2, availableBalance: 9, billingStatus: "active", totalRecharge: 20, totalUsage: 9 }],
   logs: [validLedger],
 };
 const validAuditItem = {
@@ -101,7 +101,7 @@ const validAuditItem = {
 };
 const validProject = { id: 201, name: "项目一", projectType: "series", type: "漫剧", ownerUserId: 7, ownerName: "创作者甲", groupId: 3, groupName: "内容一组", createTime: 1, taskCount: 2 };
 const validTask = { id: 301, projectId: 201, projectName: "项目一", ownerUserId: 7, ownerName: "创作者甲", groupId: 3, groupName: "内容一组", taskClass: "image", model: "image-a", description: null, state: "failed", startTime: 2, reason: "生成失败" };
-const validUsage = { id: 501, jobId: 401, groupId: 3, groupName: "内容一组", userId: 7, userName: "创作者甲", projectId: 201, projectName: "项目一", providerId: "provider-a", modelId: "image-a", taskType: "image", estimatedCost: 1.2, currency: "CNY", result: "succeeded", createdAt: 3 };
+const validUsage = { id: 501, jobId: 401, groupId: 3, groupName: "内容一组", userId: 7, userName: "创作者甲", projectId: 201, projectName: "项目一", providerId: "provider-a", modelId: "image-a", taskType: "image", estimatedCost: 1.2, currency: "CNY", result: "succeeded", units: { requests: 1, images: 1 }, pricingSnapshot: { pricingId: 4, providerId: "provider-a", modelId: "image-a", taskType: "image", billingMode: "per_request", requestPrice: 1.2, currency: "CNY", version: 2, effectiveAt: 1 }, billingMode: "per_request", finalCost: 1.2, createdAt: 3 };
 
 const endpointCases = [
   { name: "listJobs", call: () => listJobs(), invalid: { items: [{ ...validJob, id: "12" }], counts: validCounts } },

@@ -60,11 +60,16 @@
               </t-table>
               <div class="selectedInfo">
                 <span>{{ $t("workbench.novel.import.selectedInfo", { count: selectedTextLength }) }}</span>
+                <span
+                  class="pricingText"
+                  :class="{ error: pricingError }"
+                  :role="pricingError ? 'alert' : 'status'"
+                  :aria-live="pricingError ? 'assertive' : 'polite'">{{ pricingError || pricingText }}</span>
                 <span v-if="jobStatusText">{{ jobStatusText }}</span>
               </div>
               <div style="margin-top: 16px; text-align: right">
                 <t-button variant="outline" @click="activeKey = 'To1'">{{ $t("workbench.novel.import.prevStep") }}</t-button>
-                <t-button theme="primary" style="margin-left: 10px" :loading="nextLoading" @click="keep">
+                <t-button theme="primary" style="margin-left: 10px" :loading="nextLoading || pricingLoading" :disabled="pricingBlocked" @click="keep">
                   保存
                 </t-button>
               </div>
@@ -79,6 +84,13 @@
 <script setup lang="ts">
 import { LoadingPlugin } from "tdesign-vue-next";
 import axios from "@/utils/axios";
+import {
+  createLatestPricingEstimate,
+  formatEstimatedCost,
+  mapPricingError,
+  runCreatorPricedBatchEnqueue,
+  type PricingEstimate,
+} from "@/utils/creatorPricing";
 import parseNovel from "@/utils/parseNovel";
 import mammoth from "mammoth";
 import type { UploadFile, PrimaryTableCol, TableRowData } from "tdesign-vue-next";
@@ -107,6 +119,12 @@ const selectedRowKeys = ref<number[]>([]);
 const nextLoading = ref(false);
 const jobStatusText = ref("");
 const generationTrackingController = new AbortController();
+const pricingEstimate = ref<PricingEstimate | null>(null);
+const pricingLoading = ref(false);
+const pricingError = ref("");
+const pricingText = computed(() => pricingEstimate.value ? formatEstimatedCost(pricingEstimate.value) : "请选择需要导入的章节");
+const pricingBlocked = computed(() => selectedRows.value.length === 0 || pricingLoading.value || Boolean(pricingError.value) || !pricingEstimate.value);
+const latestPricing = createLatestPricingEstimate();
 
 const columns: PrimaryTableCol<TableRowData>[] = [
   { colKey: "row-select", type: "multiple", width: 60 },
@@ -139,6 +157,32 @@ const selectedRows = computed(() => tableData.value.filter((item) => selectedRow
 
 // 已选文本总长度
 const selectedTextLength = computed(() => selectedRows.value.reduce((sum, item) => sum + item.chapterData.length, 0));
+
+watch(() => selectedRows.value.length, (count) => {
+  if (count === 0) {
+    latestPricing.invalidate();
+    pricingEstimate.value = null;
+    pricingError.value = "";
+    pricingLoading.value = false;
+    return;
+  }
+  pricingEstimate.value = null;
+  pricingError.value = "";
+  pricingLoading.value = true;
+  latestPricing.run(
+    { taskType: "text", model: "universalAi", units: { requests: selectedRows.value.length } },
+    (estimate) => {
+      pricingEstimate.value = estimate;
+      pricingLoading.value = false;
+      if (estimate.account.billingStatus === "debt") pricingError.value = "当前分组存在欠费，请联系管理员充值";
+      else if (estimate.account.availableBalance < estimate.estimatedCost) pricingError.value = "分组可用额度不足";
+    },
+    (message) => {
+      pricingError.value = message;
+      pricingLoading.value = false;
+    },
+  );
+});
 
 // 触发上传
 function triggerUpload() {
@@ -207,6 +251,23 @@ function onSelectChange(selectedKeys: Array<string | number>, context: { selecte
   selectedRowKeys.value = selectedKeys as number[];
 }
 const emit = defineEmits(["select"]);
+function confirmNovelImport(message: string, count: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const dialog = DialogPlugin.confirm({
+      header: "确认导入并提取事件",
+      body: `${count} 章，${message}。提交后以后端实际入队结果为准。`,
+      onConfirm: () => {
+        dialog.destroy();
+        resolve(true);
+      },
+      onCancel: () => {
+        dialog.destroy();
+        resolve(false);
+      },
+      onClose: () => resolve(false),
+    });
+  });
+}
 //保存小说
 async function keep() {
   nextLoading.value = true;
@@ -216,7 +277,20 @@ async function keep() {
     return;
   }
   try {
-    const { data } = await axios.post("/novel/addNovel", { projectId: project.value?.id, data: selectedRows.value });
+    const data = await runCreatorPricedBatchEnqueue({
+      items: selectedRows.value,
+      createInput: (snapshot) => ({
+        taskType: "text",
+        model: "universalAi",
+        units: { requests: snapshot.length },
+      }),
+      confirm: (estimate, snapshot) => confirmNovelImport(formatEstimatedCost(estimate), snapshot.length),
+      enqueue: async (snapshot) => {
+        const response = await axios.post("/novel/addNovel", { projectId: project.value?.id, data: snapshot });
+        return response.data;
+      },
+    });
+    if (data === null) return;
     const tracking = startGenerationJobTracking(data, {
       signal: generationTrackingController.signal,
       onUpdate: (_queued, job) => {
@@ -232,7 +306,7 @@ async function keep() {
     purgeNovelShow.value = false;
   } catch (e) {
     if ((e as Error)?.name === "AbortError") return;
-    window.$message.error((e as Error).message);
+    window.$message.error(mapPricingError(e, (e as Error).message || "批量预估失败，请稍后重试"));
   } finally {
     nextLoading.value = false;
   }
@@ -240,6 +314,7 @@ async function keep() {
 //关闭弹窗时重置数据
 watch(purgeNovelShow, (newVal) => {
   if (!newVal) {
+    latestPricing.invalidate();
     content.value = "";
     fileList.value = [];
     selectedRowKeys.value = [];
@@ -247,7 +322,10 @@ watch(purgeNovelShow, (newVal) => {
     jobStatusText.value = "";
   }
 });
-onUnmounted(() => generationTrackingController.abort());
+onUnmounted(() => {
+  latestPricing.invalidate();
+  generationTrackingController.abort();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -306,5 +384,13 @@ onUnmounted(() => generationTrackingController.abort());
 .selectedInfo {
   margin-top: 12px;
   font-size: 14px;
+  display: flex;
+  gap: 12px;
+  .pricingText {
+    color: var(--td-brand-color);
+    &.error {
+      color: var(--td-error-color);
+    }
+  }
 }
 </style>

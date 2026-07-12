@@ -1,4 +1,5 @@
 import axios from "@/utils/axios";
+import { pricingErrorMessages } from "@/utils/creatorPricing";
 
 export const generationJobStatuses = [
   "queued",
@@ -228,9 +229,12 @@ export function stopAllGenerationJobTracking(): void {
 }
 
 export function generationJobFailureMessage(job: GenerationJobDetail): string | null {
-  if (job.status === "failed") return job.errorMessage || "生成任务执行失败";
+  const pricingMessage = job.errorCode && pricingErrorMessages[job.errorCode as keyof typeof pricingErrorMessages];
+  if (job.status === "failed") {
+    return pricingMessage || job.errorMessage || "生成任务执行失败";
+  }
   if (job.status === "cancelled") return "生成任务已取消";
-  if (job.status === "needs_attention") return job.errorMessage || "生成任务需要管理员处理";
+  if (job.status === "needs_attention") return pricingMessage || job.errorMessage || "生成任务需要管理员处理";
   return null;
 }
 

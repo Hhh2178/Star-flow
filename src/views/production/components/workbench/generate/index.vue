@@ -7,6 +7,14 @@
     </div>
     <div class="modelSelect">
       <modeMenu v-model="modelParmas" :modeOptions="modeOptions" :trackId="currentTrack?.id" :modeList="modeList" @modeChange="modeChange" />
+      <div
+        class="pricingStatus"
+        :class="{ error: pricingError }"
+        :role="pricingError ? 'alert' : 'status'"
+        :aria-live="pricingError ? 'assertive' : 'polite'">
+        <t-loading v-if="pricingLoading" size="small" text="正在计算预计费用" />
+        <span v-else>{{ pricingError || pricingText }}</span>
+      </div>
     </div>
     <div class="generate ac">
       <div class="prompt" v-if="currentTrack">
@@ -27,6 +35,7 @@
         <videoCard
           v-if="currentTrack"
           :active-track-index="activeTrackIndex"
+          :generation-disabled="pricingBlocked"
           v-model:current-track="currentTrack"
           @refresh="getGenerateData"
           @generate="generateVideo" />
@@ -53,6 +62,12 @@ import modeMenu from "./components/modeMenu.vue";
 import videoCard from "./components/video.vue";
 import "@/views/production/components/workbench/type/type";
 import axios from "@/utils/axios";
+import {
+  createLatestPricingEstimate,
+  formatEstimatedCost,
+  mapPricingError,
+  type PricingEstimate,
+} from "@/utils/creatorPricing";
 import projectStore from "@/stores/project";
 import promptEditor from "@/components/promptEditor.vue";
 import imageListCacheStore from "@/stores/imageListCache";
@@ -91,6 +106,51 @@ const modelParmas = ref<ModelSetting>({
 
 const storyboardList = ref<StoryboardItem[]>([]); // 分镜列表
 const generationTrackingController = new AbortController();
+const pricingEstimate = ref<PricingEstimate | null>(null);
+const pricingLoading = ref(false);
+const pricingError = ref("");
+const pricingText = computed(() => pricingEstimate.value ? formatEstimatedCost(pricingEstimate.value) : "请选择模型以查看预计费用");
+const pricingBlocked = computed(() => {
+  const estimate = pricingEstimate.value;
+  return pricingLoading.value
+    || Boolean(pricingError.value)
+    || !estimate
+    || estimate.account.billingStatus === "debt"
+    || estimate.account.availableBalance < estimate.estimatedCost;
+});
+const latestPricing = createLatestPricingEstimate();
+
+function estimateVideoPricing() {
+  if (!modelParmas.value.model || !Number.isFinite(modelParmas.value.duration) || modelParmas.value.duration <= 0) {
+    latestPricing.invalidate();
+    pricingEstimate.value = null;
+    pricingError.value = "";
+    pricingLoading.value = false;
+    return;
+  }
+  pricingEstimate.value = null;
+  pricingError.value = "";
+  pricingLoading.value = true;
+  latestPricing.run(
+    {
+      taskType: "video",
+      model: modelParmas.value.model,
+      units: { requests: 1, seconds: modelParmas.value.duration },
+    },
+    (estimate) => {
+      pricingEstimate.value = estimate;
+      pricingLoading.value = false;
+      if (estimate.account.billingStatus === "debt") pricingError.value = "当前分组存在欠费，请联系管理员充值";
+      else if (estimate.account.availableBalance < estimate.estimatedCost) pricingError.value = "分组可用额度不足";
+    },
+    (message) => {
+      pricingError.value = message;
+      pricingLoading.value = false;
+    },
+  );
+}
+
+watch([() => modelParmas.value.model, () => modelParmas.value.duration], estimateVideoPricing, { immediate: true });
 
 function isGenerationTerminalFailure(job: GenerationJobDetail) {
   return ["failed", "cancelled", "needs_attention"].includes(job.status);
@@ -410,6 +470,10 @@ onMounted(() => {
 });
 /** 单个轨道生成视频 */
 async function generateVideo() {
+  if (pricingBlocked.value) {
+    window.$message.error(pricingError.value || "请等待预计费用计算完成");
+    return;
+  }
   const dlg = DialogPlugin.confirm({
     header: $t("workbench.generate.generateConfirm"),
     body: $t("workbench.generate.generateConfirmBody"),
@@ -470,7 +534,7 @@ async function generateVideo() {
         await getVideoList();
       } catch (e) {
         if ((e as Error)?.name === "AbortError") return;
-        window.$message.error((e as any)?.message ?? "视频发起生成请求失败");
+        window.$message.error(mapPricingError(e, (e as any)?.message ?? "视频发起生成请求失败"));
       } finally {
       }
     },
@@ -575,6 +639,7 @@ watch(
   },
 );
 onUnmounted(() => {
+  latestPricing.invalidate();
   generationTrackingController.abort();
   stopPoll();
   stopPromptPoll();
@@ -589,6 +654,15 @@ onUnmounted(() => {
   .referenceImage {
   }
   .modelSelect {
+    .pricingStatus {
+      min-height: 22px;
+      margin-top: 6px;
+      color: var(--td-brand-color);
+      font-size: 13px;
+      &.error {
+        color: var(--td-error-color);
+      }
+    }
   }
   .generate {
     flex: 1;

@@ -1,7 +1,7 @@
 <template>
   <t-card :title="'#' + (activeTrackIndex + 1) + $t('workbench.generate.videoMenu')" header-bordered style="height: 100%">
     <template #actions>
-      <t-button size="small" :loading="generating" @click="emit('generate')">{{ $t("workbench.generate.generate") }}</t-button>
+      <t-button size="small" :loading="generating" :disabled="generationDisabled" @click="emit('generate')">{{ $t("workbench.generate.generate") }}</t-button>
     </template>
     <div class="history">
       <div class="titleBox f ac">
@@ -85,6 +85,7 @@ import projectStore from "@/stores/project";
 const props = defineProps<{
   activeTrackIndex: number;
   generating?: boolean;
+  generationDisabled?: boolean;
 }>();
 const currentTrack = defineModel<TrackItem>("currentTrack", {
   default: () => {},
