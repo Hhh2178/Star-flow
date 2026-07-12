@@ -18,6 +18,8 @@ R3 保持单个 Express/Socket.IO 后端，并增加持久化生成队列。Crea
 
 正常运行库为 `data/db2.sqlite`。浏览器验收库固定隔离为 `data/acceptance.sqlite`，防止其他本地服务的 scheduler 抢占验收任务。`STARS_ACCEPTANCE_MODE=1` 只替换付费 Provider 执行，真实队列和数据写入仍然生效。
 
+Provider 的三层协议兼容、模型级参数和真实服务商状态见 `../providers/README.md`。
+
 ## Verification
 
 Inside `app/`, after dependencies are installed:
@@ -38,6 +40,7 @@ yarn test:r3k
 yarn test:r3l
 yarn test:r3m
 yarn test:r3n
+yarn test:r3p
 yarn build
 ```
 

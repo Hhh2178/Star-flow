@@ -32,6 +32,8 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 - 第二阶段再考虑 Electron 客户端连接云端中控。
 - 旧星环漫剧只作为参考，不直接搬运其现有前后端实现。
 - 当前代码由外层治理仓库和 `app/`、`web/` 两个 Git submodule 组成；三者保留独立历史，但必须作为一个发布单元验证。
+- 服务器内部试用环境已发布至 `https://starsflow.hhh2121.xyz`；systemd 服务、Nginx、HTTPS、SQLite 持久化库和 OSS 目录的非敏感事实以 `docs/references/server-context.md` 为准。
+- `dev` 用于日常集成；通过完整发布门禁后才合入 `main`。外层发布 gitlink 必须同时指向 app/web 已验证的 `main` 提交，`.gitmodules` 的两个 submodule 发布跟踪分支统一为 `main`。
 - R3 已合并；当前后端开发入口恢复为 `app/` 的 `dev`，前端开发入口恢复为 `web/` 的 `dev`。旧 R3 feature worktree 仅用于追溯，后续任务应从最新 `dev` 创建新的短期分支或 worktree。
 - R3 的完成口径不是“页面可打开”，而是 Creator/Admin 双入口完成真实角色、队列、并发、额度、日志和异步生成状态的浏览器交互验证。
 
@@ -47,10 +49,17 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 R3 剩余实现必须遵守：
 
 - 先补测试并确认失败，再实现行为。
+- 当前产品只面向电脑端：不设计、不实现、不修复、不验收移动端或平板端适配，也不测试移动端/平板端视口；前端与浏览器验收统一使用桌面分辨率。
 - Admin 跨组列表、聚合和直接 ID 访问都必须由服务端隔离，越界资源返回 `404`。
 - Creator 构建不得包含后台页面或全局配置代码。
 - 生成任务的浏览器状态至少覆盖排队、执行、成功、失败、取消和需要处理。
 - 浏览器验收必须实际点击、输入、提交、刷新和切换账号，不以静态截图代替交互验证。
+
+当前服务器发布与 GitHub 合流时还必须读取：
+
+1. `docs/logbooks/validations/2026-07-12-server-staging-release.md`
+2. `docs/references/server-context.md`
+3. `docs/systems/harness/README.md`
 
 ## Server Context
 

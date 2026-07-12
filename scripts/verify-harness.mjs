@@ -51,8 +51,12 @@ const gitmodules = read(".gitmodules");
 if (!gitmodules.includes("https://github.com/Hhh2178/Starflow.git")) {
   fail(".gitmodules must point app submodule to Hhh2178/Starflow");
 }
-if (!gitmodules.includes("branch = main")) {
-  fail(".gitmodules must track app branch main");
+if (!gitmodules.includes("https://github.com/Hhh2178/Starflow-web.git")) {
+  fail(".gitmodules must point web submodule to Hhh2178/Starflow-web");
+}
+const trackedMainBranches = gitmodules.match(/branch = main/g) ?? [];
+if (trackedMainBranches.length !== 2) {
+  fail(".gitmodules must track app and web release branches on main");
 }
 
 let outerBranch = "";
@@ -76,6 +80,20 @@ if (!fs.existsSync(appPath)) {
   }
   if (appUpstream !== "https://github.com/HBAI-Ltd/Toonflow-app.git") {
     fail(`app upstream mismatch: ${appUpstream}`);
+  }
+}
+
+const webPath = path.join(root, "web");
+if (!fs.existsSync(webPath)) {
+  fail("web submodule path is missing");
+} else {
+  const webOrigin = execFileSync("git", ["remote", "get-url", "origin"], { cwd: webPath, encoding: "utf8" }).trim();
+  const webUpstream = execFileSync("git", ["remote", "get-url", "upstream"], { cwd: webPath, encoding: "utf8" }).trim();
+  if (webOrigin !== "https://github.com/Hhh2178/Starflow-web.git") {
+    fail(`web origin mismatch: ${webOrigin}`);
+  }
+  if (webUpstream !== "https://github.com/HBAI-Ltd/Toonflow-web.git") {
+    fail(`web upstream mismatch: ${webUpstream}`);
   }
 }
 

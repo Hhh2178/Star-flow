@@ -4,7 +4,7 @@ Stars Flow 是新的 AI 漫剧/短剧生产工具主线，计划以 Toonflow-app
 
 ## Current Status
 
-R3 前后台分离、严格分组隔离、持久化生成队列、分层并发、额度台账和管理运营页面已经合并到两个 submodule 的 `dev`，并完成自动化门禁、统一发布构建和本地真实浏览器验收。Toonflow 后端和前端 fork 分别作为 `app/`、`web/` submodule 纳入外层治理仓库。
+R3 前后台分离、严格分组隔离、持久化生成队列、分层并发、额度台账、模型计价和管理运营页面已经完成统一发布构建及真实浏览器验收。Creator/Admin 服务器内部试用环境位于 `https://starsflow.hhh2121.xyz`。Toonflow 后端和前端 fork 分别作为 `app/`、`web/` submodule 纳入外层治理仓库。
 
 ## Project Direction
 
@@ -57,6 +57,8 @@ R3 前后台分离、严格分组隔离、持久化生成队列、分层并发�
 - `dev`：日常集成版本。
 
 需要时可以开短期 `feature/<name>` 分支，但合并后删除。官方 Toonflow 通过 `app` 仓库的 `upstream` remote 同步，不作为长期开发分支。
+
+发布时先分别验证并推送 app/web 的 `dev`，再将已验证提交合入各自 `main`，最后更新外层 gitlink。`.gitmodules` 的 app/web 发布跟踪分支统一为 `main`。
 
 ## Harness Commands
 

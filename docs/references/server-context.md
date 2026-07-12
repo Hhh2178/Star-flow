@@ -69,6 +69,19 @@ For the first staging deployment:
 - Keep Provider keys only in server-side environment variables or encrypted server-side storage.
 - Do not commit `.env`, SQLite files, generated assets, logs, or uploaded media.
 
+## Current Stars Flow Staging Deployment
+
+- Public URL: `https://starsflow.hhh2121.xyz`.
+- Application root: `/opt/apps/stars-flow/`.
+- Current release: `/opt/apps/stars-flow/releases/20260712-092111` through `/opt/apps/stars-flow/current`.
+- Native systemd unit: `stars-flow.service`.
+- Loopback listener: `127.0.0.1:18300`.
+- Persistent database: `/opt/apps/stars-flow/shared/db2.sqlite`.
+- Persistent object storage: `/opt/apps/stars-flow/shared/oss`.
+- Initial rotated Super Admin credential file: `/opt/apps/stars-flow/shared/initial-admin-password`, server-only mode `600`; never print or commit its contents.
+- Nginx terminates HTTPS and forwards HTTP, long-running requests and WebSocket upgrades to the loopback listener.
+- Let's Encrypt renewal is installed. A server-wide dry run can still fail on the unrelated Cloudflare Access-protected `hermes.hhh2121.xyz` certificate even when Stars Flow renewal succeeds.
+
 ## Deployment Gate
 
 Before any server deployment, collect fresh read-only evidence:

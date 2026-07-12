@@ -5,4 +5,4 @@
 [submodule "web"]
 	path = web
 	url = https://github.com/Hhh2178/Starflow-web.git
-	branch = dev
+	branch = main
