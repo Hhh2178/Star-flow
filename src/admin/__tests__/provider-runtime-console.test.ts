@@ -43,4 +43,15 @@ describe("fixed Provider runtime console", () => {
     for (const label of ["概览", "凭据", "模型", "协议与执行", "测试历史"]) expect(wrapper.text()).toContain(label);
     expect(wrapper.text()).not.toContain("TypeScript"); expect(wrapper.text()).not.toContain("源码编辑");
   });
+
+  it("keeps ordinary Admin read-only across overview, models and protocol tabs", async () => {
+    api.getProviderOverview.mockResolvedValue({ providers: [], capabilities: { read: true, update: false } });
+    const wrapper = mount(ProvidersPage, { global: { stubs: common } }); await flushPromises();
+    expect(wrapper.text()).toContain("当前账号仅可查看");
+    expect(wrapper.find('[data-testid="provider-save"]').exists()).toBe(false);
+    await wrapper.findAll(".tabs button")[2].trigger("click");
+    expect(wrapper.find('[data-testid="model-edit"]').exists()).toBe(false);
+    await wrapper.findAll(".tabs button")[3].trigger("click");
+    expect(wrapper.find('[data-testid="protocol-save"]').exists()).toBe(false);
+  });
 });
