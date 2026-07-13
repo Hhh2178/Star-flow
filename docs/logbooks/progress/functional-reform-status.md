@@ -13,7 +13,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | R2 | Setting-center permissions | Done | Medium | `app/dev` commit `1c4d6be`; `web/dev` commit `8551e77`; validation log added | Start separate admin-console redesign |
 | R3 | Separate admin console | Done | Medium | app/web merged to `dev`; unified release gate and full browser matrix passed | Begin R4 production closed-loop audit when scheduled |
 | R4 | Production closed-loop audit | Done | Medium | Real text/image/video queue, persistence, usage and billing evidence recorded | Continue internal staging observation |
-| R5 | Provider/admin hardening | In Progress | Medium | Creator support contact and Provider-configuration boundary completed in app `0c24261` and web `9757e2e` | Implement additive versioned runtime-profile schema |
+| R5 | Provider/admin hardening | In Progress | Medium | Stages 1-2 completed; versioned additive runtime profiles landed in app `5289760` | Implement Legacy TypeScript Adapter Bridge |
 
 ## Update Log
 
@@ -34,6 +34,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-12 | R5 | Deferred -> In Progress | Provider protocol adapters, safe connection tests, model pricing, quota reservation and Admin controls reached the internal staging release |
 | 2026-07-13 | R5 | In Progress -> Replanned | Tagged the deployed baseline and replaced the flat Provider-table direction with a Legacy Bridge, pinned Runtime Kit, RunningHub support and selected-Provider console plan |
 | 2026-07-13 | R5 | Replanned -> In Progress | Completed stage 1 support contact, Creator empty-model boundary, dual builds and artifact scans; begin additive runtime-profile schema |
+| 2026-07-13 | R5 | In Progress -> In Progress | Completed stage 2 five-table runtime-profile schema, legacy seeding and optimistic concurrency; begin Legacy Adapter Bridge |
 
 ## Required Status Update Format
 

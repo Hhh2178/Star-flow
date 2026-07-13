@@ -105,14 +105,14 @@
 
 **Files:** `initDB.ts`, `fixDB.ts`, database types, `profileService.ts`, R3S tests.
 
-- [ ] Write failing schema tests for `o_providerRuntimeProfile`, `o_providerModelProfile`, `o_providerProtocolProfile`, `o_providerTestRun` and `o_runningHubDescriptor`.
-- [ ] Add integer `revision`, timestamps, enabled state and migration state (`legacy|shadow|native`) to mutable profiles.
-- [ ] Keep credentials in `o_vendorConfig`; reference the Provider ID rather than copying credentials into new tables.
-- [ ] Add unique Provider/model constraints and reject dangling Provider references.
-- [ ] Seed one `legacy` profile for each existing Provider without changing enablement, model lists or production routing.
-- [ ] Add optimistic concurrency: updates require the current revision and return `409 PROVIDER_REVISION_CONFLICT` when stale.
-- [ ] Run migration twice against fresh and legacy-shaped databases to prove idempotency.
-- [ ] Commit: `feat: add versioned provider runtime profiles`.
+- [x] Write failing schema tests for `o_providerRuntimeProfile`, `o_providerModelProfile`, `o_providerProtocolProfile`, `o_providerTestRun` and `o_runningHubDescriptor`.
+- [x] Add integer `revision`, timestamps, enabled state and migration state (`legacy|shadow|native`) to mutable profiles.
+- [x] Keep credentials in `o_vendorConfig`; reference the Provider ID rather than copying credentials into new tables.
+- [x] Add unique Provider/model constraints and reject dangling Provider references.
+- [x] Seed one `legacy` profile for each existing Provider without changing enablement, model lists or production routing.
+- [x] Add optimistic concurrency: updates require the current revision and return `409 PROVIDER_REVISION_CONFLICT` when stale.
+- [x] Run migration twice against fresh and legacy-shaped databases to prove idempotency.
+- [x] Commit: `feat: add versioned provider runtime profiles`.
 
 ## Task 3: Legacy TypeScript Adapter Bridge
 
