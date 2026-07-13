@@ -50,3 +50,13 @@ Local release validated. App and Web are integrated into local and remote `dev`.
 - Before V2 rollout, `https://starsflow.hhh2121.xyz/healthz` and `/admin/` both returned HTTP 200.
 - Responses included `Server: cloudflare` and `CF-RAY`, confirming the orange-cloud proxy is active.
 - This is evidence for the currently deployed baseline only. It does not count as V2 production deployment or production smoke evidence.
+
+## Server Rollout Preflight
+
+- Current server App commit: `1328196`; active release: `20260713-150313`.
+- Disk: 59 GB total, 24 GB available. Memory: 3.6 GiB total, about 2.3 GiB available; swap remains available.
+- Runtime: Node.js 22.22.2 and npm 10.9.7.
+- Nginx, Stars Flow, PostgreSQL and Redis are active; `nginx -t` passed.
+- Stars Flow listens only on `127.0.0.1:18300`. Canvas remains on 18100/18200 and the internal proxy remains on 8443.
+- Shared SQLite and OSS paths exist with the expected ownership. The database contains 13 Legacy Providers, 0 non-Legacy Providers, 0 nonterminal jobs and 0 reserved quota rows.
+- This preflight is read-only. No release directory, database backup, migration, symlink or service state was changed.
