@@ -1016,6 +1016,10 @@ export function updateRuntimeProvider(providerId: string, expectedRevision: numb
   return unwrap<{ providerId: string; revision: number }>(client.patch(`/admin/provider-runtime/providers/${encodeURIComponent(providerId)}`, { expectedRevision, ...patch }), (value): value is { providerId: string; revision: number } => isRecord(value) && value.providerId === providerId && isInteger(value.revision));
 }
 
+export function createRuntimeModel(input: Omit<RuntimeModel, "revision">) {
+  return unwrap<{ providerId: string; modelId: string; revision: number }>(client.post("/admin/provider-runtime/models", input), (value): value is { providerId: string; modelId: string; revision: number } => isRecord(value) && value.providerId === input.providerId && value.modelId === input.modelId && isInteger(value.revision));
+}
+
 export function updateRuntimeModel(providerId: string, modelId: string, expectedRevision: number, patch: Partial<Omit<RuntimeModel, "providerId" | "modelId" | "revision">>) {
   return unwrap<{ providerId: string; modelId: string; revision: number }>(client.patch(`/admin/provider-runtime/models/${encodeURIComponent(providerId)}/${encodeURIComponent(modelId)}`, { expectedRevision, ...patch }), (value): value is { providerId: string; modelId: string; revision: number } => isRecord(value) && value.providerId === providerId && value.modelId === modelId && isInteger(value.revision));
 }

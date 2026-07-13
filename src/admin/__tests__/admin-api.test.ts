@@ -13,6 +13,7 @@ import {
   AdminApiError,
   adjustQuota,
   cancelJob,
+  createRuntimeModel,
   createUser,
   getPolicies,
   getQuotaOverview,
@@ -134,6 +135,24 @@ describe("adminApi", () => {
     expect(client.get).toHaveBeenCalledWith("/admin/queue/listJobs", {
       params: { status: "queued", taskType: "image", ownerUserId: 7 },
     });
+  });
+
+  it("creates a runtime model through the provider runtime endpoint", async () => {
+    const input = {
+      providerId: "provider-a",
+      modelId: "image-a",
+      displayName: "Image A",
+      capability: "image" as const,
+      executionMode: "sync" as const,
+      inputProfile: {},
+      parameterSchema: {},
+      outputMapping: {},
+      enabled: true,
+    };
+    client.post.mockResolvedValue(ok({ providerId: input.providerId, modelId: input.modelId, revision: 1 }));
+
+    await expect(createRuntimeModel(input)).resolves.toEqual({ providerId: "provider-a", modelId: "image-a", revision: 1 });
+    expect(client.post).toHaveBeenCalledWith("/admin/provider-runtime/models", input);
   });
 
   it.each(endpointCases)("rejects null data from $name", async ({ call }) => {
