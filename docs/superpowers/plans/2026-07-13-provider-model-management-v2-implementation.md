@@ -63,7 +63,7 @@
 - Modify: `app/src/types/database.d.ts`
 - Modify: `app/src/tests/r3s-provider-runtime.test.ts`
 
-- [ ] **Step 1: Write failing additive-schema tests**
+- [x] **Step 1: Write failing additive-schema tests**
 
 Require `o_providerRuntimeProfile` to contain `note` and `advancedConfigJson`. Require `o_providerModelProfile` to contain `capabilityTagsJson`, `inputCapabilitiesJson`, `advancedConfigJson` and `protocolOverride`. Verify running the migration twice preserves existing values.
 
@@ -75,13 +75,13 @@ assert.equal(providerColumns.has("advancedConfigJson"), true);
 assert.equal(providerColumns.has("note"), true);
 ```
 
-- [ ] **Step 2: Run the schema suite and verify RED**
+- [x] **Step 2: Run the schema suite and verify RED**
 
 Run: `yarn test:r3s`
 
 Expected: FAIL because the new columns do not exist.
 
-- [ ] **Step 3: Add idempotent columns and conservative backfill**
+- [x] **Step 3: Add idempotent columns and conservative backfill**
 
 Use text JSON columns with defaults serialized as `{}` or `[]`. Backfill existing models with empty tags and conservative input capabilities; never infer or enable a new capability during migration.
 
@@ -92,15 +92,19 @@ Use text JSON columns with defaults serialized as `{}` or `[]`. Backfill existin
 { name: "protocolOverride", type: "string", nullable: true },
 ```
 
-- [ ] **Step 4: Regenerate database types and verify GREEN**
+- [x] **Step 4: Regenerate database types and verify GREEN**
 
-Run: `yarn generateTypes`
+Run against an isolated SQLite file and wait for the repository's asynchronous type generator before closing the connection:
+
+```powershell
+yarn cross-env TOONFLOW_NO_AUTOSTART=1 NODE_ENV=dev STARS_DATABASE_FILE=data/provider-model-v2-types.sqlite tsx -e 'import("./src/utils/db.ts").then(async (module) => { await module.dbReady; await new Promise((resolve) => setTimeout(resolve, 8000)); await module.db.destroy(); })'
+```
 
 Run: `yarn test:r3s`
 
 Expected: PASS with fresh and repeat migration coverage.
 
-- [ ] **Step 5: Commit the app schema slice**
+- [x] **Step 5: Commit the app schema slice**
 
 ```powershell
 git add src/lib/providerRuntimeSchema.ts src/types/database.d.ts src/tests/r3s-provider-runtime.test.ts
@@ -114,7 +118,7 @@ git commit -m "feat: add provider model capability storage"
 - Create: `app/src/services/providerRuntime/advancedConfig.ts`
 - Modify: `app/src/tests/r3s-provider-runtime.test.ts`
 
-- [ ] **Step 1: Write failing capability-contract tests**
+- [x] **Step 1: Write failing capability-contract tests**
 
 Cover the approved tag registry, visual-understanding/reasoning tags, video frame-mode validation, reference-image ranges and conservative defaults.
 
@@ -134,7 +138,7 @@ assert.deepEqual(normalizeInputCapabilities("video", {
 });
 ```
 
-- [ ] **Step 2: Write failing advanced-config tests**
+- [x] **Step 2: Write failing advanced-config tests**
 
 Prove recursive credential-like fields, executable expressions, excessive depth, invalid polling bounds and unknown top-level sections are rejected. Prove deterministic merge order and task-parameter allowlisting.
 
@@ -149,17 +153,17 @@ assert.deepEqual(composeRuntimeConfig({
 }).request.fixedBody, { a: 1, b: 2, c: 3, shared: "model", duration: 8 });
 ```
 
-- [ ] **Step 3: Run R3S and verify RED**
+- [x] **Step 3: Run R3S and verify RED**
 
 Run: `yarn test:r3s`
 
 Expected: FAIL because the new modules are absent.
 
-- [ ] **Step 4: Implement pure registries, templates, validators and composer**
+- [x] **Step 4: Implement pure registries, templates, validators and composer**
 
 Use explicit unions for tags and frame modes. Limit advanced JSON to the approved `request`, `response`, `polling` and `finalLookup` sections. Limit depth to 8, keys to 200 and serialized size to 64 KiB. Validate task values against the constrained parameter schema before composition.
 
-- [ ] **Step 5: Run focused and adapter regression suites**
+- [x] **Step 5: Run focused and adapter regression suites**
 
 Run: `yarn test:r3s`
 
@@ -167,7 +171,7 @@ Run: `yarn test:r3p`
 
 Expected: PASS; Legacy adapter outputs remain unchanged.
 
-- [ ] **Step 6: Commit capability and composition services**
+- [x] **Step 6: Commit capability and composition services**
 
 ```powershell
 git add src/services/providerRuntime/modelCapabilities.ts src/services/providerRuntime/advancedConfig.ts src/tests/r3s-provider-runtime.test.ts
@@ -182,7 +186,7 @@ git commit -m "feat: validate provider model capabilities"
 - Modify: `app/src/routes/admin/provider-runtime/index.ts`
 - Modify: `app/src/tests/r3v-provider-runtime-admin.test.ts`
 
-- [ ] **Step 1: Write failing Super Admin credential and Provider tests**
+- [x] **Step 1: Write failing Super Admin credential and Provider tests**
 
 Cover Provider note/default config updates, credential replace, credential clear, masked status, unsaved-draft probe and denial for ordinary Admin. Assert no returned or audited object contains the supplied test secret.
 
@@ -194,17 +198,17 @@ assert.equal(JSON.stringify(status).includes("test-secret-value"), false);
 await assert.rejects(replaceProviderCredential(admin, "native-test", "x", db), /SUPER_ADMIN_REQUIRED/);
 ```
 
-- [ ] **Step 2: Run R3V and verify RED**
+- [x] **Step 2: Run R3V and verify RED**
 
 Run: `yarn test:r3v`
 
 Expected: FAIL because credential lifecycle commands and extended Provider DTOs do not exist.
 
-- [ ] **Step 3: Implement write-only credential operations**
+- [x] **Step 3: Implement write-only credential operations**
 
 Reuse `o_vendorConfig` and the existing protected input-values representation. Return only `configured`, `preview`, `updatedAt` and probe metadata. Never copy credentials into runtime-profile or protocol JSON.
 
-- [ ] **Step 4: Extend Provider route schemas**
+- [x] **Step 4: Extend Provider route schemas**
 
 Add explicit endpoints:
 
@@ -217,7 +221,7 @@ POST   /admin/provider-runtime/providers/:providerId/probe
 
 Draft probe accepts a credential only in the request body and does not persist it. Sanitize all errors before response and audit.
 
-- [ ] **Step 5: Verify R3V, R3L and TypeScript**
+- [x] **Step 5: Verify R3V, R3L and TypeScript**
 
 Run: `yarn test:r3v`
 
@@ -227,7 +231,7 @@ Run: `yarn lint`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit Provider administration**
+- [x] **Step 6: Commit Provider administration**
 
 ```powershell
 git add src/services/providerRuntime/providerCredentials.ts src/services/providerRuntime/adminService.ts src/routes/admin/provider-runtime/index.ts src/tests/r3v-provider-runtime-admin.test.ts
@@ -243,7 +247,7 @@ git commit -m "feat: complete provider credential administration"
 - Modify: `app/src/tests/r3v-provider-runtime-admin.test.ts`
 - Modify: `app/src/tests/r3p-provider-adapters.test.ts`
 
-- [ ] **Step 1: Write failing model-list parsing tests**
+- [x] **Step 1: Write failing model-list parsing tests**
 
 Cover OpenAI-compatible `{data:[{id}]}`, Gemini `{models:[{name}]}`, duplicate removal, capability suggestions and unsupported catalogs. Use fake fetch responses only.
 
@@ -254,17 +258,17 @@ assert.deepEqual(parseDiscoveredModels({ data: [{ id: "vision-chat" }, { id: "gp
 ]);
 ```
 
-- [ ] **Step 2: Write failing selective-import tests**
+- [x] **Step 2: Write failing selective-import tests**
 
 Prove only selected candidates are created, existing models are skipped, imported suggestions remain disabled by default and ordinary Admin cannot import.
 
-- [ ] **Step 3: Run R3V and verify RED**
+- [x] **Step 3: Run R3V and verify RED**
 
 Run: `yarn test:r3v`
 
 Expected: FAIL because discovery/import services and routes are absent.
 
-- [ ] **Step 4: Implement discovery and import**
+- [x] **Step 4: Implement discovery and import**
 
 Resolve the model-list URL from the saved protocol/Base URL. Return candidates only; never persist raw upstream responses. Import through the same model validator used by manual creation, with `enabled: false`, revision 1 and conservative defaults.
 
@@ -275,11 +279,11 @@ POST /admin/provider-runtime/providers/:providerId/fetch-models
 POST /admin/provider-runtime/providers/:providerId/import-models
 ```
 
-- [ ] **Step 5: Expand model create/update/list DTOs**
+- [x] **Step 5: Expand model create/update/list DTOs**
 
 Add `capabilityTags`, `inputCapabilities`, `advancedConfig` and `protocolOverride`. Validate tags and advanced config before storage. Include fields in sanitized list responses.
 
-- [ ] **Step 6: Verify backend suites**
+- [x] **Step 6: Verify backend suites**
 
 Run: `yarn test:r3v`
 
@@ -291,7 +295,7 @@ Run: `yarn lint`
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit model discovery and DTOs**
+- [x] **Step 7: Commit model discovery and DTOs**
 
 ```powershell
 git add src/services/providerRuntime/modelDiscovery.ts src/services/providerRuntime/adminService.ts src/routes/admin/provider-runtime/index.ts src/tests/r3v-provider-runtime-admin.test.ts src/tests/r3p-provider-adapters.test.ts
@@ -309,25 +313,25 @@ git commit -m "feat: discover and import provider models"
 - Create: `web/src/admin/components/providers/ProviderTestHistory.vue`
 - Modify: `web/src/admin/__tests__/provider-runtime-console.test.ts`
 
-- [ ] **Step 1: Write failing Admin API client tests**
+- [x] **Step 1: Write failing Admin API client tests**
 
 Cover credential replace/clear, draft/saved probe, fetch/import, complete model DTOs and guarded delete endpoints. Assert validators reject secret-bearing GET responses.
 
-- [ ] **Step 2: Write failing page split and permission tests**
+- [x] **Step 2: Write failing page split and permission tests**
 
 Prove stable Provider selection, ordinary Admin read-only behavior, Super Admin create/delete commands, bounded model workspace and no TypeScript editor.
 
-- [ ] **Step 3: Run focused Web tests and verify RED**
+- [x] **Step 3: Run focused Web tests and verify RED**
 
 Run: `yarn vitest run src/admin/__tests__/admin-api.test.ts src/admin/__tests__/provider-runtime-console.test.ts`
 
 Expected: FAIL for missing V2 contracts/components.
 
-- [ ] **Step 4: Implement V2 DTOs and extract stable components**
+- [x] **Step 4: Implement V2 DTOs and extract stable components**
 
 Keep data fetching and unsaved-change orchestration in `ProvidersPage.vue`. Move rail, overview and history rendering into focused components with typed props/events. Do not change route ownership or Creator bundles.
 
-- [ ] **Step 5: Verify focused and full Admin tests**
+- [x] **Step 5: Verify focused and full Admin tests**
 
 Run: `yarn vitest run src/admin/__tests__/admin-api.test.ts src/admin/__tests__/provider-runtime-console.test.ts`
 
@@ -335,7 +339,7 @@ Run: `yarn test:admin:unit`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit Web contracts and page decomposition**
+- [x] **Step 6: Commit Web contracts and page decomposition**
 
 ```powershell
 git add src/admin/api/adminApi.ts src/admin/__tests__/admin-api.test.ts src/admin/pages/ProvidersPage.vue src/admin/components/providers/ProviderRail.vue src/admin/components/providers/ProviderOverviewEditor.vue src/admin/components/providers/ProviderTestHistory.vue src/admin/__tests__/provider-runtime-console.test.ts
@@ -351,29 +355,29 @@ git commit -m "refactor: split provider runtime console"
 - Modify: `web/src/admin/pages/ProvidersPage.vue`
 - Modify: `web/src/admin/__tests__/provider-runtime-console.test.ts`
 
-- [ ] **Step 1: Write failing connection-editor tests**
+- [x] **Step 1: Write failing connection-editor tests**
 
 Prove Base URL/protocol editing, masked credential state, replace/clear confirmation, unsaved draft probe, saved probe and no credential redisplay.
 
-- [ ] **Step 2: Write failing catalog tests**
+- [x] **Step 2: Write failing catalog tests**
 
 Prove fetch does not auto-import, picker search/filter/selection works, capability suggestions are editable, duplicates are marked and imported models start disabled.
 
-- [ ] **Step 3: Run focused tests and verify RED**
+- [x] **Step 3: Run focused tests and verify RED**
 
 Run: `yarn vitest run src/admin/__tests__/provider-connection-editor.test.ts src/admin/__tests__/provider-runtime-console.test.ts`
 
 Expected: FAIL because the components are absent.
 
-- [ ] **Step 4: Implement Provider connection editor**
+- [x] **Step 4: Implement Provider connection editor**
 
 Use password input only for a new replacement value. Clear the local value immediately after submit. Show status, preview and latest probe metadata without exposing raw upstream responses.
 
-- [ ] **Step 5: Implement model discovery picker and catalog**
+- [x] **Step 5: Implement model discovery picker and catalog**
 
 Use a bounded dialog and paged table. Provide manual creation, selective import, enable/disable, edit and guarded delete commands. Use icons for refresh, add, delete and test commands with tooltips.
 
-- [ ] **Step 6: Verify Admin tests, builds and boundary checks**
+- [x] **Step 6: Verify Admin tests, builds and boundary checks**
 
 Run: `yarn test:admin:unit`
 
@@ -385,7 +389,7 @@ Run: `yarn check:build-boundaries`
 
 Expected: PASS; Creator output contains no Provider mutation or credential markers.
 
-- [ ] **Step 7: Commit Provider connection and discovery UI**
+- [x] **Step 7: Commit Provider connection and discovery UI**
 
 ```powershell
 git add src/admin/components/providers/ProviderConnectionEditor.vue src/admin/components/providers/ProviderModelCatalog.vue src/admin/__tests__/provider-connection-editor.test.ts src/admin/pages/ProvidersPage.vue src/admin/__tests__/provider-runtime-console.test.ts
@@ -401,33 +405,33 @@ git commit -m "feat: manage provider connections and model discovery"
 - Create: `web/src/admin/__tests__/provider-model-editor.test.ts`
 - Modify: `web/src/admin/pages/ProvidersPage.vue`
 
-- [ ] **Step 1: Write failing capability-editor tests**
+- [x] **Step 1: Write failing capability-editor tests**
 
 Cover visual understanding, reasoning/reasoning-control, multi-reference image limits and valid video frame-mode combinations. Prove changing primary type offers but does not silently apply a destructive template reset.
 
-- [ ] **Step 2: Write failing Advanced JSON tests**
+- [x] **Step 2: Write failing Advanced JSON tests**
 
 Cover invalid JSON, format, validation error display, reset confirmation, Provider/model merge preview and redaction of credential-like keys.
 
-- [ ] **Step 3: Run focused tests and verify RED**
+- [x] **Step 3: Run focused tests and verify RED**
 
 Run: `yarn vitest run src/admin/__tests__/provider-model-editor.test.ts`
 
 Expected: FAIL because editors are absent.
 
-- [ ] **Step 4: Implement structured capability and parameter controls**
+- [x] **Step 4: Implement structured capability and parameter controls**
 
 Use checkbox/tag groups for capability tags, numeric controls for reference bounds, a multi-select for frame modes and capability-specific parameter templates. Keep the raw parameter-schema JSON in an advanced collapsible section with validation and formatting.
 
-- [ ] **Step 5: Implement Provider/model Advanced JSON editor**
+- [x] **Step 5: Implement Provider/model Advanced JSON editor**
 
 Provide format, validate, reset and merged-preview commands. Never include arbitrary code execution or a source editor. Keep editor dimensions stable so long JSON cannot resize the page.
 
-- [ ] **Step 6: Implement protocol templates**
+- [x] **Step 6: Implement protocol templates**
 
 Expose the seven approved templates. Render structured fields for common paths and polling bounds while preserving the validated JSON area for incompatible declarative mappings.
 
-- [ ] **Step 7: Verify Web gates**
+- [x] **Step 7: Verify Web gates**
 
 Run: `yarn test:admin:unit`
 
@@ -441,7 +445,7 @@ Run: `yarn test:product-identity`
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit model and protocol editors**
+- [x] **Step 8: Commit model and protocol editors**
 
 ```powershell
 git add src/admin/components/providers/AdvancedJsonEditor.vue src/admin/components/providers/ProviderModelEditor.vue src/admin/components/providers/ProviderProtocolEditor.vue src/admin/__tests__/provider-model-editor.test.ts src/admin/pages/ProvidersPage.vue
@@ -458,15 +462,15 @@ git commit -m "feat: edit provider model capabilities"
 - Modify: `app/src/tests/r3w-provider-migration.test.ts`
 - Modify: `app/src/tests/r3r-model-pricing.test.ts`
 
-- [ ] **Step 1: Write failing runtime-composition tests**
+- [x] **Step 1: Write failing runtime-composition tests**
 
 Prove Provider defaults and model overrides produce the expected normalized request, unsupported task parameters are rejected, frame modes are enforced and Legacy mode does not consume declarative mappings.
 
-- [ ] **Step 2: Write failing accounting regression tests**
+- [x] **Step 2: Write failing accounting regression tests**
 
 Prove composed configuration does not alter reservation, settlement, failure release or concurrency ownership.
 
-- [ ] **Step 3: Run R3S/R3R/R3W and verify RED**
+- [x] **Step 3: Run R3S/R3R/R3W and verify RED**
 
 Run: `yarn test:r3s`
 
@@ -476,11 +480,11 @@ Run: `yarn test:r3w`
 
 Expected: at least the new composition assertions fail.
 
-- [ ] **Step 4: Integrate the pure composer at the gateway boundary**
+- [x] **Step 4: Integrate the pure composer at the gateway boundary**
 
 Compose only for declarative/native routes. Legacy routes continue to call their registered TypeScript adapters with existing normalized inputs. Preserve Stars Flow's outer timeout, cancellation and billing sequence.
 
-- [ ] **Step 5: Run backend release matrix**
+- [x] **Step 5: Run backend release matrix**
 
 Run: `yarn test:r3p`
 
@@ -500,7 +504,7 @@ Run: `yarn build`
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit runtime integration**
+- [x] **Step 6: Commit runtime integration**
 
 ```powershell
 git add src/services/providerRuntime/runtimeKit.ts src/services/providerRuntime/gateway.ts src/services/providerRuntime/productionText.ts src/tests/r3s-provider-runtime.test.ts src/tests/r3w-provider-migration.test.ts src/tests/r3r-model-pricing.test.ts
@@ -515,7 +519,7 @@ git commit -m "feat: compose provider model runtime configuration"
 - Create: `docs/logbooks/validations/2026-07-13-provider-model-management-v2.md`
 - Modify: outer `app` and `web` gitlinks
 
-- [ ] **Step 1: Fast-forward app/web feature commits into local `dev`**
+- [x] **Step 1: Fast-forward app/web feature commits into local `dev`**
 
 Use `git merge --ff-only`. Do not push or update `main` yet.
 
@@ -533,15 +537,15 @@ npm run test:release-layout
 npm run harness:verify:project
 ```
 
-- [ ] **Step 3: Scan source and generated output**
+- [x] **Step 3: Scan source and generated output**
 
 Reject credential-shaped values, upstream branding, external form URLs and Creator Provider-mutation markers.
 
-- [ ] **Step 4: Run local desktop browser acceptance**
+- [x] **Step 4: Run local desktop browser acceptance**
 
 At 1280x720, 1440x900 and 1920x1080 verify Provider selection, edit/save, credential replace/clear using fixture data, probe, model fetch/import, manual model creation, tag/input/schema editing, advanced JSON validation/preview, guarded deletion, ordinary Admin read-only behavior and Creator model consumption.
 
-- [ ] **Step 5: Commit release assets, gitlinks and validation records**
+- [x] **Step 5: Commit release assets, gitlinks and validation records**
 
 Keep app, web and outer commits separate and record exact hashes in the validation log.
 
