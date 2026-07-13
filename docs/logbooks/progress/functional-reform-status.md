@@ -13,7 +13,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | R2 | Setting-center permissions | Done | Medium | `app/dev` commit `1c4d6be`; `web/dev` commit `8551e77`; validation log added | Start separate admin-console redesign |
 | R3 | Separate admin console | Done | Medium | app/web merged to `dev`; unified release gate and full browser matrix passed | Begin R4 production closed-loop audit when scheduled |
 | R4 | Production closed-loop audit | Done | Medium | Real text/image/video queue, persistence, usage and billing evidence recorded | Continue internal staging observation |
-| R5 | Provider/admin hardening | In Progress | Medium | Stage 8 local migration gates landed in app `fbf53d9`; all 13 Providers remain Legacy | Run explicitly authorized MiMo and RunningHub controlled real validation |
+| R5 | Provider/admin hardening | In Progress | Medium | MiMo real comparison safely rejected an undersized output budget, rolled back to 13 Legacy, and the validator was corrected test-first in app `62b7f24` | Obtain retry authorization and environment-only RunningHub targets |
 
 ## Update Log
 
@@ -42,6 +42,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-13 | R5 | In Progress -> In Progress | Completed stage 7 fixed 260 px Provider rail, selected-Provider workspace, structured editors, full Admin regression and three-viewport browser matrix; begin controlled migration |
 | 2026-07-13 | R5 | In Progress -> In Progress | Stage 8 added Legacy-first creation, MiMo-only revisioned transitions, shadow no-double-billing, contract/accounting evidence gates, rollback and RunningHub quota guard; paid real validation remains pending explicit authorization |
 | 2026-07-13 | R5 | In Progress -> In Progress | Stage 8 no-cost Creator/Admin browser smoke passed; an ordinary-Admin edit-control exposure was caught, fixed test-first in web `91c8b2f`, and revalidated with 175 tests, dual builds, identity/boundary checks and the repository harness; paid real validation remains pending explicit authorization |
+| 2026-07-13 | R5 | In Progress -> In Progress | The authorized MiMo comparison passed identity, Token and all accounting gates but failed its text-output gate under an 8-token deep-thinking budget; Native promotion was refused, MiMo was rolled back to 13/13 Legacy, and app `62b7f24` corrected the budget and Token-contract semantics test-first without logging content |
 
 ## Required Status Update Format
 
