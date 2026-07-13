@@ -28,6 +28,7 @@ Read in order:
 | Current visual skin V2 execution | `superpowers/plans/2026-07-11-visual-skin-v2-implementation.md` | Brand cleanup, page skin tasks, build gates or visual matrix progress changes |
 | Provider runtime console design | `superpowers/specs/2026-07-13-provider-runtime-console-design.md` | Provider contracts, Creator boundary, protocol, Runtime Kit or RunningHub decisions change |
 | Provider runtime console execution | `superpowers/plans/2026-07-13-provider-runtime-console-implementation.md` | Provider runtime, Legacy Bridge, Admin console or migration tasks change |
+| Provider/model management V2 design | `superpowers/specs/2026-07-13-provider-model-management-v2-design.md` | Provider editing, model discovery, capability tags, parameter schemas or advanced JSON rules change |
 | Account and permission design | `specs/2026-07-09-stars-flow-account-permission-design.md` | Account role, backend permission, or setting-center access rules change |
 | Separate admin console design | `specs/2026-07-10-stars-flow-separated-admin-console-design.md` | Frontend/admin boundary, group scope, admin module, quota, or audit rules change |
 | Functional reform roadmap | `specs/2026-07-09-stars-flow-functional-reform-roadmap.md` | Functional reform sequence, ring scope, or status process changes |
