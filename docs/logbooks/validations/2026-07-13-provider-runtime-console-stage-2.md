@@ -32,6 +32,7 @@ Stage 2 introduces additive, versioned Provider runtime-profile storage while pr
 - `rtk yarn test:r3r` — 12 passed.
 - `rtk yarn lint` — passed.
 - `rtk yarn build` — passed and regenerated the server runtime.
+- After fast-forwarding app and outer gitlinks to `dev`, `rtk npm run harness:verify:project` passed with all three working trees clean.
 
 ## Decision
 
