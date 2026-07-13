@@ -159,15 +159,15 @@
 
 **Files:** Provider routes, `profileService.ts`, `adminSettings.ts`, API tests.
 
-- [ ] Add Super Admin-only create/update/delete Provider and model routes with Zod validation.
-- [ ] Add paged model listing with query, capability, enabled and execution-mode filters.
-- [ ] Add protocol mutation for standard, poll, webhook, RunningHub and legacy modes.
-- [ ] Reject deletion when a model is referenced by a project, Agent deployment, active price or nonterminal job; allow disablement instead.
-- [ ] Separate non-billable connection tests from controlled generation tests.
-- [ ] Persist test history with status, duration, redacted error code and timestamp only.
-- [ ] Add audit entries for every mutation without credentials, raw payloads or signed URLs.
-- [ ] Run R3A/R3D/R3L/R3S/R3U and TypeScript.
-- [ ] Commit: `feat: add provider runtime administration APIs`.
+- [x] Add Super Admin-only create/update/delete Provider and model routes with Zod validation.
+- [x] Add paged model listing with query, capability, enabled and execution-mode filters.
+- [x] Add protocol mutation for standard, poll, webhook, RunningHub and legacy modes.
+- [x] Reject deletion when a model is referenced by a project, Agent deployment, active price or nonterminal job; allow disablement instead.
+- [x] Separate non-billable connection tests from controlled generation tests.
+- [x] Persist test history with status, duration, redacted error code and timestamp only.
+- [x] Add audit entries for every mutation without credentials, raw payloads or signed URLs.
+- [x] Run R3A/R3D/R3L/R3S/R3U and TypeScript.
+- [x] Commit: `feat: add provider runtime administration APIs` (`d66e87f`).
 
 ## Task 7: Fixed-Rail Provider Console
 
