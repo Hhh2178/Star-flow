@@ -13,7 +13,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | R2 | Setting-center permissions | Done | Medium | `app/dev` commit `1c4d6be`; `web/dev` commit `8551e77`; validation log added | Start separate admin-console redesign |
 | R3 | Separate admin console | Done | Medium | app/web merged to `dev`; unified release gate and full browser matrix passed | Begin R4 production closed-loop audit when scheduled |
 | R4 | Production closed-loop audit | Done | Medium | Real text/image/video queue, persistence, usage and billing evidence recorded | Continue internal staging observation |
-| R5 | Provider/admin hardening | In Progress | Medium | Stage 8 completed MiMo and both RunningHub real validations, final UI smoke and rollback; all 13 Providers remain Legacy | Run Stage 9 local release gates, then obtain separate server-rollout authorization |
+| R5 | Provider/admin hardening | In Progress | Medium | Stage 9 production baseline is healthy; acceptance exposed incomplete Provider/model editing, now redesigned as Provider And Model Management V2 | Execute V2 capability, advanced JSON, discovery and full Admin management plan before the next release |
 
 ## Update Log
 
@@ -46,6 +46,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-13 | R5 | In Progress -> In Progress | The corrected MiMo comparison and Native smoke passed, MiMo was rolled back to 13/13 Legacy, and one concurrency-one RunningHub AI App completed with one normalized image output; app `cae2717` added scoped target validation while keeping credentials and payloads out of logs, leaving one independent Workflow and final UI repeat |
 | 2026-07-13 | R5 | In Progress -> In Progress | Stage 8 completed after app `2b2bc72`/`dac2c01` aligned the Workflow v2 empty-input contract, the authorized Workflow returned three normalized images under concurrency one, and final Creator/Admin smoke plus all code, build, identity, migration and harness gates passed; begin Stage 9 local release preparation |
 | 2026-07-13 | R5 | In Progress -> Release Pending | Stage 9 local release commit `1328196` passed all 23 backend commands, 251 Web source tests, Admin/Node/build/identity/layout/harness gates and zero-match credential scans; immutable server rollout remains pending separate authorization |
+| 2026-07-13 | R5 | Release Pending -> In Progress | Production baseline was deployed and remained healthy, but browser acceptance found incomplete first-model and Provider/model editing; local web `2449840` fixes only the first-model gap, while the approved V2 plan adds full credentials, discovery/import, capability tags, input constraints, parameter schemas and two-level advanced JSON before the next release |
 
 ## Required Status Update Format
 
