@@ -199,10 +199,10 @@
 
 **Files:** generated release output, governance logs and deployment record.
 
-- [ ] Run backend R2 and R3A-R3U, lint and build.
-- [ ] Run all Web source tests, Node boundary tests, Creator/Admin builds and product-identity checks.
-- [ ] Run outer `build:release`, `test:release-layout` and `harness:verify:project`.
-- [ ] Scan source and generated artifacts for credentials and upstream branding.
+- [x] Run backend R2 and R3A-R3U, lint and build.
+- [x] Run all Web source tests, Node boundary tests, Creator/Admin builds and product-identity checks.
+- [x] Run outer `build:release`, `test:release-layout` and `harness:verify:project`.
+- [x] Scan source and generated artifacts for credentials and upstream branding.
 - [ ] Deploy a new immutable server release while preserving shared SQLite and OSS paths.
 - [ ] Run migrations with a database backup and verify legacy Adapter mode before enabling any native profile.
 - [ ] Browser-test support contact, Creator empty-model behavior, Provider rail, model editor, protocol forms and RH test history on desktop.

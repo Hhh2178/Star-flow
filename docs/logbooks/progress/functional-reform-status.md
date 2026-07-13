@@ -45,6 +45,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-13 | R5 | In Progress -> In Progress | The authorized MiMo comparison passed identity, Token and all accounting gates but failed its text-output gate under an 8-token deep-thinking budget; Native promotion was refused, MiMo was rolled back to 13/13 Legacy, and app `62b7f24` corrected the budget and Token-contract semantics test-first without logging content |
 | 2026-07-13 | R5 | In Progress -> In Progress | The corrected MiMo comparison and Native smoke passed, MiMo was rolled back to 13/13 Legacy, and one concurrency-one RunningHub AI App completed with one normalized image output; app `cae2717` added scoped target validation while keeping credentials and payloads out of logs, leaving one independent Workflow and final UI repeat |
 | 2026-07-13 | R5 | In Progress -> In Progress | Stage 8 completed after app `2b2bc72`/`dac2c01` aligned the Workflow v2 empty-input contract, the authorized Workflow returned three normalized images under concurrency one, and final Creator/Admin smoke plus all code, build, identity, migration and harness gates passed; begin Stage 9 local release preparation |
+| 2026-07-13 | R5 | In Progress -> Release Pending | Stage 9 local release commit `1328196` passed all 23 backend commands, 251 Web source tests, Admin/Node/build/identity/layout/harness gates and zero-match credential scans; immutable server rollout remains pending separate authorization |
 
 ## Required Status Update Format
 
