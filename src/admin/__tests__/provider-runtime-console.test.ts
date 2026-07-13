@@ -15,7 +15,7 @@ import ProviderOverviewEditor from "../components/providers/ProviderOverviewEdit
 import ProviderTestHistory from "../components/providers/ProviderTestHistory.vue";
 
 const providers = Array.from({ length: 20 }, (_, index) => ({ providerId: `provider-${index}`, displayName: `Provider ${index}`, enabled: index % 3 !== 0, migrationState: index === 0 ? "shadow" : "legacy", adapterId: "legacy", revision: 1, protocolType: index % 2 ? "standard" : "legacy", protocolEnabled: true, modelCount: 5 }));
-const models = Array.from({ length: 100 }, (_, index) => ({ providerId: `provider-${Math.floor(index / 5)}`, modelId: `model-${index}`, displayName: `Model ${index}`, capability: index % 2 ? "image" : "text", executionMode: "sync", inputProfile: {}, parameterSchema: {}, outputMapping: {}, enabled: true, revision: 1 }));
+const models = Array.from({ length: 100 }, (_, index) => ({ providerId: `provider-${Math.floor(index / 5)}`, modelId: `model-${index}`, displayName: `Model ${index}`, capability: index % 2 ? "image" : "text", executionMode: "sync", inputProfile: {}, capabilityTags: [], inputCapabilities: { prompt: true, systemPrompt: false, imageReference: { enabled: false, min: 0, max: 0 }, frameModes: [], mask: false, videoReference: false, audioReference: false }, parameterSchema: {}, advancedConfig: {}, protocolOverride: null, outputMapping: {}, enabled: true, revision: 1 }));
 
 const Button = defineComponent({ props: ["disabled"], emits: ["click"], template: '<button :disabled="disabled" @click="$emit(\'click\')"><slot/></button>' });
 const common = { "t-button": Button, "t-tag": { template: "<span><slot/></span>" }, "t-input": { props: ["modelValue"], emits: ["update:modelValue"], template: "<input :value='modelValue' />" }, "t-select": { template: "<select />" }, "t-switch": { template: "<button />" }, "t-drawer": { template: "<aside><slot/></aside>" }, "t-textarea": { template: "<textarea />" }, "i-refresh": { template: "<i />" }, "i-edit": { template: "<i />" } };
@@ -95,5 +95,16 @@ describe("fixed Provider runtime console", () => {
     expect(api.createRuntimeModel).toHaveBeenCalledWith(expect.objectContaining({
       providerId: "provider-0", modelId: "new-model", displayName: "New Model", capability: "text", executionMode: "sync", enabled: true,
     }));
+  });
+
+  it("opens an existing reactive model in the editor", async () => {
+    const wrapper = mount(ProvidersPage, { global: { stubs: common } });
+    await flushPromises();
+    await wrapper.findAll(".tabs button")[2].trigger("click");
+    await wrapper.get('[data-testid="model-edit"]').trigger("click");
+    await flushPromises();
+
+    expect(wrapper.find('[data-testid="model-save"]').exists()).toBe(true);
+    expect((wrapper.get('[data-testid="model-id"]').element as HTMLInputElement).value).toBe("model-0");
   });
 });

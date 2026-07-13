@@ -1078,7 +1078,9 @@ export function deleteRuntimeModel(providerId: string, modelId: string) {
 }
 
 export function upsertRuntimeProtocol(input: RuntimeProtocol) {
-  return unwrap<{ providerId: string; revision: number }>(client.put("/admin/provider-runtime/protocols", { ...input, expectedRevision: input.revision }), (value): value is { providerId: string; revision: number } => isRecord(value) && value.providerId === input.providerId && isInteger(value.revision));
+  const { revision, ...protocol } = input;
+  const body = revision > 0 ? { ...protocol, expectedRevision: revision } : protocol;
+  return unwrap<{ providerId: string; revision: number }>(client.put("/admin/provider-runtime/protocols", body), (value): value is { providerId: string; revision: number } => isRecord(value) && value.providerId === input.providerId && isInteger(value.revision));
 }
 
 export function getSupportContact() {

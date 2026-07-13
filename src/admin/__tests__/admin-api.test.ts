@@ -44,6 +44,7 @@ import {
   updateUser,
   updateGroupPolicy,
   updateUserPolicy,
+  upsertRuntimeProtocol,
 } from "../api/adminApi";
 
 function ok<T>(data: T) {
@@ -167,6 +168,28 @@ describe("adminApi", () => {
 
     await expect(createRuntimeModel(input)).resolves.toEqual({ providerId: "provider-a", modelId: "image-a", revision: 1 });
     expect(client.post).toHaveBeenCalledWith("/admin/provider-runtime/models", input);
+  });
+
+  it("omits the optimistic revision when creating a Provider protocol", async () => {
+    client.put
+      .mockResolvedValueOnce(ok({ providerId: "provider-a", revision: 1 }))
+      .mockResolvedValueOnce(ok({ providerId: "provider-a", revision: 3 }));
+    const protocol = {
+      providerId: "provider-a",
+      protocolType: "standard" as const,
+      config: { baseUrl: "https://provider.invalid/v1" },
+      enabled: true,
+      revision: 0,
+    };
+
+    await upsertRuntimeProtocol(protocol);
+    await upsertRuntimeProtocol({ ...protocol, revision: 2 });
+    const { revision: _revision, ...payload } = protocol;
+
+    expect(client.put.mock.calls).toEqual([
+      ["/admin/provider-runtime/protocols", payload],
+      ["/admin/provider-runtime/protocols", { ...payload, expectedRevision: 2 }],
+    ]);
   });
 
   it("uses the Provider V2 credential, probe, discovery and guarded CRUD endpoints", async () => {
