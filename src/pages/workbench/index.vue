@@ -65,12 +65,14 @@
     </div>
   </div>
   <setting />
+  <SupportContactDialog v-model="supportDialogVisible" />
 </template>
 
 <script setup lang="ts">
 import axios from "@/utils/axios";
 import setting from "@/components/setting/index.vue";
 import BrandIdentity from "@/components/brand/BrandIdentity.vue";
+import SupportContactDialog from "@/components/support/SupportContactDialog.vue";
 import projectStore from "@/stores/project";
 const { project } = storeToRefs(projectStore());
 import settingStore from "@/stores/setting";
@@ -95,6 +97,7 @@ const rightBtnList = ref([
 const router = useRouter();
 const route = useRoute();
 const activeMenu = ref(route.path);
+const supportDialogVisible = ref(false);
 
 watch(
   () => route.path,
@@ -109,12 +112,8 @@ function handleClick(menu: any) {
   activeMenu.value = menu.path;
 }
 
-async function openFeedback() {
-  if (isElectron.value) {
-    await fetch("toonflow://openurlwithbrowser?url=https://docs.qq.com/smartsheet/form/EmvmQBrmlPmr%2Fss_vsqk2v%2FvhiGzE?tab=ss_vsqk2v");
-  } else {
-    window.open("https://docs.qq.com/smartsheet/form/EmvmQBrmlPmr%2Fss_vsqk2v%2FvhiGzE?tab=ss_vsqk2v");
-  }
+function openFeedback() {
+  supportDialogVisible.value = true;
 }
 
 async function checkVersion() {

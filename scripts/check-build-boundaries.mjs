@@ -1,5 +1,6 @@
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
+import { assertCreatorArtifactBoundary } from "./build-boundaries.mjs";
 
 const creatorDirectory = join(process.cwd(), "dist", "creator");
 const adminDirectory = join(process.cwd(), "dist", "admin");
@@ -7,11 +8,6 @@ const creatorIndexPath = join(creatorDirectory, "index.html");
 const adminIndexPath = join(adminDirectory, "index.html");
 
 const adminConsoleMarker = "StarsFlowAdminConsole";
-const creatorForbiddenMarkers = [
-  [adminConsoleMarker, "Admin Console 唯一标记"],
-  ["/api/admin/auth/session", "Admin 会话接口"],
-  ["StarsFlowAdminPageModule", "Admin 页面模块标记"],
-];
 
 async function readRequiredFile(filePath, label, errors) {
   try {
@@ -49,11 +45,10 @@ if (adminIndex !== null && !adminIndex.includes(adminConsoleMarker)) {
 
 if (creatorIndex !== null) {
   const creatorFiles = await readBuildFiles(creatorDirectory);
-  for (const [marker, label] of creatorForbiddenMarkers) {
-    const match = creatorFiles.find(([, contents]) => contents.includes(marker));
-    if (match) {
-      errors.push(`Creator 构建包含${label} ${marker}：${match[0]}`);
-    }
+  try {
+    assertCreatorArtifactBoundary(creatorFiles);
+  } catch (error) {
+    errors.push(error.message);
   }
 }
 

@@ -21,20 +21,20 @@
         </div>
       </t-option>
     </t-option-group>
-    <!-- 无可用模型时，显示跳转设置的按钮 -->
     <template #empty>
       <div class="emptyActionWrap">
-        <t-button class="emptyActionButton" size="small" variant="text" theme="primary" @click.stop="goVendorConfig">
-          {{ $t("components.modelSelect.goSetting") }}
-        </t-button>
+        <strong>当前暂无可用模型</strong>
+        <span>请联系管理员完成模型配置</span>
+        <t-button class="emptyActionButton" size="small" variant="text" theme="primary" @click.stop="supportDialogVisible = true">联系管理员</t-button>
       </div>
     </template>
   </t-select>
+  <SupportContactDialog v-model="supportDialogVisible" />
 </template>
 
 <script setup lang="ts">
 import { providersLogo, modelProviderRules } from "@/utils/providersLogo";
-import settingStore from "@/stores/setting";
+import SupportContactDialog from "@/components/support/SupportContactDialog.vue";
 
 import axios from "@/utils/axios";
 interface VendorChild {
@@ -91,6 +91,7 @@ async function onChange(value: any, { option }: any) {
   }
 }
 const optionsData = ref<VendorOption[]>([]);
+const supportDialogVisible = ref(false);
 onMounted(() => {
   handleModelChange();
 });
@@ -155,11 +156,6 @@ function getFallbackText(label: string) {
   return label?.slice(0, 1)?.toUpperCase() || "M";
 }
 
-function goVendorConfig() {
-  const store = settingStore();
-  store.activeMenu = "vendorConfig";
-  store.showSetting = true;
-}
 </script>
 
 <style lang="scss" scoped>
@@ -197,8 +193,15 @@ function goVendorConfig() {
 }
 .emptyActionWrap {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   justify-content: center;
   padding: 8px 12px;
+  span {
+    color: var(--td-text-color-secondary);
+    font-size: 12px;
+  }
   .emptyActionButton {
     min-width: 140px;
     color: #339af0;

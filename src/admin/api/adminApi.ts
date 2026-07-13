@@ -30,6 +30,24 @@ export interface ConcurrencyLimit {
   video: number;
 }
 
+export interface PublicSupportContact {
+  enabled: boolean;
+  type: "wechat";
+  title: string;
+  wechatId: string;
+  qrCodeUrl: string | null;
+  description: string;
+}
+
+export interface SupportContactInput {
+  enabled: boolean;
+  type: "wechat";
+  title: string;
+  wechatId: string;
+  qrAssetId: string | null;
+  description: string;
+}
+
 export interface GenerationJobListItem {
   id: number;
   groupId: number;
@@ -762,6 +780,16 @@ function isSystemOverview(value: unknown): value is SystemOverview {
     && typeof value.capabilities.exportDatabase === "boolean";
 }
 
+function isSupportContact(value: unknown): value is PublicSupportContact {
+  return isRecord(value)
+    && typeof value.enabled === "boolean"
+    && value.type === "wechat"
+    && typeof value.title === "string"
+    && typeof value.wechatId === "string"
+    && isNullableString(value.qrCodeUrl)
+    && typeof value.description === "string";
+}
+
 function errorCode(value: unknown): string | number | undefined {
   if (typeof value !== "object" || value === null) return undefined;
   const code = (value as { code?: unknown }).code;
@@ -956,6 +984,14 @@ export function getSystemOverview() {
 
 export function updateDevelopmentSettings(aiDevToolsEnabled: boolean) {
   return unwrap<{ aiDevToolsEnabled: boolean }>(client.post("/admin/system/updateDevelopment", { aiDevToolsEnabled }), (value): value is { aiDevToolsEnabled: boolean } => isRecord(value) && typeof value.aiDevToolsEnabled === "boolean");
+}
+
+export function getSupportContact() {
+  return unwrap<PublicSupportContact>(client.get("/public/support/getContact"), isSupportContact);
+}
+
+export function updateSupportContact(input: SupportContactInput) {
+  return unwrap<PublicSupportContact>(client.post("/admin/system/updateSupportContact", input), isSupportContact);
 }
 
 export function updateCurrentProfile(input: { name: string; password?: string }) {

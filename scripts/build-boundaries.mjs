@@ -11,6 +11,22 @@ export function assertCreatorModuleBoundary(moduleIds) {
   }
 }
 
+export const creatorForbiddenMarkers = [
+  ["StarsFlowAdminConsole", "Admin Console 唯一标记"],
+  ["/api/admin/auth/session", "Admin 会话接口"],
+  ["StarsFlowAdminPageModule", "Admin 页面模块标记"],
+  ["/setting/vendorConfig/", "Provider 配置接口"],
+  ["/api/admin/providers/updateProvider", "Provider 变更接口"],
+  ["ProviderProtocolPanel", "Provider 协议编辑模块"],
+];
+
+export function assertCreatorArtifactBoundary(files) {
+  for (const [marker, label] of creatorForbiddenMarkers) {
+    const match = files.find(([, contents]) => contents.includes(marker));
+    if (match) throw new Error(`Creator 构建禁止包含 Provider 配置标记：${label} ${marker} (${match[0]})`);
+  }
+}
+
 export function creatorModuleBoundaryPlugin() {
   return {
     name: "stars-flow-creator-module-boundary",

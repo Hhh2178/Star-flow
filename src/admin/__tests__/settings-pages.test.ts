@@ -6,7 +6,7 @@ import { defineComponent, type Component } from "vue";
 const api = vi.hoisted(() => ({
   getProviderOverview: vi.fn(), getModelPricing: vi.fn(), updateModelPricing: vi.fn(), updateProvider: vi.fn(), testProviderConnection: vi.fn(), getAiConfigOverview: vi.fn(),
   updateAiDeployment: vi.fn(), updateAiUseMode: vi.fn(), getSystemOverview: vi.fn(),
-  updateDevelopmentSettings: vi.fn(), adminErrorText: vi.fn((error: unknown, fallback: string) => (error as Error)?.message || fallback),
+  updateDevelopmentSettings: vi.fn(), getSupportContact: vi.fn(), updateSupportContact: vi.fn(), adminErrorText: vi.fn((error: unknown, fallback: string) => (error as Error)?.message || fallback),
 }));
 vi.mock("../api/adminApi", () => api);
 
@@ -36,6 +36,8 @@ describe("admin settings pages", () => {
     api.updateModelPricing.mockResolvedValue({ pricingId: 1, providerId: "provider-a", modelId: "text-a", taskType: "text", billingMode: "per_request", requestPrice: 0.1, currency: "CNY", version: 2, effectiveAt: 2 });
     api.updateProvider.mockResolvedValue({ id: "provider-a", updated: true }); api.testProviderConnection.mockResolvedValue({ providerId: "provider-a", modelName: "text-a", status: "available", modelAvailable: true, latencyMs: 12, checkedAt: 1 }); api.updateAiUseMode.mockResolvedValue({ agentUseMode: "1" }); api.updateDevelopmentSettings.mockResolvedValue({ aiDevToolsEnabled: true });
     api.getSystemOverview.mockResolvedValue({ database: { tables: [{ name: "o_user", rowCount: 3 }] }, development: { aiDevToolsEnabled: false }, runtime: { nodeVersion: "v22", platform: "win32", environment: "dev" }, capabilities: { updateDevelopment: true, clearDatabase: false, importDatabase: false, exportDatabase: false } });
+    api.getSupportContact.mockResolvedValue({ enabled: false, type: "wechat", title: "联系支持", wechatId: "", qrCodeUrl: null, description: "" });
+    api.updateSupportContact.mockResolvedValue({ enabled: true, type: "wechat", title: "联系支持", wechatId: "support-id", qrCodeUrl: "/oss/support/qr.png", description: "工作日" });
   });
   afterEach(() => wrapper?.unmount());
 
@@ -133,5 +135,23 @@ describe("admin settings pages", () => {
     const system = await mountPage(SystemPage); expect(system.text()).toContain("o_user"); expect(system.text()).toContain("v22");
     await system.get('[data-testid="switch"]').trigger("click"); await flushPromises();
     expect(api.updateDevelopmentSettings).toHaveBeenCalledWith(true);
+  });
+
+  it("Super Admin 在系统页保存公开支持联系方式", async () => {
+    const system = await mountPage(SystemPage);
+    await system.get('[data-testid="support-enabled"]').trigger("click");
+    await system.get<HTMLInputElement>('[data-testid="support-wechat-id"]').setValue("support-id");
+    await system.get<HTMLInputElement>('[data-testid="support-qr-asset-id"]').setValue("support/qr.png");
+    await system.get('[data-testid="save-support-contact"]').trigger("click");
+    await flushPromises();
+    expect(api.updateSupportContact).toHaveBeenCalledWith({
+      enabled: true,
+      type: "wechat",
+      title: "联系支持",
+      wechatId: "support-id",
+      qrAssetId: "support/qr.png",
+      description: "",
+    });
+    expect(system.text()).toContain("联系支持配置已保存");
   });
 });

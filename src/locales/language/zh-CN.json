@@ -39,7 +39,7 @@
       "msg": {
         "fetchModelFailed": "获取模型数据失败:"
       },
-      "goSetting": "去设置中添加模型"
+      "goSetting": "联系管理员"
     },
     "storyboardImageCheck": {
       "camera": "镜头",
@@ -677,7 +677,7 @@
       "assetCenter": "资产中心",
       "settings": "设置",
       "jumpGithub": "",
-      "feedbackQuestions": "反馈问题"
+      "feedbackQuestions": "联系支持"
     },
     "project": {
       "title": "我的项目",

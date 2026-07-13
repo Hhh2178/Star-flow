@@ -45,6 +45,16 @@ test("Creator 构建插件遍历 chunk.modules 并拒绝 Admin 模块", () => {
   assert.throws(() => plugin.generateBundle({}, bundle), /Creator 构建禁止包含 Admin 模块.*\/src\/admin\/AdminApp\.vue/);
 });
 
+test("Creator 产物拒绝 Provider 配置和协议编辑标记", () => {
+  assert.ifError(boundaryHelpersImportError);
+  for (const marker of ["/setting/vendorConfig/", "/api/admin/providers/updateProvider", "ProviderProtocolPanel"]) {
+    assert.throws(
+      () => boundaryHelpers.assertCreatorArtifactBoundary([["creator.js", `prefix-${marker}-suffix`]]),
+      /Creator 构建禁止包含 Provider 配置标记/,
+    );
+  }
+});
+
 test("singlefile 配置显式保留当前应用 base", async () => {
   const config = await readFile(join(projectRoot, "vite.config.ts"), "utf8");
   assert.match(config, /viteSingleFile\(\{\s*overrideConfig:\s*\{\s*base:\s*appBase\s*\}\s*\}\)/);
