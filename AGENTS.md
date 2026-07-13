@@ -46,13 +46,6 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 - Docker 不是当前日常开发环境。除非用户明确要求容器化验证、Dockerfile/镜像维护或服务器部署，否则不得新建、启动、停止或复用任何 Docker 容器。Docker 仅作为后续可选的可复现构建/发布验证方案。
 - 本地修改完成后，先在 app/web 各自运行计划要求的定向测试与构建，再运行外层 `npm run harness:verify:project`；不得以 Docker 成功构建替代这些门禁。
 
-## Incremental Delivery Discipline
-
-- 按目标模式循序推进：一次只执行实施计划中一个可独立验收的目标，不跨阶段堆积未验证改动。
-- 每个目标必须遵循“失败测试 → 最小实现 → 定向测试/构建 → 自查”的顺序；验证失败时停在当前目标定位和修复，不开始下一个目标。
-- 每个已验证目标完成后，立即更新当日 `docs/logbooks/daily/YYYY-MM-DD.md`、`docs/logbooks/progress/functional-reform-status.md` 和相应验证记录，记录实际命令、结果、提交、残余风险与下一步；不得以口头结论替代台账证据。
-- 只有代码、测试、日志和台账同时完成时，目标才可标记完成并进入下一目标。
-
 ## Current Execution Entry
 
 继续 R3 时按以下顺序读取和执行：
