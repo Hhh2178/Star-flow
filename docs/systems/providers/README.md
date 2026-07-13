@@ -28,6 +28,8 @@ Super Admin can start a connection test from one action on each Provider row, th
 
 The local real runtime uses normal Agent mode with `scriptAgent`, `productionAgent` and `universalAi` routed through `mimo:mimo-v2.5`. GRSAI and AICopy remain enabled as project-level image and video choices; project model selection is not silently overwritten by global routing.
 
+Runtime migration is deliberately Provider-specific. Initial deployment keeps every Provider in `legacy`. Only MiMo is allowlisted for `legacy -> shadow -> native`; shadow production traffic still executes Legacy only, while explicit controlled comparison checks model identity, normalized text output and Token usage. GRSAI and AICopy stay on the Legacy Bridge until their asynchronous submit/poll/result contracts have equivalent coverage. See [migration runbook](migration-runbook.md).
+
 Browser runtimes receive same-origin relative OSS media URLs so random local ports, reverse-proxy deployments and the canonical server origin all resolve persisted images and videos through the active Stars Flow instance. Electron retains its explicit loopback-port behavior, and an explicit `ossURL` still overrides browser defaults.
 
 Usage attribution and quota settlement are active for text, image and video jobs. Current defaults are MiMo CNY 0.05/request, GRSAI CNY 0.06/request and AICopy CNY 0.18/request. Enqueue reserves the immutable price snapshot, success settles the final charge, ordinary failure/cancellation releases the reservation, and unknown external state retains the reservation for manual handling. Text deployment aliases accept both bare model names and canonical `provider:model` values, while rejecting a canonical Provider that conflicts with the deployment record.
@@ -51,6 +53,8 @@ yarn test:r3o
 yarn test:r3l
 yarn test:r3q
 yarn test:r3r
+yarn test:r3w
+yarn validate:migrations
 yarn lint
 yarn build
 ```
