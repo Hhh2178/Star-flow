@@ -25,6 +25,7 @@ Stage 1 adds configurable public support contact information and removes Creator
 - `rtk yarn check:build-boundaries`: passed; Creator artifact contains no configured forbidden Provider/Admin markers.
 - Product identity source and compiled-artifact checks passed.
 - Source scan found no Tencent form URL, old “去设置中添加模型” copy, `goVendorConfig`, or model-selector assignment to `vendorConfig`.
+- After fast-forwarding app, web and outer gitlinks to `dev`, `rtk npm run harness:verify:project` passed and all three working trees were clean.
 
 ## Known Baseline
 
