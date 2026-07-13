@@ -37,6 +37,15 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 - R3 已合并；当前后端开发入口恢复为 `app/` 的 `dev`，前端开发入口恢复为 `web/` 的 `dev`。旧 R3 feature worktree 仅用于追溯，后续任务应从最新 `dev` 创建新的短期分支或 worktree。
 - R3 的完成口径不是“页面可打开”，而是 Creator/Admin 双入口完成真实角色、队列、并发、额度、日志和异步生成状态的浏览器交互验证。
 
+## Local Development Environment
+
+- 本地默认开发环境是 Windows 宿主机上的短期 Git worktree：app 与 web 从各自最新 `dev` 创建同名 `feature/<task>` 分支，外层治理仓库同步使用对应短期分支；不得把旧 `星环漫剧` 容器或其依赖目录用于 Stars Flow。
+- 宿主机当前标准运行时为 Node.js `20.20.x` 与 Yarn `1.22.x`。通过 `rtk yarn` 运行安装、测试、构建命令；`rtk` 仅优化终端输出，不会切换 Node 版本。
+- 全新 app worktree 安装依赖使用 `rtk yarn install --frozen-lockfile --ignore-engines`。这是 Electron 打包链路的传递依赖要求高于本地运行时所致；不得改动锁文件、降级依赖或把 `--ignore-engines` 用于服务器发布。
+- web worktree 使用 `rtk yarn install --frozen-lockfile`；所有本地数据库、验收数据和生成物必须留在相应 worktree 的已忽略路径中。
+- Docker 不是当前日常开发环境。除非用户明确要求容器化验证、Dockerfile/镜像维护或服务器部署，否则不得新建、启动、停止或复用任何 Docker 容器。Docker 仅作为后续可选的可复现构建/发布验证方案。
+- 本地修改完成后，先在 app/web 各自运行计划要求的定向测试与构建，再运行外层 `npm run harness:verify:project`；不得以 Docker 成功构建替代这些门禁。
+
 ## Current Execution Entry
 
 继续 R3 时按以下顺序读取和执行：
