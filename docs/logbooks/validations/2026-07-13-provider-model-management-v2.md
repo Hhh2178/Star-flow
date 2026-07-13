@@ -44,3 +44,9 @@ Local release validated. App and Web are integrated into local `dev`. No remote 
 2. Deploy one immutable server release only after explicit rollout authorization; back up shared SQLite, preserve OSS, run additive migrations and retain rollback.
 3. Run production HTTPS, Creator/Admin, Socket.IO, Provider console and controlled generation smoke without exposing credentials or payloads.
 4. Tag and evaluate `main` fast-forward only after production smoke passes.
+
+## Pre-Release Online Baseline
+
+- Before V2 rollout, `https://starsflow.hhh2121.xyz/healthz` and `/admin/` both returned HTTP 200.
+- Responses included `Server: cloudflare` and `CF-RAY`, confirming the orange-cloud proxy is active.
+- This is evidence for the currently deployed baseline only. It does not count as V2 production deployment or production smoke evidence.
