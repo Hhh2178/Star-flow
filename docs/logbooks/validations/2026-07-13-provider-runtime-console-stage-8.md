@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress. Local migration gates, corrected real MiMo comparison, Native smoke, rollback and one real RunningHub AI App are complete. One independent RunningHub Workflow real validation and the final local UI repeat remain before Stage 8 can exit.
+Complete. Controlled MiMo migration, Native smoke, rollback, one real RunningHub AI App, one real RunningHub Workflow and the final isolated Creator/Admin UI repeat all passed. The local runtime remains fully rolled back to Legacy before release preparation.
 
 ## Completed Evidence
 
@@ -10,6 +10,8 @@ In progress. Local migration gates, corrected real MiMo comparison, Native smoke
 - App commit: `06f629f feat: wire controlled mimo runtime validation`
 - App commit: `62b7f24 fix: harden mimo migration evidence`
 - App commit: `cae2717 fix: support scoped runninghub validation`
+- App commit: `2b2bc72 fix: align runninghub workflow v2 payload`
+- App commit: `dac2c01 fix: support empty runninghub workflow input`
 - Web commit: `91c8b2f fix: enforce read-only provider console for admin`
 - The local runtime database reports 13 Providers in `legacy`, zero in `shadow`, zero in `native`; AICopy and GRSAI are verified Legacy.
 - Shadow production routing executes Legacy exactly once. It cannot duplicate a potentially billable request.
@@ -33,6 +35,10 @@ In progress. Local migration gates, corrected real MiMo comparison, Native smoke
 - MiMo was immediately rolled back to Legacy at revision 6. Final state validation again proved 13 Legacy / 0 Shadow / 0 Native; temporary evidence and database backup files were removed individually.
 - The RunningHub real validator was extended test-first to support a single App or Workflow target, optional image-node mapping and generic failure reporting that cannot expose credentials, payloads, outputs or URLs.
 - One explicitly authorized RunningHub AI App executed with concurrency one and the CNY 1 manual quota. It completed successfully with exactly one normalized image output; the credential, target ID, input payload, task ID and output URL were not persisted or logged.
+- The independent RunningHub Workflow initially exposed that the pinned client still emitted obsolete workflow body fields. A failing contract test captured the mismatch before the app-side v2 fetch adapter was added; the fix is limited to Workflow v2 submission and retains Bearer authentication and bounded polling.
+- Empty Workflow input is now represented as an empty mapping rather than an injected prompt node. The explicitly authorized Workflow then completed under concurrency one and the CNY 1 manual quota with three normalized image outputs.
+- Final isolated Creator smoke passed login, project selection and one persisted novel-row render without a Provider call. Final ordinary-Admin smoke rendered all 13 Providers with exactly one read-only notice, zero mutation controls and zero browser warnings or errors.
+- The isolated acceptance listener and its database/stdout/stderr files were stopped and removed individually after the browser session closed.
 
 ## Test Evidence
 
@@ -44,14 +50,14 @@ In progress. Local migration gates, corrected real MiMo comparison, Native smoke
 | `yarn test:r3a` | PASS, auth/group/audit regression |
 | `yarn test:r3d` | PASS, Admin operations regression |
 | `yarn test:r3r` | PASS, 12/12 pricing/reservation/settlement tests |
-| `yarn test:r3u` | PASS, 6/6 RunningHub App/Workflow fake tests |
+| `yarn test:r3u` | PASS, 7/7 RunningHub App/Workflow and scoped-validator tests |
 | `yarn test:r3v` | PASS, Provider Runtime Admin regression |
 | `yarn lint` | PASS, `tsc --noEmit` |
 | `yarn build` | PASS, backend and Electron bundles |
 | `yarn vitest run src/admin/__tests__/provider-runtime-console.test.ts` | PASS, 3/3 including ordinary Admin read-only regression |
 | `yarn test:admin` | PASS, 175/175 Admin/shared tests, dual builds and boundary checks |
 | `yarn test:product-identity && yarn check:product-identity` | PASS, Creator/Admin product identity |
-| Creator local browser smoke | PASS, login, project selection and persisted three-row content rendering |
+| Creator local browser smoke | PASS, login, project selection and one persisted novel-row rendering |
 | Admin local browser smoke | PASS, 13/13 Legacy Providers and ordinary Admin read-only enforcement |
 | `npm run harness:verify:project` | PASS after app/web synchronization |
 | First authorized MiMo real comparison | SAFE REJECT, output contract false; all other contract/accounting checks true |
@@ -62,12 +68,13 @@ In progress. Local migration gates, corrected real MiMo comparison, Native smoke
 | Final MiMo rollback validation | PASS, 13 legacy / 0 shadow / 0 native |
 | `yarn test:r3u` after scoped-validator change | PASS, 7/7 RunningHub tests |
 | RunningHub AI App real acceptance | PASS, concurrency 1, one normalized image output |
-| Post-real-call `yarn test:r3w && yarn test:r3u && yarn test:r3r && yarn lint && yarn build` | PASS |
-| Post-real-call `yarn validate:migrations && npm run harness:verify:project` | PASS |
+| RunningHub Workflow real acceptance | PASS, v2 empty-input contract, concurrency 1, three normalized image outputs |
+| Final Creator/Admin browser repeat | PASS, one persisted Creator row, 13 Providers, one read-only notice, zero mutation controls, zero browser warnings/errors |
+| Final `yarn test:r3w && yarn test:r3u && yarn test:r3r && yarn lint && yarn build` | PASS, 14/14 + 7/7 + 12/12 |
+| Final `yarn validate:migrations` | PASS, 13 legacy / 0 shadow / 0 native |
+| Final `yarn test:admin` | PASS, 175/175, dual builds and boundary checks |
+| Final product-identity checks and canonical `npm run harness:verify:project` | PASS |
 
-## Pending Exit Evidence
+## Exit Result
 
-1. Environment-only credentials, Workflow ID and node parameters for one independent RunningHub Workflow under the already-authorized non-production manual quota.
-2. Repeat the already-passing Creator/Admin smoke after the controlled real state changes.
-
-No real key, prompt, output or Provider URL was written to Git or this log. The real MiMo state change was local and temporary, and was rolled back on the first failed gate. Stage 8 remains open until the remaining items are evidenced.
+Stage 8 is complete. No real key, target ID, prompt, input asset, task ID, output, output URL or Provider URL was written to Git or this log. All real state changes were local, controlled and rolled back; Stage 9 starts from 13 Legacy / 0 Shadow / 0 Native.

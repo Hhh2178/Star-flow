@@ -173,27 +173,27 @@
 
 **Files:** new Provider page components, Admin API client and tests.
 
-- [ ] Write a failing component test with 20 Providers and 100 models proving only the selected Provider models render.
-- [ ] Implement the fixed 240-280px independently scrolling rail with search, filters, badges, counts and stable selection.
-- [ ] Implement Overview, Credentials, Models, Protocol And Execution, and Test History tabs.
-- [ ] Implement paged model table and model editor drawer for identity, capability, execution mode, input profile, parameter schema, output mapping, enablement and pricing link.
-- [ ] Build protocol-specific forms; never expose arbitrary TypeScript source editing in production Admin.
-- [ ] Add unsaved-change protection, revision-conflict refresh and concise Chinese error states.
-- [ ] Verify the desktop viewport matrix at 1280x720, 1440x900 and 1920x1080 only.
-- [ ] Run Admin tests, dual build, product identity and boundary checks.
-- [ ] Commit: `feat: rebuild provider console around selected provider`.
+- [x] Write a failing component test with 20 Providers and 100 models proving only the selected Provider models render.
+- [x] Implement the fixed 240-280px independently scrolling rail with search, filters, badges, counts and stable selection.
+- [x] Implement Overview, Credentials, Models, Protocol And Execution, and Test History tabs.
+- [x] Implement paged model table and model editor drawer for identity, capability, execution mode, input profile, parameter schema, output mapping, enablement and pricing link.
+- [x] Build protocol-specific forms; never expose arbitrary TypeScript source editing in production Admin.
+- [x] Add unsaved-change protection, revision-conflict refresh and concise Chinese error states.
+- [x] Verify the desktop viewport matrix at 1280x720, 1440x900 and 1920x1080 only.
+- [x] Run Admin tests, dual build, product identity and boundary checks.
+- [x] Commit: `feat: rebuild provider console around selected provider`.
 
 ## Task 8: Controlled Provider Migration
 
 **Files:** migration scripts, validation log and Provider system documentation.
 
-- [ ] Keep all Providers in `legacy` after initial deployment and verify Creator/Admin smoke paths.
-- [ ] Move MiMo to `shadow`; compare model identity, text output contract and Token usage, then promote to `native` OpenAI-compatible mode.
-- [ ] Keep GRSAI and AICopy on the Legacy Bridge until their provider-specific async behavior has equivalent contract tests; do not force them into OpenAI semantics.
-- [ ] Validate one RunningHub App and one Workflow in a non-production group with a strict manual quota.
-- [ ] Confirm prices, reservations, final charges and failure releases remain unchanged across adapter modes.
-- [ ] Record per-Provider migration and rollback evidence.
-- [ ] Commit: `chore: validate provider runtime migrations`.
+- [x] Keep all Providers in `legacy` after initial deployment and verify Creator/Admin smoke paths.
+- [x] Move MiMo to `shadow`; compare model identity, text output contract and Token usage, then promote to `native` OpenAI-compatible mode.
+- [x] Keep GRSAI and AICopy on the Legacy Bridge until their provider-specific async behavior has equivalent contract tests; do not force them into OpenAI semantics.
+- [x] Validate one RunningHub App and one Workflow in a non-production group with a strict manual quota.
+- [x] Confirm prices, reservations, final charges and failure releases remain unchanged across adapter modes.
+- [x] Record per-Provider migration and rollback evidence.
+- [x] Commit: `chore: validate provider runtime migrations`.
 
 ## Task 9: Unified Release And Server Rollout
 

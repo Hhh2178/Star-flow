@@ -13,7 +13,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | R2 | Setting-center permissions | Done | Medium | `app/dev` commit `1c4d6be`; `web/dev` commit `8551e77`; validation log added | Start separate admin-console redesign |
 | R3 | Separate admin console | Done | Medium | app/web merged to `dev`; unified release gate and full browser matrix passed | Begin R4 production closed-loop audit when scheduled |
 | R4 | Production closed-loop audit | Done | Medium | Real text/image/video queue, persistence, usage and billing evidence recorded | Continue internal staging observation |
-| R5 | Provider/admin hardening | In Progress | Medium | Corrected MiMo comparison, Native smoke, final rollback and one RunningHub AI App passed; all 13 Providers remain Legacy | Validate one independent RunningHub Workflow, then repeat UI smoke |
+| R5 | Provider/admin hardening | In Progress | Medium | Stage 8 completed MiMo and both RunningHub real validations, final UI smoke and rollback; all 13 Providers remain Legacy | Run Stage 9 local release gates, then obtain separate server-rollout authorization |
 
 ## Update Log
 
@@ -44,6 +44,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-13 | R5 | In Progress -> In Progress | Stage 8 no-cost Creator/Admin browser smoke passed; an ordinary-Admin edit-control exposure was caught, fixed test-first in web `91c8b2f`, and revalidated with 175 tests, dual builds, identity/boundary checks and the repository harness; paid real validation remains pending explicit authorization |
 | 2026-07-13 | R5 | In Progress -> In Progress | The authorized MiMo comparison passed identity, Token and all accounting gates but failed its text-output gate under an 8-token deep-thinking budget; Native promotion was refused, MiMo was rolled back to 13/13 Legacy, and app `62b7f24` corrected the budget and Token-contract semantics test-first without logging content |
 | 2026-07-13 | R5 | In Progress -> In Progress | The corrected MiMo comparison and Native smoke passed, MiMo was rolled back to 13/13 Legacy, and one concurrency-one RunningHub AI App completed with one normalized image output; app `cae2717` added scoped target validation while keeping credentials and payloads out of logs, leaving one independent Workflow and final UI repeat |
+| 2026-07-13 | R5 | In Progress -> In Progress | Stage 8 completed after app `2b2bc72`/`dac2c01` aligned the Workflow v2 empty-input contract, the authorized Workflow returned three normalized images under concurrency one, and final Creator/Admin smoke plus all code, build, identity, migration and harness gates passed; begin Stage 9 local release preparation |
 
 ## Required Status Update Format
 
