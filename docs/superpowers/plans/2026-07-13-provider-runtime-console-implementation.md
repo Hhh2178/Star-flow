@@ -91,15 +91,15 @@
 
 **Files:** support-contact service/routes, `workbench/index.vue`, `modelSelect.vue`, System Admin page, related tests.
 
-- [ ] Write failing backend tests proving only Super Admin can mutate contact data and the public DTO contains no internal asset path or secret fields.
-- [ ] Add an idempotent support profile stored as structured settings: `enabled`, `type`, `title`, `wechatId`, `qrAssetId`, `description`.
-- [ ] Write failing Web tests proving feedback opens an in-app dialog and no Tencent form URL remains.
-- [ ] Implement the QR contact dialog with copy-WeChat command and an empty state when support is disabled.
-- [ ] Write a failing model-selector test proving an empty list does not import or open `vendorConfig`.
-- [ ] Replace the action with `当前暂无可用模型，请联系管理员` and optional contact-dialog command.
-- [ ] Extend build-boundary tests to reject `vendorConfig`, Provider mutation API names and protocol editor modules in Creator output.
-- [ ] Run `yarn test:r3t`, targeted Web tests, Creator build and boundary checks.
-- [ ] Commit: `feat: move creator support and model configuration boundaries`.
+- [x] Write failing backend tests proving only Super Admin can mutate contact data and the public DTO contains no internal asset path or secret fields.
+- [x] Add an idempotent support profile stored as structured settings: `enabled`, `type`, `title`, `wechatId`, `qrAssetId`, `description`.
+- [x] Write failing Web tests proving feedback opens an in-app dialog and no Tencent form URL remains.
+- [x] Implement the QR contact dialog with copy-WeChat command and an empty state when support is disabled.
+- [x] Write a failing model-selector test proving an empty list does not import or open `vendorConfig`.
+- [x] Replace the action with `当前暂无可用模型，请联系管理员` and optional contact-dialog command.
+- [x] Extend build-boundary tests to reject `vendorConfig`, Provider mutation API names and protocol editor modules in Creator output.
+- [x] Run `yarn test:r3t`, targeted Web tests, Creator build and boundary checks.
+- [x] Commit: `feat: move creator support and model configuration boundaries`.
 
 ## Task 2: Versioned Runtime Profile Schema
 
