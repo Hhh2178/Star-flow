@@ -26,6 +26,7 @@ Stage 4 integrates the Provider Runtime Kit at immutable commit `9cf7381c783406c
 | `yarn test:r3s` | PASS, registry validation, standard execution, redaction, timeout and migration routing |
 | `yarn lint` | PASS, `tsc --noEmit` |
 | `yarn build` | PASS, backend and Electron production bundles |
+| `npm run harness:verify:project` on canonical `dev` | PASS after canonical app checkout was aligned to gitlink `2690c91` |
 
 ## Exit Decision
 
