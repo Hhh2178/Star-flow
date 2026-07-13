@@ -2,13 +2,14 @@
 
 ## Status
 
-In progress. Local migration gates, fake contract validation, accounting invariants and rollback are complete. The first authorized low-cost MiMo comparison was safely rejected and rolled back; a corrected retry and RunningHub real calls remain required before Stage 8 can exit.
+In progress. Local migration gates, corrected real MiMo comparison, Native smoke, rollback and one real RunningHub AI App are complete. One independent RunningHub Workflow real validation and the final local UI repeat remain before Stage 8 can exit.
 
 ## Completed Evidence
 
 - App commit: `fbf53d9 feat: add controlled provider migration gates`
 - App commit: `06f629f feat: wire controlled mimo runtime validation`
 - App commit: `62b7f24 fix: harden mimo migration evidence`
+- App commit: `cae2717 fix: support scoped runninghub validation`
 - Web commit: `91c8b2f fix: enforce read-only provider console for admin`
 - The local runtime database reports 13 Providers in `legacy`, zero in `shadow`, zero in `native`; AICopy and GRSAI are verified Legacy.
 - Shadow production routing executes Legacy exactly once. It cannot duplicate a potentially billable request.
@@ -27,6 +28,11 @@ In progress. Local migration gates, fake contract validation, accounting invaria
 - MiMo was immediately rolled back at revision 3. Post-rollback validation proved 13 Legacy / 0 Shadow / 0 Native, with AICopy and GRSAI still protected.
 - Root-cause investigation found that the validator allowed only 8 completion tokens while MiMo V2.5 defaults to deep thinking. Official MiMo guidance uses a materially larger completion budget and documents thinking as default-enabled for V2.5.
 - Test-first correction raises the controlled budget to 256 tokens, treats separately sampled Token totals as valid when each side is non-negative and internally consistent, and adds only per-path boolean text-presence diagnostics. No prompt or response content is logged.
+- The explicitly authorized corrected MiMo comparison entered Shadow at revision 4 and passed model identity, non-empty output, independently valid Token usage and all four accounting invariants under the CNY 0.10 manual quota.
+- Evidence-gated promotion entered Native at revision 5. The single Runtime Kit Native smoke passed its normalized output contract under the CNY 0.05 manual quota.
+- MiMo was immediately rolled back to Legacy at revision 6. Final state validation again proved 13 Legacy / 0 Shadow / 0 Native; temporary evidence and database backup files were removed individually.
+- The RunningHub real validator was extended test-first to support a single App or Workflow target, optional image-node mapping and generic failure reporting that cannot expose credentials, payloads, outputs or URLs.
+- One explicitly authorized RunningHub AI App executed with concurrency one and the CNY 1 manual quota. It completed successfully with exactly one normalized image output; the credential, target ID, input payload, task ID and output URL were not persisted or logged.
 
 ## Test Evidence
 
@@ -51,12 +57,17 @@ In progress. Local migration gates, fake contract validation, accounting invaria
 | First authorized MiMo real comparison | SAFE REJECT, output contract false; all other contract/accounting checks true |
 | MiMo rollback validation | PASS, 13 legacy / 0 shadow / 0 native |
 | Post-fix `yarn test:r3w && yarn lint && yarn test:r3s && yarn test:r3r && yarn build` | PASS |
+| Corrected MiMo real comparison | PASS, all seven contract/accounting checks true |
+| MiMo Native smoke | PASS, Runtime Kit normalized output contract true |
+| Final MiMo rollback validation | PASS, 13 legacy / 0 shadow / 0 native |
+| `yarn test:r3u` after scoped-validator change | PASS, 7/7 RunningHub tests |
+| RunningHub AI App real acceptance | PASS, concurrency 1, one normalized image output |
+| Post-real-call `yarn test:r3w && yarn test:r3u && yarn test:r3r && yarn lint && yarn build` | PASS |
+| Post-real-call `yarn validate:migrations && npm run harness:verify:project` | PASS |
 
 ## Pending Exit Evidence
 
-1. Explicit authorization for one corrected MiMo comparison retry and, only if it passes, one Native smoke. The failed comparison was not retried automatically.
-2. Successful MiMo shadow comparison evidence from the corrected real path, followed by Native smoke and final rollback proof.
-3. Environment-only credentials and target IDs for one RunningHub App and one Workflow under the already-authorized non-production manual quota. Local environment discovery found none configured.
-4. Repeat the already-passing Creator/Admin smoke after the explicitly authorized controlled real state changes.
+1. Environment-only credentials, Workflow ID and node parameters for one independent RunningHub Workflow under the already-authorized non-production manual quota.
+2. Repeat the already-passing Creator/Admin smoke after the controlled real state changes.
 
 No real key, prompt, output or Provider URL was written to Git or this log. The real MiMo state change was local and temporary, and was rolled back on the first failed gate. Stage 8 remains open until the remaining items are evidenced.
