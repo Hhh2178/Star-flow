@@ -549,7 +549,7 @@ At 1280x720, 1440x900 and 1920x1080 verify Provider selection, edit/save, creden
 
 Keep app, web and outer commits separate and record exact hashes in the validation log.
 
-- [ ] **Step 6: Push `dev` with fast-forward-only history**
+- [x] **Step 6: Push `dev` with fast-forward-only history**
 
 Push app and web `dev`; the outer governance repository has no remote.
 

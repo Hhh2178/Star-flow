@@ -2,13 +2,14 @@
 
 ## Status
 
-Local release validated. App and Web are integrated into local `dev`. No remote push, server deployment, database migration, release tag or `main` update has been performed.
+Local release validated. App and Web are integrated into local and remote `dev`. No server deployment, database migration, release tag or `main` update has been performed.
 
 ## Validated Commits
 
 - App: `4a0b1f5 chore: build provider model management release assets`
 - Web: `a5d9e70 fix: complete provider protocol and model editing flows`
 - Outer governance: recorded by the integration commit containing this report and the exact app/web gitlinks.
+- Remote verification: `origin/dev` equals `4a0b1f5` for App and `a5d9e70` for Web; both pushes were ordinary fast-forwards.
 
 ## Functional Evidence
 
@@ -40,10 +41,9 @@ Local release validated. App and Web are integrated into local `dev`. No remote 
 
 ## Remaining Release Gates
 
-1. Push App and Web `dev` only when remote publication is authorized.
-2. Deploy one immutable server release only after explicit rollout authorization; back up shared SQLite, preserve OSS, run additive migrations and retain rollback.
-3. Run production HTTPS, Creator/Admin, Socket.IO, Provider console and controlled generation smoke without exposing credentials or payloads.
-4. Tag and evaluate `main` fast-forward only after production smoke passes.
+1. Deploy one immutable server release only after explicit rollout authorization; back up shared SQLite, preserve OSS, run additive migrations and retain rollback.
+2. Run production HTTPS, Creator/Admin, Socket.IO, Provider console and controlled generation smoke without exposing credentials or payloads.
+3. Tag and evaluate `main` fast-forward only after production smoke passes.
 
 ## Pre-Release Online Baseline
 
