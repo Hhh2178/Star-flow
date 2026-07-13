@@ -13,7 +13,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | R2 | Setting-center permissions | Done | Medium | `app/dev` commit `1c4d6be`; `web/dev` commit `8551e77`; validation log added | Start separate admin-console redesign |
 | R3 | Separate admin console | Done | Medium | app/web merged to `dev`; unified release gate and full browser matrix passed | Begin R4 production closed-loop audit when scheduled |
 | R4 | Production closed-loop audit | Done | Medium | Real text/image/video queue, persistence, usage and billing evidence recorded | Continue internal staging observation |
-| R5 | Provider/admin hardening | In Progress | Medium | Provider protocols, connection tests, pricing and Super Admin controls deployed | Resolve legacy type debt and complete public-grade hardening |
+| R5 | Provider/admin hardening | Replanned | Medium | Pre-change snapshot tagged; Runtime Kit, Legacy Bridge, RH compatibility and fixed-rail console plan approved | Execute Creator boundary and additive runtime-profile phases |
 
 ## Update Log
 
@@ -32,6 +32,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-10 | R3 | Integration Pending -> Done | app/web fast-forwarded to `dev`, final web release was committed, gitlinks updated and unified release gate passed |
 | 2026-07-12 | R4 | Planned -> Done | Real MiMo, GRSAI and AICopy production paths completed through queue, persistence, usage and settled billing, then passed server smoke testing |
 | 2026-07-12 | R5 | Deferred -> In Progress | Provider protocol adapters, safe connection tests, model pricing, quota reservation and Admin controls reached the internal staging release |
+| 2026-07-13 | R5 | In Progress -> Replanned | Tagged the deployed baseline and replaced the flat Provider-table direction with a Legacy Bridge, pinned Runtime Kit, RunningHub support and selected-Provider console plan |
 
 ## Required Status Update Format
 
