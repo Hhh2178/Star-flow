@@ -27,6 +27,7 @@ Stage 6 exposes Provider Runtime administration APIs under `/api/admin/provider-
 | `yarn test:r3v` | PASS, Provider Runtime CRUD/filter/reference/test/audit suite |
 | `yarn lint` | PASS, `tsc --noEmit` |
 | `yarn build` | PASS, backend and Electron production bundles with generated route table |
+| `npm run harness:verify:project` on canonical `dev` | PASS after canonical app checkout was aligned to gitlink `d66e87f` |
 
 ## Exit Decision
 
