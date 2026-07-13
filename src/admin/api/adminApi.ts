@@ -780,6 +780,13 @@ function isSystemOverview(value: unknown): value is SystemOverview {
     && typeof value.capabilities.exportDatabase === "boolean";
 }
 
+export type RuntimeMigrationState = "legacy" | "shadow" | "native";
+export interface RuntimeProvider { providerId: string; displayName: string; enabled: boolean; migrationState: RuntimeMigrationState; adapterId: string; revision: number; protocolType: string | null; protocolEnabled: boolean | null; modelCount: number }
+export interface RuntimeModel { providerId: string; modelId: string; displayName: string; capability: "text" | "image" | "video" | "audio" | "json"; executionMode: "sync" | "background_poll" | "webhook" | "runninghub" | "legacy"; inputProfile: Record<string, unknown>; parameterSchema: Record<string, unknown>; outputMapping: Record<string, unknown>; enabled: boolean; revision: number }
+export interface RuntimeModelList { page: number; pageSize: number; total: number; items: RuntimeModel[] }
+export interface RuntimeProtocol { providerId: string; protocolType: "standard" | "poll" | "webhook" | "runninghub" | "legacy"; config: Record<string, unknown>; enabled: boolean; revision: number }
+export interface RuntimeTestRun { id: number; providerId: string; modelId: string | null; testType: "connection" | "generation"; status: string; durationMs: number | null; errorCode: string | null; createdAt: number }
+
 function isSupportContact(value: unknown): value is PublicSupportContact {
   return isRecord(value)
     && typeof value.enabled === "boolean"
@@ -984,6 +991,37 @@ export function getSystemOverview() {
 
 export function updateDevelopmentSettings(aiDevToolsEnabled: boolean) {
   return unwrap<{ aiDevToolsEnabled: boolean }>(client.post("/admin/system/updateDevelopment", { aiDevToolsEnabled }), (value): value is { aiDevToolsEnabled: boolean } => isRecord(value) && typeof value.aiDevToolsEnabled === "boolean");
+}
+
+const isRuntimeProvider = (value: unknown): value is RuntimeProvider => isRecord(value) && typeof value.providerId === "string" && typeof value.displayName === "string" && typeof value.enabled === "boolean" && ["legacy", "shadow", "native"].includes(String(value.migrationState)) && typeof value.adapterId === "string" && isInteger(value.revision) && isInteger(value.modelCount);
+const isRuntimeModel = (value: unknown): value is RuntimeModel => isRecord(value) && typeof value.providerId === "string" && typeof value.modelId === "string" && typeof value.displayName === "string" && typeof value.enabled === "boolean" && isInteger(value.revision) && isRecord(value.inputProfile) && isRecord(value.parameterSchema) && isRecord(value.outputMapping);
+
+export function listRuntimeProviders() {
+  return unwrap<RuntimeProvider[]>(client.get("/admin/provider-runtime/providers"), (value): value is RuntimeProvider[] => isArrayOf(value, isRuntimeProvider));
+}
+
+export function listRuntimeModels(filters: { providerId: string; page?: number; pageSize?: number; query?: string; capability?: string; enabled?: boolean; executionMode?: string }) {
+  return unwrap<RuntimeModelList>(client.get("/admin/provider-runtime/models", { params: filters }), (value): value is RuntimeModelList => isRecord(value) && isInteger(value.page) && isInteger(value.pageSize) && isInteger(value.total) && isArrayOf(value.items, isRuntimeModel));
+}
+
+export function getRuntimeProtocol(providerId: string) {
+  return unwrap<RuntimeProtocol | null>(client.get(`/admin/provider-runtime/protocols/${encodeURIComponent(providerId)}`), (value): value is RuntimeProtocol | null => value === null || (isRecord(value) && value.providerId === providerId && typeof value.protocolType === "string" && isRecord(value.config) && typeof value.enabled === "boolean" && isInteger(value.revision)));
+}
+
+export function listRuntimeTestHistory(providerId: string) {
+  return unwrap<RuntimeTestRun[]>(client.get(`/admin/provider-runtime/tests/${encodeURIComponent(providerId)}`), (value): value is RuntimeTestRun[] => isArrayOf(value, (item): item is RuntimeTestRun => isRecord(item) && isInteger(item.id) && typeof item.providerId === "string" && typeof item.testType === "string" && typeof item.status === "string" && isFiniteNumber(item.createdAt)));
+}
+
+export function updateRuntimeProvider(providerId: string, expectedRevision: number, patch: Partial<Pick<RuntimeProvider, "displayName" | "enabled" | "migrationState" | "adapterId">>) {
+  return unwrap<{ providerId: string; revision: number }>(client.patch(`/admin/provider-runtime/providers/${encodeURIComponent(providerId)}`, { expectedRevision, ...patch }), (value): value is { providerId: string; revision: number } => isRecord(value) && value.providerId === providerId && isInteger(value.revision));
+}
+
+export function updateRuntimeModel(providerId: string, modelId: string, expectedRevision: number, patch: Partial<Omit<RuntimeModel, "providerId" | "modelId" | "revision">>) {
+  return unwrap<{ providerId: string; modelId: string; revision: number }>(client.patch(`/admin/provider-runtime/models/${encodeURIComponent(providerId)}/${encodeURIComponent(modelId)}`, { expectedRevision, ...patch }), (value): value is { providerId: string; modelId: string; revision: number } => isRecord(value) && value.providerId === providerId && value.modelId === modelId && isInteger(value.revision));
+}
+
+export function upsertRuntimeProtocol(input: RuntimeProtocol) {
+  return unwrap<{ providerId: string; revision: number }>(client.put("/admin/provider-runtime/protocols", { ...input, expectedRevision: input.revision }), (value): value is { providerId: string; revision: number } => isRecord(value) && value.providerId === input.providerId && isInteger(value.revision));
 }
 
 export function getSupportContact() {
