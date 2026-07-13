@@ -26,7 +26,7 @@ Local release validated. App and Web are integrated into local `dev`. No remote 
 - Web source: 34 files / 270 tests passed with `yarn vitest run src`.
 - Web Admin/shared: 19 files / 194 tests passed; Creator/Admin builds and build-boundary tests passed.
 - Product identity: source and compiled Creator/Admin checks passed.
-- Outer: `npm run build:release` and `npm run test:release-layout` passed.
+- Outer: `npm run build:release`, `npm run test:release-layout` and `npm run harness:verify:project` passed.
 - Security scan: zero files matched credential-shaped `sk-...` or `tp-...` values across source, docs and generated release outputs.
 
 ## Desktop Browser Acceptance
@@ -40,8 +40,7 @@ Local release validated. App and Web are integrated into local `dev`. No remote 
 
 ## Remaining Release Gates
 
-1. Commit the outer gitlinks and this validation record, then run `npm run harness:verify:project` from canonical local `dev`.
-2. Push App and Web `dev` only when remote publication is authorized.
-3. Deploy one immutable server release only after explicit rollout authorization; back up shared SQLite, preserve OSS, run additive migrations and retain rollback.
-4. Run production HTTPS, Creator/Admin, Socket.IO, Provider console and controlled generation smoke without exposing credentials or payloads.
-5. Tag and evaluate `main` fast-forward only after production smoke passes.
+1. Push App and Web `dev` only when remote publication is authorized.
+2. Deploy one immutable server release only after explicit rollout authorization; back up shared SQLite, preserve OSS, run additive migrations and retain rollback.
+3. Run production HTTPS, Creator/Admin, Socket.IO, Provider console and controlled generation smoke without exposing credentials or payloads.
+4. Tag and evaluate `main` fast-forward only after production smoke passes.

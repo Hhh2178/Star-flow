@@ -523,7 +523,7 @@ git commit -m "feat: compose provider model runtime configuration"
 
 Use `git merge --ff-only`. Do not push or update `main` yet.
 
-- [ ] **Step 2: Run complete local release gates**
+- [x] **Step 2: Run complete local release gates**
 
 App: R2 and all available R3 suites, TypeScript and build.
 
