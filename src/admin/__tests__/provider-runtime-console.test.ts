@@ -10,6 +10,9 @@ const api = vi.hoisted(() => ({
 }));
 vi.mock("../api/adminApi", () => api);
 import ProvidersPage from "../pages/ProvidersPage.vue";
+import ProviderRail from "../components/providers/ProviderRail.vue";
+import ProviderOverviewEditor from "../components/providers/ProviderOverviewEditor.vue";
+import ProviderTestHistory from "../components/providers/ProviderTestHistory.vue";
 
 const providers = Array.from({ length: 20 }, (_, index) => ({ providerId: `provider-${index}`, displayName: `Provider ${index}`, enabled: index % 3 !== 0, migrationState: index === 0 ? "shadow" : "legacy", adapterId: "legacy", revision: 1, protocolType: index % 2 ? "standard" : "legacy", protocolEnabled: true, modelCount: 5 }));
 const models = Array.from({ length: 100 }, (_, index) => ({ providerId: `provider-${Math.floor(index / 5)}`, modelId: `model-${index}`, displayName: `Model ${index}`, capability: index % 2 ? "image" : "text", executionMode: "sync", inputProfile: {}, parameterSchema: {}, outputMapping: {}, enabled: true, revision: 1 }));
@@ -43,6 +46,14 @@ describe("fixed Provider runtime console", () => {
     const wrapper = mount(ProvidersPage, { global: { stubs: common } }); await flushPromises();
     for (const label of ["概览", "凭据", "模型", "协议与执行", "测试历史"]) expect(wrapper.text()).toContain(label);
     expect(wrapper.text()).not.toContain("TypeScript"); expect(wrapper.text()).not.toContain("源码编辑");
+  });
+
+  it("uses focused rail, overview and history components", async () => {
+    const wrapper = mount(ProvidersPage, { global: { stubs: common } }); await flushPromises();
+    expect(wrapper.findComponent(ProviderRail).exists()).toBe(true);
+    expect(wrapper.findComponent(ProviderOverviewEditor).exists()).toBe(true);
+    await wrapper.findAll(".tabs button")[4].trigger("click");
+    expect(wrapper.findComponent(ProviderTestHistory).exists()).toBe(true);
   });
 
   it("keeps ordinary Admin read-only across overview, models and protocol tabs", async () => {

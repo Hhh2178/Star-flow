@@ -3,6 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const client = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
+  put: vi.fn(),
+  patch: vi.fn(),
+  delete: vi.fn(),
 }));
 
 vi.mock("../../shared/api", () => ({
@@ -14,16 +17,27 @@ import {
   adjustQuota,
   cancelJob,
   createRuntimeModel,
+  createRuntimeProvider,
+  clearProviderCredential,
+  deleteRuntimeModel,
+  deleteRuntimeProvider,
+  fetchProviderModels,
   createUser,
   getPolicies,
   getQuotaOverview,
   getUsageOverview,
+  importProviderModels,
   listAudit,
   listGroups,
   listJobs,
   listProjects,
   listTasks,
   listUsers,
+  listRuntimeProviders,
+  listRuntimeModels,
+  probeProviderDraft,
+  probeSavedProvider,
+  replaceProviderCredential,
   reprioritizeJob,
   resetUserPassword,
   updateGroup,
@@ -153,6 +167,65 @@ describe("adminApi", () => {
 
     await expect(createRuntimeModel(input)).resolves.toEqual({ providerId: "provider-a", modelId: "image-a", revision: 1 });
     expect(client.post).toHaveBeenCalledWith("/admin/provider-runtime/models", input);
+  });
+
+  it("uses the Provider V2 credential, probe, discovery and guarded CRUD endpoints", async () => {
+    const provider = {
+      providerId: "provider-a", displayName: "Provider A", enabled: true, migrationState: "legacy" as const,
+      adapterId: "legacy", note: "主服务商", advancedConfig: {}, revision: 1, protocolType: "standard",
+      protocolEnabled: true, credential: { configured: true, preview: "****1234", updatedAt: 1 }, modelCount: 1,
+    };
+    client.post
+      .mockResolvedValueOnce(ok({ providerId: "provider-b", revision: 1 }))
+      .mockResolvedValueOnce(ok({ status: "available", httpStatus: 200, latencyMs: 12, checkedAt: 2 }))
+      .mockResolvedValueOnce(ok({ status: "available", httpStatus: 204, latencyMs: 8, checkedAt: 3 }))
+      .mockResolvedValueOnce(ok([{ modelId: "image-2", displayName: "Image 2", suggestedCapability: "image", exists: false }]))
+      .mockResolvedValueOnce(ok({ imported: ["image-2"], skipped: [] }));
+    client.put.mockResolvedValue(ok({ configured: true, preview: "****1234", updatedAt: 1 }));
+    client.get.mockResolvedValue(ok([provider]));
+    client.delete
+      .mockResolvedValueOnce(ok({ configured: false, preview: null, updatedAt: null }))
+      .mockResolvedValueOnce(ok({ deleted: true }))
+      .mockResolvedValueOnce(ok({ deleted: true }));
+
+    await expect(listRuntimeProviders()).resolves.toEqual([provider]);
+    await createRuntimeProvider({ providerId: "provider-b", displayName: "Provider B", enabled: false, migrationState: "legacy", adapterId: "legacy", note: "", advancedConfig: {} });
+    await replaceProviderCredential("provider-a", "temporary-test-value");
+    await clearProviderCredential("provider-a");
+    await probeProviderDraft({ baseUrl: "https://provider.invalid/v1", credential: "temporary-test-value", protocolType: "standard" });
+    await probeSavedProvider("provider-a");
+    await fetchProviderModels("provider-a");
+    await importProviderModels("provider-a", [{ modelId: "image-2", displayName: "Image 2", capability: "image" }]);
+    await deleteRuntimeModel("provider-a", "image-2");
+    await deleteRuntimeProvider("provider-a");
+
+    expect(client.put).toHaveBeenCalledWith("/admin/provider-runtime/providers/provider-a/credential", { credential: "temporary-test-value" });
+    expect(client.post).toHaveBeenCalledWith("/admin/provider-runtime/providers/probe-draft", expect.objectContaining({ protocolType: "standard" }));
+    expect(client.post).toHaveBeenCalledWith("/admin/provider-runtime/providers/provider-a/probe", {});
+    expect(client.post).toHaveBeenCalledWith("/admin/provider-runtime/providers/provider-a/fetch-models", {});
+    expect(client.post).toHaveBeenCalledWith("/admin/provider-runtime/providers/provider-a/import-models", { models: [{ modelId: "image-2", displayName: "Image 2", capability: "image" }] });
+  });
+
+  it("accepts complete Provider model V2 DTOs", async () => {
+    const model = {
+      providerId: "provider-a", modelId: "video-a", displayName: "Video A", capability: "video", executionMode: "legacy",
+      inputProfile: {}, capabilityTags: ["video_generation", "first_frame_video"],
+      inputCapabilities: { prompt: true, systemPrompt: false, imageReference: { enabled: true, min: 1, max: 1 }, frameModes: ["first_frame"], mask: false, videoReference: false, audioReference: false },
+      parameterSchema: { duration: { type: "integer", min: 4, max: 12 } }, advancedConfig: { request: { fixedBody: { mode: "video" } } },
+      protocolOverride: "legacy_adapter", outputMapping: {}, enabled: false, revision: 1,
+    };
+    client.get.mockResolvedValue(ok({ page: 1, pageSize: 20, total: 1, items: [model] }));
+    await expect(listRuntimeModels({ providerId: "provider-a" })).resolves.toMatchObject({ items: [model] });
+  });
+
+  it("rejects secret-bearing Provider GET responses", async () => {
+    client.get.mockResolvedValue(ok([{
+      providerId: "provider-a", displayName: "Provider A", enabled: true, migrationState: "legacy", adapterId: "legacy",
+      note: "", advancedConfig: {}, revision: 1, protocolType: null, protocolEnabled: null,
+      credential: { configured: true, preview: "****1234", updatedAt: 1 }, modelCount: 0,
+      inputValues: { apiKey: "must-not-enter-client" },
+    }]));
+    await expect(listRuntimeProviders()).rejects.toThrow("服务器响应数据无效");
   });
 
   it.each(endpointCases)("rejects null data from $name", async ({ call }) => {
