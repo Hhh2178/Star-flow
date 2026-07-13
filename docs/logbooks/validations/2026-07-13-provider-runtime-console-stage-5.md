@@ -25,6 +25,7 @@ Stage 5 adds RunningHub App and Workflow runtime support using the pinned Runtim
 | `yarn test:r3s` | PASS, Provider runtime regression suite |
 | `yarn lint` | PASS, `tsc --noEmit` |
 | `yarn build` | PASS, backend and Electron production bundles |
+| `npm run harness:verify:project` on canonical `dev` | PASS after canonical app checkout was aligned to gitlink `8c14ca2` |
 
 ## Exit Decision
 
