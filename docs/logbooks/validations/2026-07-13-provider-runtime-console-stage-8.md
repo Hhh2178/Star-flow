@@ -7,6 +7,7 @@ In progress. Local migration gates, fake contract validation, accounting invaria
 ## Completed Evidence
 
 - App commit: `fbf53d9 feat: add controlled provider migration gates`
+- Web commit: `91c8b2f fix: enforce read-only provider console for admin`
 - The local runtime database reports 13 Providers in `legacy`, zero in `shadow`, zero in `native`; AICopy and GRSAI are verified Legacy.
 - Shadow production routing executes Legacy exactly once. It cannot duplicate a potentially billable request.
 - Explicit comparison checks MiMo Provider/model identity, normalized non-empty text contract and exact normalized Token usage without retaining prompts or outputs.
@@ -16,6 +17,9 @@ In progress. Local migration gates, fake contract validation, accounting invaria
 - Controlled transitions use expected revisions, emit sanitized audit evidence and support native/shadow-to-Legacy rollback without schema or OSS changes.
 - `validate:migrations` is read-only by default. Mutation requires `PROVIDER_MIGRATION_APPLY=1`; native additionally requires a complete non-secret evidence file outside Git.
 - RunningHub real validation is inert by default and requires a non-production scope, App plus Workflow IDs, concurrency one and a manual quota no greater than CNY 1.
+- The isolated local acceptance database was used for no-cost Creator and Admin browser smoke. Creator login, project selection and three-row novel data rendering passed without a real Provider call.
+- Browser smoke found that an ordinary Admin could see mutation controls even though the backend rejected writes. A regression test was added first, then the console was changed to show a read-only notice, disable overview/protocol fields, hide model/pricing edit actions and guard all mutation handlers.
+- Ordinary Admin browser revalidation found exactly one read-only notice and zero overview-save, model-edit and protocol-save controls; the visible overview and protocol fields were disabled.
 
 ## Test Evidence
 
@@ -31,12 +35,18 @@ In progress. Local migration gates, fake contract validation, accounting invaria
 | `yarn test:r3v` | PASS, Provider Runtime Admin regression |
 | `yarn lint` | PASS, `tsc --noEmit` |
 | `yarn build` | PASS, backend and Electron bundles |
+| `yarn vitest run src/admin/__tests__/provider-runtime-console.test.ts` | PASS, 3/3 including ordinary Admin read-only regression |
+| `yarn test:admin` | PASS, 175/175 Admin/shared tests, dual builds and boundary checks |
+| `yarn test:product-identity && yarn check:product-identity` | PASS, Creator/Admin product identity |
+| Creator local browser smoke | PASS, login, project selection and persisted three-row content rendering |
+| Admin local browser smoke | PASS, 13/13 Legacy Providers and ordinary Admin read-only enforcement |
+| `npm run harness:verify:project` | PASS after app/web synchronization |
 
 ## Pending Exit Evidence
 
 1. Explicit authorization for a lowest-cost real MiMo comparison, because it invokes a real Provider and may incur a charge.
 2. MiMo shadow comparison evidence from the real path, followed by native smoke and rollback proof.
 3. Explicit authorization and environment-only credentials for one RunningHub App and one Workflow under the non-production manual quota.
-4. Final Creator/Admin smoke after the controlled state changes.
+4. Repeat the already-passing Creator/Admin smoke after the explicitly authorized controlled real state changes.
 
 No real keys, paid calls or production state changes were inferred from the implementation request. Stage 8 remains open until these items are evidenced.

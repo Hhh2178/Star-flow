@@ -41,6 +41,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-13 | R5 | In Progress -> In Progress | Completed stage 6 sanitized Provider/model/protocol CRUD, reference guards, controlled tests and audit history; begin fixed-rail Provider Console |
 | 2026-07-13 | R5 | In Progress -> In Progress | Completed stage 7 fixed 260 px Provider rail, selected-Provider workspace, structured editors, full Admin regression and three-viewport browser matrix; begin controlled migration |
 | 2026-07-13 | R5 | In Progress -> In Progress | Stage 8 added Legacy-first creation, MiMo-only revisioned transitions, shadow no-double-billing, contract/accounting evidence gates, rollback and RunningHub quota guard; paid real validation remains pending explicit authorization |
+| 2026-07-13 | R5 | In Progress -> In Progress | Stage 8 no-cost Creator/Admin browser smoke passed; an ordinary-Admin edit-control exposure was caught, fixed test-first in web `91c8b2f`, and revalidated with 175 tests, dual builds, identity/boundary checks and the repository harness; paid real validation remains pending explicit authorization |
 
 ## Required Status Update Format
 
