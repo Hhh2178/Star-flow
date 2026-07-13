@@ -146,14 +146,14 @@
 
 **Files:** RunningHub descriptor service/adapter, R3U tests, Admin protocol DTOs.
 
-- [ ] Write failing tests for App and Workflow descriptors, node mappings, upload mappings and output extraction.
-- [ ] Validate App/Workflow ID, required inputs, node IDs, output rules and bounded polling values.
-- [ ] Integrate Runtime Kit submit/poll and normalized outputs.
-- [ ] Add encrypted/reference-only key-pool configuration; read APIs return key counts and status, never values.
-- [ ] Enforce both Stars Flow group/user concurrency and RunningHub per-key concurrency.
-- [ ] Ensure cancellation releases the Runtime Kit wait and lets Stars Flow perform its existing reservation release exactly once.
-- [ ] Add fake RunningHub acceptance and one opt-in real low-cost validation script guarded by environment variables.
-- [ ] Commit: `feat: add runninghub app and workflow runtime`.
+- [x] Write failing tests for App and Workflow descriptors, node mappings, upload mappings and output extraction.
+- [x] Validate App/Workflow ID, required inputs, node IDs, output rules and bounded polling values.
+- [x] Integrate Runtime Kit submit/poll and normalized outputs.
+- [x] Add encrypted/reference-only key-pool configuration; read APIs return key counts and status, never values.
+- [x] Enforce both Stars Flow group/user concurrency and RunningHub per-key concurrency.
+- [x] Ensure cancellation releases the Runtime Kit wait and lets Stars Flow perform its existing reservation release exactly once.
+- [x] Add fake RunningHub acceptance and one opt-in real low-cost validation script guarded by environment variables.
+- [x] Commit: `feat: add runninghub app and workflow runtime` (`8c14ca2`).
 
 ## Task 6: Provider Runtime Admin APIs
 
