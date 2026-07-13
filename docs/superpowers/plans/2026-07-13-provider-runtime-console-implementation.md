@@ -118,15 +118,15 @@
 
 **Files:** runtime contracts, registry, gateway, `legacyAdapter.ts`, `vendor.ts`, R3S tests.
 
-- [ ] Define one queue-facing execution request containing canonical Provider/model, capability, normalized input, timeout and abort signal.
-- [ ] Define normalized outputs for text, image, video, audio, JSON, task ID, usage and raw diagnostic metadata.
-- [ ] Write contract tests around current MiMo text, GRSAI image and AICopy video adapters using fake network responses.
-- [ ] Implement `LegacyVendorAdapter.supports()` and delegate to current `textRequest/imageRequest/videoRequest/ttsRequest` functions.
-- [ ] Normalize URL/Base64/string results without changing Provider-specific submit/poll behavior.
-- [ ] Map legacy errors into stable categories while preserving a redacted upstream message.
-- [ ] Prove abort, timeout and task-result behavior do not double-complete the Stars Flow queue job.
-- [ ] Run R3P, R3R and R3S to verify no Provider or billing regression.
-- [ ] Commit: `feat: bridge legacy provider adapters into runtime gateway`.
+- [x] Define one queue-facing execution request containing canonical Provider/model, capability, normalized input, timeout and abort signal.
+- [x] Define normalized outputs for text, image, video, audio, JSON, task ID, usage and raw diagnostic metadata.
+- [x] Write contract tests around current MiMo text, GRSAI image and AICopy video adapters using fake network responses.
+- [x] Implement `LegacyVendorAdapter.supports()` and delegate to current `textRequest/imageRequest/videoRequest/ttsRequest` functions.
+- [x] Normalize URL/Base64/string results without changing Provider-specific submit/poll behavior.
+- [x] Map legacy errors into stable categories while preserving a redacted upstream message.
+- [x] Prove abort, timeout and task-result behavior do not double-complete the Stars Flow queue job.
+- [x] Run R3P, R3R and R3S to verify no Provider or billing regression.
+- [x] Commit: `feat: bridge legacy provider adapters into runtime gateway` (`79bced5`).
 
 ## Task 4: Pinned Runtime Kit And Standard Adapters
 
