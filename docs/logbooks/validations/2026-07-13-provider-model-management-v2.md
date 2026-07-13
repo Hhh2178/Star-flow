@@ -60,3 +60,4 @@ Local release validated. App and Web are integrated into local and remote `dev`.
 - Stars Flow listens only on `127.0.0.1:18300`. Canvas remains on 18100/18200 and the internal proxy remains on 8443.
 - Shared SQLite and OSS paths exist with the expected ownership. The database contains 13 Legacy Providers, 0 non-Legacy Providers, 0 nonterminal jobs and 0 reserved quota rows.
 - This preflight is read-only. No release directory, database backup, migration, symlink or service state was changed.
+- Release integrity manifest: `evidence/2026-07-13-provider-model-v2/release-manifest.json`. Deployment must verify the App commit and all listed SHA-256 values before switching `current`.

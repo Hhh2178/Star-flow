@@ -1,0 +1,34 @@
+{
+  "release": "provider-model-management-v2",
+  "appCommit": "4a0b1f5eb262fd82380579ff9aae7b49cbb43b23",
+  "webCommit": "a5d9e70e8fc0a85b9a1f3567760beb087efc8ec1",
+  "serverBaselineCommit": "1328196f1f60e38dfc577b72734bce573101fd25",
+  "hashAlgorithm": "sha256",
+  "artifacts": [
+    {
+      "path": "data/serve/app.js",
+      "size": 10991513,
+      "sha256": "d7d9d5c44663708faf32ec736e980e1615b4aaa1b8fc038a9fe4676aa41440ed"
+    },
+    {
+      "path": "data/web/index.html",
+      "size": 21849722,
+      "sha256": "a17bdb2495dea1e9e6c3f161e80f4716f8b75d042e97a768bb361045c3815594"
+    },
+    {
+      "path": "data/web/admin/index.html",
+      "size": 4710851,
+      "sha256": "efc47580f4eecc8932d2539a617fe6795cd597ad32adecb108be344114b2d269"
+    },
+    {
+      "path": "package.json",
+      "size": 6704,
+      "sha256": "255d20ba6d0bd9c538e12883b623b0d8624c1aa67ecbde48b7c4f2c48a47f12f"
+    },
+    {
+      "path": "yarn.lock",
+      "size": 230937,
+      "sha256": "b7185dbf4c364b99858f1759f8c22609978abaead6dd10b834a119b9f63f93d3"
+    }
+  ]
+}
