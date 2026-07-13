@@ -13,7 +13,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | R2 | Setting-center permissions | Done | Medium | `app/dev` commit `1c4d6be`; `web/dev` commit `8551e77`; validation log added | Start separate admin-console redesign |
 | R3 | Separate admin console | Done | Medium | app/web merged to `dev`; unified release gate and full browser matrix passed | Begin R4 production closed-loop audit when scheduled |
 | R4 | Production closed-loop audit | Done | Medium | Real text/image/video queue, persistence, usage and billing evidence recorded | Continue internal staging observation |
-| R5 | Provider/admin hardening | In Progress | Medium | Stages 1-3 completed; Legacy Adapter Bridge landed in app `79bced5` | Integrate the pinned Provider Runtime Kit |
+| R5 | Provider/admin hardening | In Progress | Medium | Stages 1-4 completed; pinned Runtime Kit integration landed in app `2690c91` | Implement RunningHub App and Workflow support |
 
 ## Update Log
 
@@ -36,6 +36,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-13 | R5 | Replanned -> In Progress | Completed stage 1 support contact, Creator empty-model boundary, dual builds and artifact scans; begin additive runtime-profile schema |
 | 2026-07-13 | R5 | In Progress -> In Progress | Completed stage 2 five-table runtime-profile schema, legacy seeding and optimistic concurrency; begin Legacy Adapter Bridge |
 | 2026-07-13 | R5 | In Progress -> In Progress | Completed stage 3 runtime gateway, legacy bridge, normalized errors/results and Provider contract regression; begin pinned Runtime Kit integration |
+| 2026-07-13 | R5 | In Progress -> In Progress | Completed stage 4 pinned Runtime Kit registry, standard adapter, redacted diagnostics and controlled routing; begin RunningHub App/Workflow support |
 
 ## Required Status Update Format
 

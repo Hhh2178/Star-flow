@@ -132,15 +132,15 @@
 
 **Files:** `package.json`, `runtimeKit.ts`, `gateway.ts`, model profile validation, R3S tests.
 
-- [ ] Add the Runtime Kit dependency pinned to commit `9cf7381c783406c9959713867052793927545d2e`; never depend on a moving branch.
-- [ ] Write failing registry tests for invalid URLs, duplicate IDs, missing adapter IDs, disabled models and malformed parameter schemas.
-- [ ] Map Provider/model profiles into Runtime Kit registry contracts.
-- [ ] Add OpenAI-compatible execution for chat/image models with normalized usage.
-- [ ] Map Runtime Kit start/progress/success/failure events into redacted Stars Flow diagnostics and audit references.
-- [ ] Enforce Stars Flow job timeout as the outer deadline and Runtime Kit timeout as an equal or shorter inner deadline.
-- [ ] Add `legacy`, `shadow` and `native` routing. Shadow results are diagnostic only and can never debit quota or overwrite production output.
-- [ ] Run complete R3B queue, cancellation, pricing and runtime suites.
-- [ ] Commit: `feat: integrate pinned provider runtime kit`.
+- [x] Add the Runtime Kit dependency pinned to commit `9cf7381c783406c9959713867052793927545d2e`; never depend on a moving branch.
+- [x] Write failing registry tests for invalid URLs, duplicate IDs, missing adapter IDs, disabled models and malformed parameter schemas.
+- [x] Map Provider/model profiles into Runtime Kit registry contracts.
+- [x] Add OpenAI-compatible execution for chat/image models with normalized usage.
+- [x] Map Runtime Kit start/progress/success/failure events into redacted Stars Flow diagnostics and audit references.
+- [x] Enforce Stars Flow job timeout as the outer deadline and Runtime Kit timeout as an equal or shorter inner deadline.
+- [x] Add `legacy`, `shadow` and `native` routing. Shadow results are diagnostic only and can never debit quota or overwrite production output.
+- [x] Run complete R3B queue, cancellation, pricing and runtime suites.
+- [x] Commit: `feat: integrate pinned provider runtime kit` (`2690c91`).
 
 ## Task 5: RunningHub App And Workflow Support
 
