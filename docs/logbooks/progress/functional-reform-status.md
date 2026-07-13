@@ -13,7 +13,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | R2 | Setting-center permissions | Done | Medium | `app/dev` commit `1c4d6be`; `web/dev` commit `8551e77`; validation log added | Start separate admin-console redesign |
 | R3 | Separate admin console | Done | Medium | app/web merged to `dev`; unified release gate and full browser matrix passed | Begin R4 production closed-loop audit when scheduled |
 | R4 | Production closed-loop audit | Done | Medium | Real text/image/video queue, persistence, usage and billing evidence recorded | Continue internal staging observation |
-| R5 | Provider/admin hardening | In Progress | Medium | Stages 1-6 completed; runtime administration APIs landed in app `d66e87f` | Implement fixed-rail Provider Console |
+| R5 | Provider/admin hardening | In Progress | Medium | Stages 1-7 completed; fixed-rail Provider Console landed in app `2f25d6a`, web `a795e44` | Begin controlled runtime migration |
 
 ## Update Log
 
@@ -39,6 +39,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-13 | R5 | In Progress -> In Progress | Completed stage 4 pinned Runtime Kit registry, standard adapter, redacted diagnostics and controlled routing; begin RunningHub App/Workflow support |
 | 2026-07-13 | R5 | In Progress -> In Progress | Completed stage 5 RunningHub App/Workflow descriptors, reference-only keys, dual concurrency and cancellation release; begin runtime administration APIs |
 | 2026-07-13 | R5 | In Progress -> In Progress | Completed stage 6 sanitized Provider/model/protocol CRUD, reference guards, controlled tests and audit history; begin fixed-rail Provider Console |
+| 2026-07-13 | R5 | In Progress -> In Progress | Completed stage 7 fixed 260 px Provider rail, selected-Provider workspace, structured editors, full Admin regression and three-viewport browser matrix; begin controlled migration |
 
 ## Required Status Update Format
 
