@@ -22,6 +22,7 @@ Stage 3 introduces a queue-facing runtime gateway and a bridge to the existing T
 | `yarn test:r3s` | PASS, profile schema/service plus gateway, legacy normalization, error, cancellation and timeout coverage |
 | `yarn lint` | PASS, `tsc --noEmit` |
 | `yarn build` | PASS, backend and Electron production bundles |
+| `npm run harness:verify:project` on canonical `dev` | PASS after canonical app checkout was aligned to gitlink `79bced5` |
 
 The first combined verification exposed an incomplete TypeScript `supports()` parameter annotation. It was corrected and both R3S and TypeScript were rerun successfully before commit.
 
