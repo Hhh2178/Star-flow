@@ -1,8 +1,8 @@
 <template>
   <section class="overview-panel">
     <div class="facts">
-      <div><label>服务商标识</label><strong>{{ provider.providerId }}</strong><small>稳定标识，不可修改</small></div>
-      <div><label>适配器</label><strong>{{ provider.adapterId }}</strong><small>当前运行时入口</small></div>
+      <div><label>服务商标识</label><strong>{{ visibleProviderId(provider.providerId) }}</strong><small>稳定标识，不可修改</small></div>
+      <div><label>适配器</label><strong>{{ visibleAdapterId(provider.adapterId) }}</strong><small>当前运行时入口</small></div>
       <div><label>默认协议</label><strong>{{ provider.protocolType || "未配置" }}</strong><small>{{ provider.protocolEnabled ? "已启用" : "未启用" }}</small></div>
       <div><label>模型数量</label><strong>{{ provider.modelCount }}</strong><small>仅统计当前服务商</small></div>
     </div>
@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import { reactive, watch } from "vue";
 import type { RuntimeProvider } from "../../api/adminApi";
+import { visibleAdapterId, visibleProviderId, visibleProviderName } from "../../utils/providerPresentation";
 
 const props = defineProps<{ provider: RuntimeProvider; canUpdate: boolean; saving: boolean }>();
 const emit = defineEmits<{
@@ -34,7 +35,7 @@ const emit = defineEmits<{
   delete: [];
 }>();
 const draft = reactive({ displayName: "", migrationState: "legacy" as RuntimeProvider["migrationState"], enabled: false, note: "" });
-function hydrate() { Object.assign(draft, { displayName: props.provider.displayName, migrationState: props.provider.migrationState, enabled: props.provider.enabled, note: props.provider.note }); }
+function hydrate() { Object.assign(draft, { displayName: visibleProviderName(props.provider), migrationState: props.provider.migrationState, enabled: props.provider.enabled, note: props.provider.note }); }
 function changed() { emit("dirty"); }
 function save() { emit("save", { ...draft }); }
 watch(() => props.provider, hydrate, { immediate: true });

@@ -19,9 +19,9 @@
       type="button"
       @click="$emit('select', provider.providerId)"
     >
-      <span class="rail-name">{{ provider.displayName }}</span>
+      <span class="rail-name">{{ visibleProviderName(provider) }}</span>
       <span class="state-mark" :class="{ on: provider.enabled }" :aria-label="provider.enabled ? '已启用' : '已停用'" />
-      <small>{{ provider.providerId }}</small>
+      <small>{{ visibleProviderId(provider.providerId) }}</small>
       <span class="rail-meta"><b>{{ migrationLabel(provider.migrationState) }}</b>{{ provider.modelCount }} 个模型</span>
     </button>
     <div v-if="filtered.length === 0" class="rail-empty">没有匹配的服务商</div>
@@ -31,6 +31,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { RuntimeMigrationState, RuntimeProvider } from "../../api/adminApi";
+import { visibleProviderId, visibleProviderName } from "../../utils/providerPresentation";
 
 const props = defineProps<{ providers: RuntimeProvider[]; selectedId: string; canUpdate: boolean }>();
 defineEmits<{ select: [providerId: string]; create: [] }>();
@@ -41,7 +42,8 @@ const filtered = computed(() => {
   const keyword = query.value.trim().toLowerCase();
   return props.providers.filter((provider) => {
     const stateMatches = filter.value === "all" || (filter.value === "enabled" ? provider.enabled : !provider.enabled);
-    return stateMatches && (!keyword || `${provider.displayName} ${provider.providerId}`.toLowerCase().includes(keyword));
+    const searchable = `${visibleProviderName(provider)} ${visibleProviderId(provider.providerId)}`.toLowerCase();
+    return stateMatches && (!keyword || searchable.includes(keyword));
   });
 });
 const migrationLabel = (value: RuntimeMigrationState) => ({ legacy: "Legacy", shadow: "影子验证", native: "原生运行时" }[value]);

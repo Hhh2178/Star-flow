@@ -48,6 +48,21 @@ describe("fixed Provider runtime console", () => {
     expect(wrapper.text()).not.toContain("TypeScript"); expect(wrapper.text()).not.toContain("源码编辑");
   });
 
+  it("keeps the built-in legacy adapter identity out of visible admin copy", async () => {
+    api.listRuntimeProviders.mockResolvedValue([{
+      ...providers[0],
+      providerId: "toonflow",
+      displayName: "Toonflow",
+    }]);
+    api.listRuntimeModels.mockResolvedValue({ page: 1, pageSize: 20, total: 0, items: [] });
+
+    const wrapper = mount(ProvidersPage, { global: { stubs: common } });
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Stars Flow 内置服务");
+    expect(wrapper.text()).not.toMatch(/toonflow|toolflow/i);
+  });
+
   it("uses focused rail, overview and history components", async () => {
     const wrapper = mount(ProvidersPage, { global: { stubs: common } }); await flushPromises();
     expect(wrapper.findComponent(ProviderRail).exists()).toBe(true);

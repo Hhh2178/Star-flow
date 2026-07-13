@@ -12,7 +12,7 @@
 
       <main v-if="selected" data-testid="provider-workspace" class="workspace" :data-selected-provider="selected.providerId">
         <header class="workspace-header">
-          <div><p>{{ selected.providerId }}</p><h2>{{ selected.displayName }}</h2></div>
+          <div><p>{{ visibleProviderId(selected.providerId) }}</p><h2>{{ visibleProviderName(selected) }}</h2></div>
           <div class="status-strip"><span :class="['status-pill', selected.enabled ? 'ok' : 'off']">{{ selected.enabled ? '运行中' : '已停用' }}</span><span class="status-pill">{{ migrationLabel(selected.migrationState) }}</span><span class="status-pill">rev {{ selected.revision }}</span></div>
         </header>
         <nav class="tabs" aria-label="Provider 工作区">
@@ -54,6 +54,7 @@ import ProviderConnectionEditor from "../components/providers/ProviderConnection
 import ProviderModelCatalog from "../components/providers/ProviderModelCatalog.vue";
 import ProviderModelEditor from "../components/providers/ProviderModelEditor.vue";
 import ProviderProtocolEditor from "../components/providers/ProviderProtocolEditor.vue";
+import { visibleProviderName, visibleProviderId } from "../utils/providerPresentation";
 import { AdminApiError, adminErrorText, clearProviderCredential, createRuntimeModel, createRuntimeProvider, deleteRuntimeModel, deleteRuntimeProvider, fetchProviderModels, getProviderOverview, getRuntimeProtocol, importProviderModels, listRuntimeModels, listRuntimeProviders, listRuntimeTestHistory, probeProviderDraft, probeSavedProvider, replaceProviderCredential, updateRuntimeModel, updateRuntimeProvider, upsertRuntimeProtocol, type DiscoveredRuntimeModel, type ImportRuntimeModel, type ProviderOverview, type RuntimeModel, type RuntimeModelList, type RuntimeProbeResult, type RuntimeProtocol, type RuntimeProvider, type RuntimeTestRun } from "../api/adminApi";
 
 type TabKey = "overview" | "credentials" | "models" | "protocol" | "history";
@@ -81,7 +82,7 @@ async function guardSave(action:()=>Promise<unknown>,fallback:string){saving.val
 async function saveProvider(patch:Pick<RuntimeProvider,"displayName"|"migrationState"|"enabled"|"note">){if(!selected.value||!canUpdate.value)return;await guardSave(()=>updateRuntimeProvider(selected.value!.providerId,selected.value!.revision,patch),"服务商保存失败")}
 function openCreateProvider(){if(!canUpdate.value)return;Object.assign(newProvider,{providerId:"",displayName:"",note:"",enabled:false});providerDrawerError.value="";providerDrawer.value=true}
 async function saveNewProvider(){const providerId=newProvider.providerId.trim(),displayName=newProvider.displayName.trim();if(!providerId||!displayName){providerDrawerError.value="服务商标识和显示名称不能为空";return}await guardSave(()=>createRuntimeProvider({providerId,displayName,note:newProvider.note,enabled:newProvider.enabled,migrationState:"legacy",adapterId:"legacy",advancedConfig:{}}),"服务商创建失败");providerDrawer.value=false}
-async function removeProvider(){if(!selected.value||!canUpdate.value||!window.confirm(`确定删除服务商“${selected.value.displayName}”吗？`))return;await guardSave(()=>deleteRuntimeProvider(selected.value!.providerId),"服务商删除失败")}
+async function removeProvider(){if(!selected.value||!canUpdate.value||!window.confirm(`确定删除服务商“${visibleProviderName(selected.value)}”吗？`))return;await guardSave(()=>deleteRuntimeProvider(selected.value!.providerId),"服务商删除失败")}
 async function saveConnection(value:{protocolType:RuntimeProtocol["protocolType"];baseUrl:string;enabled:boolean}){if(!selected.value||!canUpdate.value)return;const config={...(protocol.value?.config??{}),baseUrl:value.baseUrl};await guardSave(()=>upsertRuntimeProtocol({providerId:selected.value!.providerId,protocolType:value.protocolType,enabled:value.enabled,revision:protocol.value?.revision??0,config}),"连接配置保存失败")}
 async function saveProtocolWorkspace(value:{protocol:RuntimeProtocol;advancedConfig:Record<string,unknown>}){if(!selected.value||!canUpdate.value)return;await guardSave(()=>Promise.all([updateRuntimeProvider(selected.value!.providerId,selected.value!.revision,{advancedConfig:value.advancedConfig}),upsertRuntimeProtocol(value.protocol)]),"协议配置保存失败")}
 async function replaceCredential(value:string){if(!selected.value)return;await guardSave(()=>replaceProviderCredential(selected.value!.providerId,value),"凭据替换失败")}
