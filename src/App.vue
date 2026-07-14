@@ -17,6 +17,7 @@ import zhConfig from "tdesign-vue-next/es/locale/zh_CN";
 import enConfig from "tdesign-vue-next/es/locale/en_US";
 import { cachedLocale, languageList } from "@/locales";
 import { initTheme } from "@/utils/theme";
+import { shouldProbeElectronRuntime } from "@/utils/runtimeEnvironment";
 import { type GlobalConfigProvider } from "tdesign-vue-next";
 import { useI18n } from "vue-i18n";
 
@@ -78,14 +79,16 @@ async function getPort() {
   await nextTick();
   await nextTick();
   await nextTick();
-  try {
-    const res = await fetch("toonflow://getAppUrl");
-    const data = await res.json();
-    if (data?.url) {
-      baseUrl.value = data.url;
-      isElectron.value = true;
-    }
-  } catch (error) {}
+  if (shouldProbeElectronRuntime(window.location.protocol, navigator.userAgent)) {
+    try {
+      const res = await fetch("toonflow://getAppUrl");
+      const data = await res.json();
+      if (data?.url) {
+        baseUrl.value = data.url;
+        isElectron.value = true;
+      }
+    } catch (error) {}
+  }
 
   loading.value = false;
 
