@@ -13,7 +13,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | R2 | Setting-center permissions | Done | Medium | `app/dev` commit `1c4d6be`; `web/dev` commit `8551e77`; validation log added | Start separate admin-console redesign |
 | R3 | Separate admin console | Done | Medium | app/web merged to `dev`; unified release gate and full browser matrix passed | Begin R4 production closed-loop audit when scheduled |
 | R4 | Production closed-loop audit | Done | Medium | Real text/image/video queue, persistence, usage and billing evidence recorded | Continue internal staging observation |
-| R5 | Provider/admin hardening | Release Pending | Medium | Provider And Model Management V2 passed complete local code, build, scan and three-viewport desktop acceptance gates | Push validated `dev` commits and deploy only after explicit rollout authorization |
+| R5 | Provider/admin hardening | Done | Medium | Provider And Model Management V2 is deployed at release `20260714-101317`; production desktop smoke, rollback, Git tags and `main` fast-forwards are recorded | Keep all Providers Legacy until each production migration is separately approved |
 
 ## Update Log
 
@@ -48,6 +48,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-13 | R5 | In Progress -> Release Pending | Stage 9 local release commit `1328196` passed all 23 backend commands, 251 Web source tests, Admin/Node/build/identity/layout/harness gates and zero-match credential scans; immutable server rollout remains pending separate authorization |
 | 2026-07-13 | R5 | Release Pending -> In Progress | Production baseline was deployed and remained healthy, but browser acceptance found incomplete first-model and Provider/model editing; local web `2449840` fixes only the first-model gap, while the approved V2 plan adds full credentials, discovery/import, capability tags, input constraints, parameter schemas and two-level advanced JSON before the next release |
 | 2026-07-13 | R5 | In Progress -> Release Pending | Provider And Model Management V2 reached app `4a0b1f5` and web `a5d9e70`; all local test/build/scan gates and the 1280/1440/1920 desktop browser matrix passed, while push, server rollout and `main` remain authorization-gated |
+| 2026-07-14 | R5 | Release Pending -> Done | Deployed immutable release `20260714-101317`, passed HTTPS/Admin/Creator/Socket.IO/empty-catalog/log smoke with zero temporary-account residue, tagged App/Web and fast-forwarded both `main` branches |
 
 ## Required Status Update Format
 

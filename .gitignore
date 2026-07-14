@@ -32,6 +32,7 @@ Thumbs.db
 
 # Local isolated development worktrees
 .worktrees/
+.playwright-cli/
 
 # Future upstream app checkout artifacts
 app/node_modules/

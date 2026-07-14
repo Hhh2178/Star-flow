@@ -1,19 +1,21 @@
 {
   "release": "provider-model-management-v2",
-  "appCommit": "4a0b1f5eb262fd82380579ff9aae7b49cbb43b23",
-  "webCommit": "a5d9e70e8fc0a85b9a1f3567760beb087efc8ec1",
-  "serverBaselineCommit": "1328196f1f60e38dfc577b72734bce573101fd25",
+  "productionRelease": "20260714-101317",
+  "rollbackRelease": "20260714-094715",
+  "appCommit": "1ea531892c6150bf206692253087f40443ccab10",
+  "webCommit": "a622ac4f648fdaa3014b69c2cdc2477d4a9021ac",
+  "tag": "production-20260714-provider-model-v2",
   "hashAlgorithm": "sha256",
-  "artifacts": [
+  "windowsCheckoutArtifacts": [
     {
       "path": "data/serve/app.js",
-      "size": 10991513,
-      "sha256": "d7d9d5c44663708faf32ec736e980e1615b4aaa1b8fc038a9fe4676aa41440ed"
+      "size": 10991901,
+      "sha256": "286d7be2a78604c4d9844f7541932406c7c73e93344c4fe27afb5f56d7447ece"
     },
     {
       "path": "data/web/index.html",
-      "size": 21849722,
-      "sha256": "a17bdb2495dea1e9e6c3f161e80f4716f8b75d042e97a768bb361045c3815594"
+      "size": 21849843,
+      "sha256": "a4d5752c4c4ccef2a3441ce03c947dd573ecaa15e7c3e2484d5c5f57c9eb5987"
     },
     {
       "path": "data/web/admin/index.html",
@@ -22,13 +24,40 @@
     },
     {
       "path": "package.json",
-      "size": 6704,
-      "sha256": "255d20ba6d0bd9c538e12883b623b0d8624c1aa67ecbde48b7c4f2c48a47f12f"
+      "size": 6833,
+      "sha256": "4d5abf893e8eeded42fe4e31c064eb5e0734f1c39fe59e7a7297606090bc00a3"
     },
     {
       "path": "yarn.lock",
       "size": 230937,
       "sha256": "b7185dbf4c364b99858f1759f8c22609978abaead6dd10b834a119b9f63f93d3"
+    }
+  ],
+  "productionLinuxArtifacts": [
+    {
+      "path": "data/serve/app.js",
+      "size": 10723843,
+      "sha256": "c6bf8d61c6fdb54091b82ea7700c6f51cd278a886db7d5872c55fb828c873420"
+    },
+    {
+      "path": "data/web/index.html",
+      "size": 21849843,
+      "sha256": "a4d5752c4c4ccef2a3441ce03c947dd573ecaa15e7c3e2484d5c5f57c9eb5987"
+    },
+    {
+      "path": "data/web/admin/index.html",
+      "size": 4710851,
+      "sha256": "efc47580f4eecc8932d2539a617fe6795cd597ad32adecb108be344114b2d269"
+    },
+    {
+      "path": "package.json",
+      "size": 6700,
+      "sha256": "80ae3c58e2f7ff9a82faffec4d0711a187dcfc03652e1d9034b8e994127a6c16"
+    },
+    {
+      "path": "yarn.lock",
+      "size": 225376,
+      "sha256": "83d87f926f159d1fc48209ce8c2584525be9f1a5881470c68ab4cbddb9235147"
     }
   ]
 }

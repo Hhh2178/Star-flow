@@ -2,14 +2,14 @@
 
 ## Status
 
-Local release validated. App and Web are integrated into local and remote `dev`. No server deployment, database migration, release tag or `main` update has been performed.
+Production release validated. App and Web are integrated into `dev` and `main`, tagged, and deployed through immutable server release `20260714-101317`.
 
 ## Validated Commits
 
-- App: `4a0b1f5 chore: build provider model management release assets`
-- Web: `a5d9e70 fix: complete provider protocol and model editing flows`
+- App: `1ea5318 chore: build production smoke hotfix assets`
+- Web: `a622ac4 fix: skip Electron protocol probing in hosted Creator`
 - Outer governance: recorded by the integration commit containing this report and the exact app/web gitlinks.
-- Remote verification: `origin/dev` equals `4a0b1f5` for App and `a5d9e70` for Web; both pushes were ordinary fast-forwards.
+- Remote verification: App `origin/dev` and `origin/main` equal `1ea5318`; Web `origin/dev` and `origin/main` equal `a622ac4`; all pushes were ordinary fast-forwards.
 
 ## Functional Evidence
 
@@ -39,11 +39,14 @@ Local release validated. App and Web are integrated into local and remote `dev`.
 - Temporary `accept-v2-*` Providers/models and invalid `null`/`undefined` legacy profiles after cleanup: 0.
 - Screenshots: `evidence/2026-07-13-provider-model-v2/providers-1280x720.png`, `providers-1440x900.png` and `providers-1920x1080.png`.
 
-## Remaining Release Gates
+## Production Release Outcome
 
-1. Deploy one immutable server release only after explicit rollout authorization; back up shared SQLite, preserve OSS, run additive migrations and retain rollback.
-2. Run production HTTPS, Creator/Admin, Socket.IO, Provider console and controlled generation smoke without exposing credentials or payloads.
-3. Tag and evaluate `main` fast-forward only after production smoke passes.
+- Final immutable release: `/opt/apps/stars-flow/releases/20260714-101317`.
+- Rollback release: `/opt/apps/stars-flow/releases/20260714-094715`.
+- Database backup: `/opt/apps/stars-flow/backups/db2-before-20260714-101317.sqlite`.
+- HTTPS, Cloudflare proxying, Admin Provider console, Creator empty model catalog, Socket.IO and service journal checks passed.
+- App/Web `main` were fast-forwarded and tag `production-20260714-provider-model-v2` was pushed without history rewriting.
+- Detailed production evidence: `docs/logbooks/validations/2026-07-14-provider-model-v2-production-release.md`.
 
 ## Pre-Release Online Baseline
 

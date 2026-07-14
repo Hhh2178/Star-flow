@@ -553,15 +553,17 @@ Keep app, web and outer commits separate and record exact hashes in the validati
 
 Push app and web `dev`; the outer governance repository has no remote.
 
-- [ ] **Step 7: Deploy one immutable server release after explicit rollout authorization**
+- [x] **Step 7: Deploy one immutable server release after explicit rollout authorization**
 
 Back up shared SQLite, preserve shared OSS, run additive migrations, keep every Provider Legacy, switch `current` atomically and retain the prior release for rollback.
 
-- [ ] **Step 8: Run production smoke without exposing secrets**
+- [x] **Step 8: Run production smoke without exposing secrets**
 
 Verify HTTPS, Creator/Admin, Socket.IO, Provider rail, model editor, protocol editor, test history and one controlled generation-progress path. Create any temporary acceptance records with a unique prefix and remove them before completion.
 
-- [ ] **Step 9: Tag and evaluate `main` fast-forward**
+Release deviation: no new paid generation was submitted because the production catalog intentionally had zero enabled models. The R4 real text/image/video production-chain evidence was retained as the paid baseline, while this release verified the empty-catalog boundary and the unchanged queue/accounting regressions.
+
+- [x] **Step 9: Tag and evaluate `main` fast-forward**
 
 Only after production smoke passes, tag app/web/outer validated commits and fast-forward app/web `main`. Update the outer release gitlinks to the exact validated main commits.
 
