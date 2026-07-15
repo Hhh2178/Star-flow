@@ -49,6 +49,7 @@ Track Stars Flow functional reform progress across rings. This file must be upda
 | 2026-07-13 | R5 | Release Pending -> In Progress | Production baseline was deployed and remained healthy, but browser acceptance found incomplete first-model and Provider/model editing; local web `2449840` fixes only the first-model gap, while the approved V2 plan adds full credentials, discovery/import, capability tags, input constraints, parameter schemas and two-level advanced JSON before the next release |
 | 2026-07-13 | R5 | In Progress -> Release Pending | Provider And Model Management V2 reached app `4a0b1f5` and web `a5d9e70`; all local test/build/scan gates and the 1280/1440/1920 desktop browser matrix passed, while push, server rollout and `main` remain authorization-gated |
 | 2026-07-14 | R5 | Release Pending -> Done | Deployed immutable release `20260714-101317`, passed HTTPS/Admin/Creator/Socket.IO/empty-catalog/log smoke with zero temporary-account residue, tagged App/Web and fast-forwarded both `main` branches |
+| 2026-07-15 | R5 | Done -> Done | Loaded and paid-tested MiMo, GRSAI and AICopy; fixed AICopy transient polling/accounting and Creator V2 catalog boundaries, deployed `20260715-163439`, and kept all Providers on Legacy after validation |
 
 ## Required Status Update Format
 

@@ -73,10 +73,12 @@ For the first staging deployment:
 
 - Public URL: `https://starsflow.hhh2121.xyz`.
 - Application root: `/opt/apps/stars-flow/`.
-- Current release: `/opt/apps/stars-flow/releases/20260714-101317` through `/opt/apps/stars-flow/current`.
-- Current App commit: `1ea531892c6150bf206692253087f40443ccab10`; bundled Creator/Admin Web commit: `a622ac4f648fdaa3014b69c2cdc2477d4a9021ac`.
-- Immediate rollback release: `/opt/apps/stars-flow/releases/20260714-094715`.
-- Pre-switch database backup: `/opt/apps/stars-flow/backups/db2-before-20260714-101317.sqlite`.
+- Current release: `/opt/apps/stars-flow/releases/20260715-163439` through `/opt/apps/stars-flow/current`.
+- Current App commit: `672d95dd505ac68fab424cf31c0b2b6a61175033`; bundled Creator/Admin Web commit: `a622ac4f648fdaa3014b69c2cdc2477d4a9021ac`.
+- Immediate rollback release: `/opt/apps/stars-flow/releases/20260715-161328`.
+- Provider-validation rollback release: `/opt/apps/stars-flow/releases/20260714-101317`.
+- Current pre-switch database backup: `/opt/apps/stars-flow/backups/db2-before-catalog-hotfix-20260715-163439.sqlite`.
+- Earlier validation backups remain at `/opt/apps/stars-flow/backups/db2-before-paid-provider-validation-20260715.sqlite` and `/opt/apps/stars-flow/backups/db2-before-hotfix-20260715-161328.sqlite`.
 - Native systemd unit: `stars-flow.service`.
 - Loopback listener: `127.0.0.1:18300`.
 - Persistent database: `/opt/apps/stars-flow/shared/db2.sqlite`.

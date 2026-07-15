@@ -22,7 +22,11 @@ Stars Flow 采用三层兼容边界：
 | GRSAI | `gpt-image-2` | `/v1/draw/completions` submit and `/v1/draw/result` poll | Real `1:1 / 1K` image generation passed |
 | AICopy | `grok-imagine-video-1.5-preview` | `/v1/videos` submit and `/v1/videos/{taskId}` poll | Real 6-second image-to-video generation and MP4 reachability passed |
 
+The 2026-07-15 production validation enabled exactly these three V2 model profiles. Creator model selection now reads only enabled Provider Runtime profiles and enabled model profiles; it no longer publishes the full bundled Legacy catalog. All three Providers remain on the Legacy Bridge after validation, while MiMo separately passed Shadow comparison and Native Runtime Kit smoke before rollback.
+
 The AICopy preview model is image-to-video only. Stars Flow duplicates one reference image into the two-item `images` payload expected by the upstream model and rejects missing references before making a network request. Completed results may be returned through top-level `video_url`, `result_url`, or `url`, with wrapped legacy result paths retained for compatibility.
+
+AICopy polling treats upstream 5xx responses as transient and continues polling the same task without resubmission. Core video execution marks the external-state boundary before Provider invocation so an unresolved asynchronous task retains its quota reservation instead of being misclassified as an ordinary released failure.
 
 Super Admin can start a connection test from one action on each Provider row, then select the target model in a dialog. The test performs only authentication and model-catalog or task-query probes, never creates image or video generation tasks, returns no upstream body or credential, and writes a sanitized audit entry. MiMo, GRSAI and AICopy currently pass this route.
 
