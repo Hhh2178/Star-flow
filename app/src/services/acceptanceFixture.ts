@@ -1,0 +1,408 @@
+import type { Knex } from "knex";
+import { calculateReservedCost } from "@/services/modelPricing";
+import type { PricingSnapshot } from "@/types/generationQueue";
+import { hashPassword } from "@/utils/password";
+
+export interface AcceptanceFixtureResult {
+  groups: Array<{ id: number; name: string }>;
+  users: Array<{ id: number; name: string; role: "admin" | "creator"; groupId: number }>;
+  projectIds: number[];
+  taskIds: number[];
+  jobIds: number[];
+}
+
+async function nextId(trx: Knex.Transaction, table: string): Promise<number> {
+  const row = await trx(table).max({ maxId: "id" }).first();
+  return Number(row?.maxId ?? 0) + 1;
+}
+
+export async function seedAcceptanceFixture(
+  connection: Knex,
+  password: string,
+  now: number = Date.now(),
+): Promise<AcceptanceFixtureResult> {
+  if (password.length < 8 || password.length > 128) throw new Error("验收账号密码长度必须为至少 8 个字符且不超过 128 个字符");
+  const passwordHash = hashPassword(password);
+
+  return connection.transaction(async (trx) => {
+    const superAdmin = await trx("o_user").where({ role: "super_admin" }).orderBy("id").first();
+    if (!superAdmin) throw new Error("未找到 Super Admin 验收账号");
+    await trx("o_user").where({ id: superAdmin.id }).update({
+      password: null,
+      passwordHash,
+      status: "enabled",
+      mustChangePassword: true,
+      updatedAt: now,
+    });
+
+    const acceptanceModels = [
+      { name: "本地验收文本", modelName: "acceptance-text", type: "text" },
+      { name: "本地验收图片", modelName: "acceptance-image", type: "image", mode: ["text", "singleImage", "multiReference"] },
+      { name: "本地验收视频", modelName: "acceptance-video", type: "video", mode: ["text", "singleImage"], audio: false, durationResolutionMap: [{ duration: [5], resolution: ["720p"] }] },
+    ];
+    await trx("o_vendorConfig")
+      .insert({ id: "null", inputValues: "{}", models: JSON.stringify(acceptanceModels), enable: 1 })
+      .onConflict("id")
+      .merge({ inputValues: "{}", models: JSON.stringify(acceptanceModels), enable: 1 });
+
+    const pricingSpecs = [
+      { modelId: "acceptance-image", taskType: "image", billingMode: "per_request", requestPrice: 0.06 },
+      { modelId: "acceptance-video", taskType: "video", billingMode: "per_second", secondPrice: 0.036 },
+      { modelId: "acceptance-text", taskType: "text", billingMode: "per_token", inputPricePerMillion: 1, outputPricePerMillion: 2, fallbackRequestPrice: 0.05 },
+    ] as const;
+    const pricingByModel = new Map<string, { id: number; snapshot: PricingSnapshot }>();
+    for (const pricing of pricingSpecs) {
+      await trx("o_modelPricing")
+        .where({ providerId: "null", modelId: pricing.modelId, status: "active" })
+        .whereNot({ version: 1 })
+        .update({ status: "superseded" });
+      const values = {
+        providerId: "null",
+        modelId: pricing.modelId,
+        taskType: pricing.taskType,
+        billingMode: pricing.billingMode,
+        requestPrice: "requestPrice" in pricing ? pricing.requestPrice : null,
+        secondPrice: "secondPrice" in pricing ? pricing.secondPrice : null,
+        inputPricePerMillion: "inputPricePerMillion" in pricing ? pricing.inputPricePerMillion : null,
+        outputPricePerMillion: "outputPricePerMillion" in pricing ? pricing.outputPricePerMillion : null,
+        fallbackRequestPrice: "fallbackRequestPrice" in pricing ? pricing.fallbackRequestPrice : null,
+        currency: "CNY",
+        version: 1,
+        status: "active",
+        effectiveAt: now,
+        createdBy: 1,
+        createdAt: now,
+      };
+      let row = await trx("o_modelPricing").where({ providerId: "null", modelId: pricing.modelId, version: 1 }).first();
+      if (!row) {
+        const [id] = await trx("o_modelPricing").insert(values);
+        row = await trx("o_modelPricing").where({ id }).first();
+      } else if (row.status !== "active") {
+        await trx("o_modelPricing").where({ id: row.id }).update({ status: "active" });
+        row = await trx("o_modelPricing").where({ id: row.id }).first();
+      }
+      pricingByModel.set(pricing.modelId, {
+        id: Number(row.id),
+        snapshot: {
+          pricingId: Number(row.id),
+          providerId: String(row.providerId),
+          modelId: String(row.modelId),
+          taskType: row.taskType,
+          billingMode: row.billingMode,
+          ...(row.requestPrice == null ? {} : { requestPrice: Number(row.requestPrice) }),
+          ...(row.secondPrice == null ? {} : { secondPrice: Number(row.secondPrice) }),
+          ...(row.inputPricePerMillion == null ? {} : { inputPricePerMillion: Number(row.inputPricePerMillion) }),
+          ...(row.outputPricePerMillion == null ? {} : { outputPricePerMillion: Number(row.outputPricePerMillion) }),
+          ...(row.fallbackRequestPrice == null ? {} : { fallbackRequestPrice: Number(row.fallbackRequestPrice) }),
+          currency: row.currency,
+          version: Number(row.version),
+          effectiveAt: Number(row.effectiveAt),
+        },
+      });
+    }
+
+    for (const key of ["universalAi", "scriptAgent", "productionAgent"]) {
+      const deployment = await trx("o_agentDeploy").where({ key }).orderBy("id").first();
+      if (!deployment) throw new Error(`未找到验收 Agent alias: ${key}`);
+      await trx("o_agentDeploy").where({ id: deployment.id }).update({
+        vendorId: "null",
+        model: "本地验收文本",
+        modelName: "acceptance-text",
+        disabled: false,
+      });
+    }
+
+    const ensureUser = async (name: string, role: "admin" | "creator", groupId: number | null) => {
+      let user = await trx("o_user").where({ name }).first();
+      if (!user) {
+        const id = await nextId(trx, "o_user");
+        await trx("o_user").insert({ id, name, password: null, passwordHash, role, status: "enabled", groupId, createdAt: now, updatedAt: now, lastLoginAt: null, mustChangePassword: true });
+        user = await trx("o_user").where({ id }).first();
+      } else {
+        await trx("o_user").where({ id: user.id }).update({ password: null, passwordHash, role, status: "enabled", groupId, updatedAt: now, mustChangePassword: true });
+        user = await trx("o_user").where({ id: user.id }).first();
+      }
+      return { id: Number(user.id), name, role, groupId: user.groupId == null ? null : Number(user.groupId) };
+    };
+
+    const ensureGroup = async (name: string, adminUserId: number) => {
+      let group = await trx("o_group").where({ name }).first();
+      if (!group) {
+        const [id] = await trx("o_group").insert({ name, adminUserId, creatorLimit: 5, status: "enabled", createdAt: now, updatedAt: now });
+        group = await trx("o_group").where({ id }).first();
+      } else {
+        await trx("o_group").where("adminUserId", adminUserId).whereNot("id", group.id).update({ adminUserId: null, updatedAt: now });
+        await trx("o_group").where({ id: group.id }).update({ adminUserId, creatorLimit: 5, status: "enabled", updatedAt: now });
+        group = await trx("o_group").where({ id: group.id }).first();
+      }
+      return { id: Number(group.id), name };
+    };
+
+    const adminA = await ensureUser("accept-admin-a", "admin", null);
+    const groupA = await ensureGroup("验收一组", adminA.id);
+    await trx("o_user").where({ id: adminA.id }).update({ groupId: groupA.id });
+    const creatorA1 = await ensureUser("accept-creator-a1", "creator", groupA.id);
+    const creatorA2 = await ensureUser("accept-creator-a2", "creator", groupA.id);
+    const adminB = await ensureUser("accept-admin-b", "admin", null);
+    const groupB = await ensureGroup("验收二组", adminB.id);
+    await trx("o_user").where({ id: adminB.id }).update({ groupId: groupB.id });
+    const creatorB1 = await ensureUser("accept-creator-b1", "creator", groupB.id);
+    const creatorB2 = await ensureUser("accept-creator-b2", "creator", groupB.id);
+    const users = [
+      { ...adminA, groupId: groupA.id }, creatorA1, creatorA2,
+      { ...adminB, groupId: groupB.id }, creatorB1, creatorB2,
+    ] as AcceptanceFixtureResult["users"];
+
+    const policyDefaults = {
+      group: { totalLimit: 4, textLimit: 3, imageLimit: 2, videoLimit: 1 },
+      user: { totalLimit: 2, textLimit: 2, imageLimit: 1, videoLimit: 1 },
+    };
+    for (const group of [groupA, groupB]) {
+      await trx("o_concurrencyPolicy").insert({ scopeType: "group", scopeId: group.id, ...policyDefaults.group, updatedBy: 1, createdAt: now, updatedAt: now }).onConflict(["scopeType", "scopeId"]).merge({ ...policyDefaults.group, updatedBy: 1, updatedAt: now });
+    }
+    for (const user of users) {
+      await trx("o_concurrencyPolicy").insert({ scopeType: "user", scopeId: user.id, ...policyDefaults.user, updatedBy: 1, createdAt: now, updatedAt: now }).onConflict(["scopeType", "scopeId"]).merge({ ...policyDefaults.user, updatedBy: 1, updatedAt: now });
+    }
+
+    const ensureProject = async (name: string, ownerUserId: number, groupId: number) => {
+      let project = await trx("o_project").where({ name }).first();
+      const values = { projectType: "novel", imageModel: "null:acceptance-image", imageQuality: "1K", videoModel: "null:acceptance-video", name, intro: "本地浏览器验收项目", type: "漫剧", artStyle: "验收风格", mode: "text", videoRatio: "16:9", createTime: now, userId: ownerUserId, ownerUserId, groupId };
+      if (!project) {
+        const id = await nextId(trx, "o_project");
+        await trx("o_project").insert({ id, ...values });
+        project = { id };
+      } else await trx("o_project").where({ id: project.id }).update(values);
+      return Number(project.id);
+    };
+    const projectAId = await ensureProject("验收一组项目", creatorA1.id, groupA.id);
+    const projectBId = await ensureProject("验收二组项目", creatorB1.id, groupB.id);
+
+    const ensureProductionContent = async (label: string, projectId: number) => {
+      let novel = await trx("o_novel").where({ projectId, chapter: `${label}原文` }).first();
+      if (!novel) {
+        const id = await nextId(trx, "o_novel");
+        await trx("o_novel").insert({ id, chapterIndex: 1, reel: "第一卷", chapter: `${label}原文`, chapterData: "测试角色走入测试场景。", projectId, eventState: 1, event: "验收事件", errorReason: null, createTime: now });
+        novel = { id };
+      }
+
+      let script = await trx("o_script").where({ projectId, name: `${label}剧本` }).first();
+      if (!script) {
+        const id = await nextId(trx, "o_script");
+        await trx("o_script").insert({ id, name: `${label}剧本`, content: "第一场：测试角色走入测试场景。", projectId, extractState: 1, createTime: now, errorReason: null });
+        script = { id };
+      }
+
+      let asset = await trx("o_assets").where({ projectId, name: `${label}角色` }).first();
+      if (!asset) {
+        const imageId = await nextId(trx, "o_image");
+        await trx("o_image").insert({ id: imageId, filePath: null, type: "role", assetsId: null, model: "null:acceptance-image", resolution: "1K", state: "", errorReason: null });
+        const id = await nextId(trx, "o_assets");
+        await trx("o_assets").insert({ id, name: `${label}角色`, prompt: "电影感角色立绘，正面站立", remark: "", type: "role", describe: "用于浏览器图片生成验收", scriptId: script.id, imageId, assetsId: null, projectId, startTime: now, promptState: "已完成", audioBindState: null });
+        await trx("o_image").where({ id: imageId }).update({ assetsId: id });
+        asset = { id, imageId };
+      }
+      if (!(await trx("o_scriptAssets").where({ scriptId: script.id, assetId: asset.id }).first())) {
+        await trx("o_scriptAssets").insert({ scriptId: script.id, assetId: asset.id });
+      }
+
+      let track = await trx("o_videoTrack").where({ projectId, scriptId: script.id, prompt: `${label}视频提示词` }).first();
+      if (!track) {
+        const id = await nextId(trx, "o_videoTrack");
+        await trx("o_videoTrack").insert({ id, videoId: null, projectId, scriptId: script.id, state: "已完成", reason: null, prompt: `${label}视频提示词`, selectVideoId: null, duration: 5 });
+        track = { id };
+      }
+
+      let storyboard = await trx("o_storyboard").where({ projectId, scriptId: script.id, prompt: `${label}分镜提示词` }).first();
+      if (!storyboard) {
+        const id = await nextId(trx, "o_storyboard");
+        await trx("o_storyboard").insert({ id, scriptId: script.id, prompt: `${label}分镜提示词`, filePath: null, duration: "5", state: "未生成", trackId: track.id, reason: null, track: "main", videoDesc: "角色缓慢走入画面", shouldGenerateImage: 0, projectId, flowId: null, index: 1, createTime: now });
+        storyboard = { id };
+      }
+
+      const flowData = JSON.stringify({ scriptPlan: "", storyboardTable: "", workbench: { videoList: [] } });
+      const work = await trx("o_agentWorkData").where({ projectId, episodesId: script.id, key: "acceptance-production" }).first();
+      if (work) await trx("o_agentWorkData").where({ id: work.id }).update({ data: flowData, updateTime: now });
+      else await trx("o_agentWorkData").insert({ id: await nextId(trx, "o_agentWorkData"), projectId, episodesId: script.id, key: "acceptance-production", data: flowData, createTime: now, updateTime: now });
+    };
+    await ensureProductionContent("验收一组", projectAId);
+    await ensureProductionContent("验收二组", projectBId);
+
+    const ensureTask = async (marker: string, values: Record<string, unknown>) => {
+      let task = await trx("o_tasks").where({ relatedObjects: marker }).first();
+      if (!task) {
+        const id = await nextId(trx, "o_tasks");
+        await trx("o_tasks").insert({ id, relatedObjects: marker, ...values });
+        task = { id };
+      } else await trx("o_tasks").where({ id: task.id }).update(values);
+      return Number(task.id);
+    };
+    const taskIds = [
+      await ensureTask("acceptance:a-completed", { projectId: projectAId, ownerUserId: creatorA1.id, groupId: groupA.id, taskClass: "image", model: "acceptance-image", describe: "图片任务验收", state: "completed", startTime: now - 4_000, reason: null }),
+      await ensureTask("acceptance:a-failed", { projectId: projectAId, ownerUserId: creatorA2.id, groupId: groupA.id, taskClass: "video", model: "acceptance-video", describe: "视频任务验收", state: "failed", startTime: now - 3_000, reason: "验收失败样本" }),
+      await ensureTask("acceptance:b-completed", { projectId: projectBId, ownerUserId: creatorB1.id, groupId: groupB.id, taskClass: "text", model: "acceptance-text", describe: "文本任务验收", state: "completed", startTime: now - 2_000, reason: null }),
+      await ensureTask("acceptance:b-cancelled", { projectId: projectBId, ownerUserId: creatorB2.id, groupId: groupB.id, taskClass: "image", model: "acceptance-image", describe: "取消任务验收", state: "cancelled", startTime: now - 1_000, reason: "用户取消" }),
+    ];
+
+    const jobSpecs = [
+      ["acceptance:a-succeeded", groupA.id, creatorA1.id, projectAId, "text", "succeeded"],
+      ["acceptance:a-failed", groupA.id, creatorA2.id, projectAId, "image", "failed"],
+      ["acceptance:a-cancelled", groupA.id, creatorA1.id, projectAId, "video", "cancelled"],
+      ["acceptance:a-attention", groupA.id, creatorA2.id, projectAId, "video", "needs_attention"],
+      ["acceptance:b-succeeded", groupB.id, creatorB1.id, projectBId, "image", "succeeded"],
+      ["acceptance:b-failed", groupB.id, creatorB2.id, projectBId, "text", "failed"],
+    ] as const;
+    const jobs = new Map<string, number>();
+    for (const [key, groupId, ownerUserId, projectId, taskType, status] of jobSpecs) {
+      let job = await trx("o_generationJob").where({ idempotencyKey: key }).first();
+      const values = { groupId, ownerUserId, projectId, sourceTaskId: null, handlerKey: "acceptance.fixture", taskType, status, priority: 0, payloadJson: "{}", resultJson: status === "succeeded" ? JSON.stringify({ fixture: true }) : null, errorCode: status === "failed" ? "ACCEPTANCE_FAILURE" : status === "needs_attention" ? "ACCEPTANCE_ATTENTION" : null, errorMessage: status === "failed" ? "验收失败样本" : status === "needs_attention" ? "需要人工处理的验收样本" : null, leaseOwner: null, leaseExpiresAt: null, heartbeatAt: null, attemptCount: status === "succeeded" || status === "failed" ? 1 : 0, providerRequestId: status === "succeeded" ? `fixture-${key}` : null, cancellationRequestedAt: status === "cancelled" ? now - 500 : null, queuedAt: now - 10_000, startedAt: status === "succeeded" || status === "failed" ? now - 9_000 : null, finishedAt: ["succeeded", "failed", "cancelled"].includes(status) ? now - 8_000 : null };
+      if (!job) {
+        const [id] = await trx("o_generationJob").insert({ idempotencyKey: key, ...values });
+        job = { id };
+      } else await trx("o_generationJob").where({ id: job.id }).update(values);
+      jobs.set(key, Number(job.id));
+    }
+
+    const pricingJobSpecs = [
+      { key: "acceptance:pricing-request", groupId: groupA.id, ownerUserId: creatorA1.id, projectId: projectAId, taskType: "image", modelId: "acceptance-image", status: "succeeded", units: { requests: 1 } },
+      { key: "acceptance:pricing-second", groupId: groupB.id, ownerUserId: creatorB2.id, projectId: projectBId, taskType: "video", modelId: "acceptance-video", status: "needs_attention", units: { requests: 1, seconds: 5 } },
+      { key: "acceptance:pricing-token", groupId: groupA.id, ownerUserId: creatorA2.id, projectId: projectAId, taskType: "text", modelId: "acceptance-text", status: "failed", units: { requests: 1 } },
+    ] as const;
+    for (const spec of pricingJobSpecs) {
+      const pricing = pricingByModel.get(spec.modelId)!;
+      let job = await trx("o_generationJob").where({ idempotencyKey: spec.key }).first();
+      const existingReservation = job ? await trx("o_quotaReservation").where({ jobId: job.id }).first() : null;
+      const repairLegacyHandlerRelease = spec.key === "acceptance:pricing-second"
+        && job?.status === "needs_attention"
+        && job?.errorCode === "HANDLER_NOT_FOUND"
+        && job?.providerRequestId == null
+        && existingReservation?.status === "released"
+        && Number(existingReservation?.finalAmount) === 0
+        && existingReservation?.reason === "handler_not_found"
+        && existingReservation?.settledAt == null
+        && existingReservation?.releasedAt != null;
+      const externalStateUnknown = spec.status === "needs_attention";
+      const preserveAttentionHistory = externalStateUnknown && job?.status === "needs_attention";
+      const mutableValues = {
+        groupId: spec.groupId,
+        ownerUserId: spec.ownerUserId,
+        projectId: spec.projectId,
+        sourceTaskId: null,
+        handlerKey: "acceptance.fixture.pricing",
+        taskType: spec.taskType,
+        status: spec.status,
+        priority: 0,
+        payloadJson: JSON.stringify({ model: `null:${spec.modelId}`, billingUnits: spec.units }),
+        resultJson: spec.status === "succeeded" ? JSON.stringify({ fixture: true }) : null,
+        errorCode: externalStateUnknown ? "EXTERNAL_STATE_UNKNOWN" : spec.status === "failed" ? "ACCEPTANCE_PRICING_FAILURE" : null,
+        errorMessage: externalStateUnknown ? "Provider 外部状态未知，需要人工处理" : spec.status === "failed" ? "验收计价失败样本" : null,
+        leaseOwner: null,
+        leaseExpiresAt: null,
+        heartbeatAt: null,
+        attemptCount: 1,
+        providerRequestId: externalStateUnknown ? "fixture:pricing-second:external-state" : null,
+        cancellationRequestedAt: null,
+        queuedAt: now - 6_000,
+        startedAt: preserveAttentionHistory ? job.startedAt : now - 5_000,
+        finishedAt: preserveAttentionHistory ? job.finishedAt : now - 4_000,
+      };
+      if (!job) {
+        const reservedAmount = calculateReservedCost(pricing.snapshot, spec.units);
+        const [id] = await trx("o_generationJob").insert({
+          idempotencyKey: spec.key,
+          ...mutableValues,
+          pricingSnapshotJson: JSON.stringify(pricing.snapshot),
+          reservedAmount,
+        });
+        job = await trx("o_generationJob").where({ id }).first();
+      } else {
+        await trx("o_generationJob").where({ id: job.id }).update(mutableValues);
+        job = await trx("o_generationJob").where({ id: job.id }).first();
+      }
+      const jobId = Number(job.id);
+      jobs.set(spec.key, jobId);
+      const storedPricingSnapshot = JSON.parse(String(job.pricingSnapshotJson)) as PricingSnapshot;
+      const reservationValues = {
+        groupId: spec.groupId,
+        pricingId: storedPricingSnapshot.pricingId,
+        reservedAmount: Number(job.reservedAmount),
+        finalAmount: spec.status === "succeeded" ? Number(job.reservedAmount) : spec.status === "failed" ? 0 : null,
+        status: spec.status === "succeeded" ? "settled" : spec.status === "failed" ? "released" : "reserved",
+        reason: spec.status === "succeeded" ? "succeeded" : spec.status === "failed" ? "failed" : null,
+        createdAt: now - 6_000,
+        settledAt: spec.status === "succeeded" ? now - 4_000 : null,
+        releasedAt: spec.status === "failed" ? now - 4_000 : null,
+      };
+      if (!existingReservation) {
+        await trx("o_quotaReservation").insert({ jobId, ...reservationValues });
+      } else if (repairLegacyHandlerRelease) {
+        await trx("o_quotaReservation").where({ id: existingReservation.id }).update({
+          finalAmount: null,
+          status: "reserved",
+          reason: null,
+          settledAt: null,
+          releasedAt: null,
+        });
+      }
+    }
+
+    const usageSpecs = [
+      { key: "acceptance:a-succeeded", groupId: groupA.id, userId: creatorA1.id, projectId: projectAId, providerId: "fixture-provider", modelId: "acceptance-text", taskType: "text", estimatedCost: 1.25 },
+      { key: "acceptance:b-succeeded", groupId: groupB.id, userId: creatorB1.id, projectId: projectBId, providerId: "fixture-provider", modelId: "acceptance-image", taskType: "image", estimatedCost: 2.5 },
+    ];
+    const fixtureUsage = new Map<number, Array<{ id: number; key: string; estimatedCost: number }>>();
+    for (const usage of usageSpecs) {
+      const jobId = Number(jobs.get(usage.key));
+      const values = { jobId, groupId: usage.groupId, userId: usage.userId, projectId: usage.projectId, providerId: usage.providerId, modelId: usage.modelId, taskType: usage.taskType, unitJson: "{}", estimatedCost: usage.estimatedCost, currency: "CNY", pricingSnapshotJson: JSON.stringify({ fixture: true }), result: "succeeded", createdAt: now - 7_000 };
+      const existing = await trx("o_usageLedger").where({ jobId }).first();
+      let usageId: number;
+      if (existing) {
+        await trx("o_usageLedger").where({ id: existing.id }).update(values);
+        usageId = Number(existing.id);
+      } else {
+        const [id] = await trx("o_usageLedger").insert(values);
+        usageId = Number(id);
+      }
+      const groupUsage = fixtureUsage.get(usage.groupId) ?? [];
+      groupUsage.push({ id: usageId, key: usage.key, estimatedCost: usage.estimatedCost });
+      fixtureUsage.set(usage.groupId, groupUsage);
+    }
+
+    const pricedJob = pricingJobSpecs[0];
+    const pricedJobId = Number(jobs.get(pricedJob.key));
+    const storedPricedJob = await trx("o_generationJob").where({ id: pricedJobId }).first();
+    const pricedUsageValues = { jobId: pricedJobId, groupId: pricedJob.groupId, userId: pricedJob.ownerUserId, projectId: pricedJob.projectId, providerId: "null", modelId: pricedJob.modelId, taskType: pricedJob.taskType, unitJson: JSON.stringify(pricedJob.units), estimatedCost: Number(storedPricedJob.reservedAmount), currency: "CNY", pricingSnapshotJson: String(storedPricedJob.pricingSnapshotJson), result: "succeeded", createdAt: now - 3_000 };
+    let pricedUsage = await trx("o_usageLedger").where({ jobId: pricedJobId }).first();
+    if (!pricedUsage) {
+      const [id] = await trx("o_usageLedger").insert(pricedUsageValues);
+      pricedUsage = await trx("o_usageLedger").where({ id }).first();
+    }
+    const groupAPricedUsage = fixtureUsage.get(groupA.id) ?? [];
+    groupAPricedUsage.push({ id: Number(pricedUsage.id), key: pricedJob.key, estimatedCost: Number(pricedUsage.estimatedCost) });
+    fixtureUsage.set(groupA.id, groupAPricedUsage);
+
+    for (const group of [groupA, groupB]) {
+      const usageRows = fixtureUsage.get(group.id) ?? [];
+      const totalUsage = usageRows.reduce((sum, usage) => sum + usage.estimatedCost, 0);
+      const balanceAfter = 500 - totalUsage;
+      const reservedRow = await trx("o_quotaReservation")
+        .where({ groupId: group.id, status: "reserved" })
+        .sum({ reservedBalance: "reservedAmount" })
+        .first();
+      const reservedBalance = Number(reservedRow?.reservedBalance ?? 0);
+      await trx("o_quotaAccount").insert({ groupId: group.id, balance: balanceAfter, reservedBalance, billingStatus: "active", updatedAt: now }).onConflict("groupId").merge({ balance: balanceAfter, reservedBalance, billingStatus: "active", updatedAt: now });
+      const existing = await trx("o_quotaLedger").where({ groupId: group.id, reason: "本地验收 fixture 初始额度" }).first();
+      if (!existing) await trx("o_quotaLedger").insert({ groupId: group.id, entryType: "manual_topup", amount: 500, balanceBefore: 0, balanceAfter: 500, actorUserId: 1, usageLedgerId: null, reason: "本地验收 fixture 初始额度", createdAt: now });
+      let balanceBefore = 500;
+      for (const usage of usageRows) {
+        const usageBalanceAfter = balanceBefore - usage.estimatedCost;
+        const values = { groupId: group.id, entryType: "usage_debit", amount: -usage.estimatedCost, balanceBefore, balanceAfter: usageBalanceAfter, actorUserId: null, usageLedgerId: usage.id, reason: `本地验收 fixture 用量扣款:${usage.key}`, createdAt: now + 1 };
+        const existingDebit = await trx("o_quotaLedger").where({ usageLedgerId: usage.id, entryType: "usage_debit" }).first();
+        if (existingDebit) await trx("o_quotaLedger").where({ id: existingDebit.id }).update(values);
+        else await trx("o_quotaLedger").insert(values);
+        balanceBefore = usageBalanceAfter;
+      }
+    }
+
+    return { groups: [groupA, groupB], users, projectIds: [projectAId, projectBId], taskIds, jobIds: [...jobs.values()] };
+  });
+}
