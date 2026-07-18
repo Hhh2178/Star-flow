@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 184 40" role="img" aria-labelledby="title">
+  <title id="title">Stars Flow</title>
+  <defs>
+    <linearGradient id="stars-flow-wordmark" x1="2" y1="2" x2="38" y2="38" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2F7DF4"/>
+      <stop offset="1" stop-color="#7060F6"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="38" height="38" rx="11" fill="url(#stars-flow-wordmark)"/>
+  <path d="M28 6l1.1 2.55L31.7 9.7l-2.6 1.1L28 13.4l-1.1-2.6-2.6-1.1 2.6-1.15L28 6z" fill="#FFF"/>
+  <text x="48" y="27" fill="#172033" font-family="Arial, sans-serif" font-size="22" font-weight="700">Stars Flow</text>
+</svg>

@@ -1,0 +1,489 @@
+import axios from "@/utils/axios";
+import projectStore from "@/stores/project";
+import settingStore from "@/stores/setting";
+import { useChat } from "@/utils/useChat";
+import type { FlowData, Storyboard } from "@/views/production/utils/flowBuilder";
+import type { ChatMessagesData } from "@tdesign-vue-next/chat";
+import { useThrottleFn } from "@vueuse/core";
+import {
+  assertGenerationJobsSucceeded,
+  startGenerationJobTracking,
+  type GenerationJobDetail,
+} from "@/utils/generationJobTracker";
+
+function makeProductionAgentStore(projectId: string) {
+  return defineStore(`productionAgent-${projectId}`, () => {
+    let generationTrackingController = new AbortController();
+
+    function resetGenerationTrackingController() {
+      if (generationTrackingController.signal.aborted) generationTrackingController = new AbortController();
+      return generationTrackingController;
+    }
+
+    function stopGenerationTracking() {
+      generationTrackingController.abort();
+      generationTrackingController = new AbortController();
+    }
+
+    function generationState(job: GenerationJobDetail): "生成中" | "已完成" | "生成失败" {
+      if (job.status === "succeeded") return "已完成";
+      if (["failed", "cancelled", "needs_attention"].includes(job.status)) return "生成失败";
+      return "生成中";
+    }
+    const defMsg: ChatMessagesData[] = [
+      {
+        id: "welcome",
+        role: "assistant",
+        content: [
+          { type: "text", status: "complete", data: $t("workbench.production.chatBox.welcomeMessage") },
+          {
+            type: "suggestion",
+            status: "complete",
+            data: [{ title: $t("workbench.production.chatBox.startMakingVideo"), prompt: $t("workbench.production.chatBox.startMakingVideoPrompt") }],
+          },
+        ],
+      },
+    ];
+    onMounted(() => {
+      if (messages.value.length <= 0) messages.value = [...defMsg, ...messages.value];
+    });
+
+    const flowData = ref<FlowData>({
+      script: "", // 剧本
+      scriptPlan: "", //导演计划
+      storyboardTable: "", //分镜表
+      assets: [], // 衍生资产
+      storyboard: [], //分镜面板
+      workbench: {
+        videoList: [],
+      }, // 工作台数据
+    });
+
+    const episodesId = ref<number>();
+
+    const {
+      connected,
+      messages,
+      chat,
+      stopGenerate,
+      socket,
+      status,
+      reconnect,
+      connect,
+      disconnect,
+      activeAgentJob,
+      agentJobDetail,
+      agentJobStatusText,
+      agentJobError,
+      agentSubmissionPending,
+      switchAgentJobContext,
+    } = useChat({
+      url: `${settingStore().runtimeBaseUrl}/socket/productionAgent`,
+      jobStorageKey: () => `stars-flow:production-agent:${projectId}:${episodesId.value ?? "none"}`,
+      auth: () => ({
+        isolationKey: `${projectId}:productionAgent:${episodesId.value}`,
+        projectId: projectId,
+        scriptId: episodesId.value,
+      }),
+      manageLifecycle: false,
+      autoConnect: false,
+      onConnect: () => {
+        void getHistory();
+      },
+      xmlTags: [
+        { tag: "script", keepInMessage: false },
+        { tag: "scriptPlan", keepInMessage: false },
+        { tag: "storyboardTable", keepInMessage: false },
+        { tag: "storyboardItem", keepInMessage: false },
+      ],
+      onXmlTag: async (data) => {
+        const { tag, value, children, attrs, status } = data;
+        if (tag === "script") {
+          flowData.value.script = value ?? "";
+        } else if (tag === "scriptPlan") {
+          flowData.value.scriptPlan = value ?? "";
+        } else if (tag === "storyboardTable") {
+          flowData.value.storyboardTable = value ?? "";
+        }
+        // else if (tag === "storyboardItem") {
+        //   if (status === "complete") {
+        //     const prompt = attrs.prompt ?? "";
+        //     const duration = Number(attrs.duration) || 0;
+        //     const track = attrs.track || "";
+        //     const shouldGenerateImage =
+        //       (typeof attrs.shouldGenerateImage == "boolean" && attrs.shouldGenerateImage) ||
+        //       String(attrs.shouldGenerateImage).toLowerCase() == "true"
+        //         ? 1
+        //         : 0;
+
+        //     const videoDesc = attrs?.videoDesc ?? "";
+        //     const existingIndex = flowData.value.storyboard.findIndex(
+        //       (s) => s.prompt == prompt && s.duration == duration && videoDesc == s.videoDesc,
+        //     );
+        //     if (existingIndex !== -1) {
+        //       // 已存在则更新 content，保留 id
+        //       flowData.value.storyboard[existingIndex].prompt = prompt;
+        //     } else {
+        //       // 不存在则追加新条目
+        //       flowData.value.storyboard.push({
+        //         prompt: prompt || "",
+        //         duration: Number(duration) || 0,
+        //         state: "未生成" as "未生成" | "生成中" | "已完成" | "生成失败",
+        //         src: null,
+        //         associateAssetsIds: JSON.parse(attrs.associateAssetsIds) || [],
+        //         videoDesc: videoDesc,
+        //         shouldGenerateImage: shouldGenerateImage,
+        //       });
+        //       await addStoryboardInfo([
+        //         {
+        //           prompt: prompt || "",
+        //           duration: Number(duration) || 0,
+        //           track: track || "",
+        //           state: "未生成" as "未生成" | "生成中" | "已完成" | "生成失败",
+        //           src: null,
+        //           videoDesc,
+        //           shouldGenerateImage,
+        //           associateAssetsIds: JSON.parse(attrs.associateAssetsIds) || [],
+        //         },
+        //       ]);
+        //     }
+        //   }
+        // }
+        if (status == "complete") {
+          throttledFn();
+        }
+      },
+    });
+
+    // 实际的节流方法
+    const throttledFn = useThrottleFn(
+      () => {
+        setFlowData(episodesId.value);
+      },
+      500,
+      true,
+      true,
+    );
+    async function setFlowData(scriptId?: number) {
+      await axios.post("/production/saveFlowData", {
+        projectId: projectId,
+        data: flowData.value,
+        episodesId: scriptId || episodesId.value,
+      });
+    }
+
+    async function getFlowData() {
+      const { data } = await axios.post("/production/getFlowData", {
+        projectId: projectId,
+        episodesId: episodesId.value,
+      });
+      flowData.value = data;
+    }
+    async function batchGenerateStoryboard(allIds: number[], compulsory: boolean = false) {
+      try {
+        const { data } = await axios.post("/production/storyboard/batchGenerateImage", {
+          scriptId: episodesId.value,
+          projectId: projectId,
+          storyboardIds: allIds,
+          compulsory,
+        });
+        const tracking = startGenerationJobTracking(data, {
+          signal: resetGenerationTrackingController().signal,
+          onUpdate: (queued, job) => {
+            const item = flowData.value.storyboard.find((storyboard) => storyboard.id === queued.targetId);
+            if (!item) return;
+            item.state = generationState(job);
+            if (item.state === "生成失败") item.reason = job.errorMessage || "生成任务未完成";
+          },
+        });
+        const results = await tracking.done;
+        assertGenerationJobsSucceeded(results);
+        await pollStoryboardImages();
+        return flowData.value.storyboard.filter((item) => item.id != null && allIds.includes(item.id));
+      } catch (e) {
+        if ((e as Error)?.name === "AbortError") return [];
+        window.$message.error((e as any)?.message);
+        throw e;
+      }
+    }
+    async function batchGenerateAssets(allIds: number[]) {
+      flowData.value.assets.forEach((asset) => {
+        if (asset.derive) {
+          asset.derive.forEach((derive) => {
+            if (allIds.includes(derive.id)) {
+              derive.state = "生成中" as "未生成" | "生成中" | "已完成" | "生成失败";
+            }
+          });
+        }
+      });
+      try {
+        const { data } = await axios.post("/production/assets/batchGenerateAssetsImage", {
+          assetIds: allIds,
+          projectId: projectId,
+          scriptId: episodesId.value,
+        });
+        const tracking = startGenerationJobTracking(data, {
+          signal: resetGenerationTrackingController().signal,
+          onUpdate: (queued, job) => {
+            for (const asset of flowData.value.assets) {
+              const derive = asset.derive?.find((item) => item.id === queued.targetId);
+              if (!derive) continue;
+              derive.state = generationState(job);
+              if (derive.state === "生成失败") derive.errorReason = job.errorMessage || "生成任务未完成";
+            }
+          },
+        });
+        const results = await tracking.done;
+        assertGenerationJobsSucceeded(results);
+        await pollAssetsImages();
+        return flowData.value.assets.flatMap((asset) => asset.derive ?? []).filter((item) => allIds.includes(item.id));
+      } catch (e) {
+        if ((e as Error)?.name === "AbortError") return [];
+        window.$message.error((e as any)?.message || "资产图片生成失败");
+        throw e;
+      }
+    }
+    const assetsNotStateImageIds = computed(() => {
+      const ids: number[] = [];
+      flowData.value.assets.forEach((asset) => {
+        if (asset.derive) {
+          asset.derive.forEach((derive) => {
+            if (derive.state == ("生成中" as "未生成" | "生成中" | "已完成" | "生成失败")) {
+              ids.push(derive.id);
+            }
+          });
+        }
+      });
+      return ids;
+    });
+    const storyboardNotStateImageIds = computed(() => {
+      const ids: number[] = [];
+      flowData.value.storyboard.forEach((asset) => {
+        if (asset.state == "生成中" && asset.id) {
+          ids.push(asset.id);
+        }
+      });
+      return ids;
+    });
+    // ---- 资产图片轮询 ----
+    let assetsPollingTimer: number | null = null;
+    let assetsPollingInFlight = false;
+
+    async function pollAssetsImages() {
+      const ids = assetsNotStateImageIds.value;
+      if (ids.length === 0 || assetsPollingInFlight) return;
+      assetsPollingInFlight = true;
+      try {
+        const { data } = await axios.post("/production/assets/pollingImage", {
+          ids: ids,
+        });
+        if (!data || data.length === 0) return;
+        const records = data as Array<{ id: number; state: string; src?: string; errorReason?: string; prompt?: string }>;
+        records.forEach((record) => {
+          flowData.value.assets.forEach((asset) => {
+            if (!asset.derive) return;
+            asset.derive.forEach((derive) => {
+              if (derive.id === record.id) {
+                derive.state = record.state as "未生成" | "生成中" | "已完成" | "生成失败";
+                if (record.src) derive.src = record.src;
+                derive.errorReason = record?.errorReason ?? "";
+                derive.prompt = record?.prompt ?? "";
+              }
+            });
+          });
+        });
+      } catch (e) {
+        console.error("[assetsPolling] error", e);
+      } finally {
+        assetsPollingInFlight = false;
+      }
+    }
+
+    function startAssetsPolling() {
+      if (assetsPollingTimer) return;
+      assetsPollingTimer = window.setInterval(async () => {
+        if (assetsNotStateImageIds.value.length === 0) {
+          stopAssetsPolling();
+          return;
+        }
+        await pollAssetsImages();
+      }, 5000);
+      // 立即执行一次
+      pollAssetsImages();
+    }
+
+    function stopAssetsPolling() {
+      if (assetsPollingTimer) {
+        clearInterval(assetsPollingTimer);
+        assetsPollingTimer = null;
+      }
+    }
+
+    watch(
+      () => assetsNotStateImageIds.value,
+      (ids) => {
+        if (ids.length > 0) {
+          startAssetsPolling();
+        } else {
+          stopAssetsPolling();
+        }
+      },
+    );
+
+    // ---- 分镜图片轮询 ----
+    let storyboardPollingTimer: number | null = null;
+    let storyboardPollingInFlight = false;
+
+    async function pollStoryboardImages() {
+      const ids = storyboardNotStateImageIds.value;
+      if (ids.length === 0 || storyboardPollingInFlight) return;
+      storyboardPollingInFlight = true;
+      try {
+        const { data } = await axios.post("/production/storyboard/pollingImage", {
+          ids: ids,
+        });
+        if (!data || data.length === 0) return;
+        const records = data as Array<{ id: number; state: string; src?: string; reason?: string }>;
+        records.forEach((record) => {
+          const item = flowData.value.storyboard.find((s) => s.id === record.id);
+          if (item) {
+            item.state = record.state as "未生成" | "生成中" | "已完成" | "生成失败";
+            if (record.src) item.src = record.src;
+            item.reason = record?.reason ?? "";
+          }
+        });
+      } catch (e) {
+        console.error("[storyboardPolling] error", e);
+      } finally {
+        storyboardPollingInFlight = false;
+      }
+    }
+
+    function startStoryboardPolling() {
+      if (storyboardPollingTimer) return;
+      storyboardPollingTimer = window.setInterval(async () => {
+        if (storyboardNotStateImageIds.value.length === 0) {
+          stopStoryboardPolling();
+          return;
+        }
+        await pollStoryboardImages();
+      }, 5000);
+      // 立即执行一次
+      pollStoryboardImages();
+    }
+
+    function stopStoryboardPolling() {
+      if (storyboardPollingTimer) {
+        clearInterval(storyboardPollingTimer);
+        storyboardPollingTimer = null;
+      }
+    }
+
+    watch(
+      () => storyboardNotStateImageIds.value,
+      (ids) => {
+        if (ids.length > 0) {
+          startStoryboardPolling();
+        } else {
+          stopStoryboardPolling();
+        }
+      },
+    );
+
+    function updateContext() {
+      if (episodesId.value! < 0) return;
+      switchAgentJobContext();
+      const ctx = {
+        isolationKey: `${projectId}:productionAgent:${episodesId.value}`,
+        projectId: projectId,
+        scriptId: episodesId.value,
+      };
+      if (!connected.value) connect();
+      socket.value!.emit("updateContext", ctx);
+    }
+    async function addStoryboardInfo(items: any[]) {
+      const { data } = await axios.post("/production/storyboard/batchAddStoryboardInfo", {
+        scriptId: episodesId.value,
+        data: items,
+        projectId: projectId,
+      });
+
+      flowData.value.storyboard.forEach((item) => {
+        const updated = data.find((d: Storyboard) => d.prompt == item.prompt && d.duration == item.duration && d.videoDesc == item.videoDesc);
+        if (updated) {
+          item.id = updated.id;
+          item.trackId = updated.trackId;
+          item.src = updated.src;
+          item.state = updated.state;
+          item.associateAssetsIds = updated.associateAssetsIds;
+        }
+      });
+    }
+
+    const loadingHistory = ref(false);
+    async function getHistory() {
+      loadingHistory.value = true;
+      const { data } = await axios.post(`/agents/getMemory`, {
+        projectId: projectId,
+        episodesId: episodesId.value,
+        agentType: "productionAgent",
+      });
+      messages.value = [];
+      messages.value = [...defMsg, ...data];
+      loadingHistory.value = false;
+    }
+
+    const thinkLevel = ref(0);
+
+    function updateThinkConfig(value: number) {
+      thinkLevel.value = value;
+      if (socket.value) {
+        socket.value.emit("updateThinkConfig", { think: value > 0, thinlLevel: value });
+      }
+    }
+
+    return {
+      connected,
+      messages,
+      chat,
+      stopGenerate,
+      socket,
+      status,
+      activeAgentJob,
+      agentJobDetail,
+      agentJobStatusText,
+      agentJobError,
+      agentSubmissionPending,
+      switchAgentJobContext,
+      flowData,
+      setFlowData,
+      getFlowData,
+      episodesId,
+      stopAssetsPolling,
+      stopStoryboardPolling,
+      stopGenerationTracking,
+      updateContext,
+      getHistory,
+      loadingHistory,
+      batchGenerateStoryboard,
+      reconnect,
+      thinkLevel,
+      updateThinkConfig,
+    };
+  });
+}
+
+const storeMap = new Map<string, ReturnType<typeof makeProductionAgentStore>>();
+
+function createProductionAgentStore(projectId: string) {
+  if (!storeMap.has(projectId)) {
+    storeMap.set(projectId, makeProductionAgentStore(projectId));
+  }
+  return storeMap.get(projectId)!;
+}
+
+export default function useProductionAgentStore() {
+  const id = projectStore().project?.id;
+  if (!id) throw new Error("No project selected");
+  return createProductionAgentStore(id)();
+}

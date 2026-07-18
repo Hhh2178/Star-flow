@@ -1,0 +1,26 @@
+html[data-stars-app="admin"],
+html[data-stars-app="admin"] body,
+html[data-stars-app="admin"] #app {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+  background: var(--stars-page-bg);
+  color: var(--stars-text);
+  font-family:
+    Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+html[data-stars-app="admin"] {
+  background: var(--stars-page-bg);
+}
+
+html[data-stars-app="admin"] * {
+  box-sizing: border-box;
+  letter-spacing: 0;
+}
+
+html[data-stars-app="admin"] button,
+html[data-stars-app="admin"] input {
+  font: inherit;
+}
