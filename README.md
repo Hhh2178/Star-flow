@@ -4,12 +4,12 @@ Stars Flow 是新的 AI 漫剧/短剧生产工具主线，计划以 Toonflow-app
 
 ## Current Status
 
-R3 前后台分离、严格分组隔离、持久化生成队列、分层并发、额度台账、模型计价和管理运营页面已经完成统一发布构建及真实浏览器验收。Creator/Admin 服务器内部试用环境位于 `https://starsflow.hhh2121.xyz`。Toonflow 后端和前端 fork 分别作为 `app/`、`web/` submodule 纳入外层治理仓库。
+R3 前后台分离、严格分组隔离、持久化生成队列、分层并发、额度台账、模型计价和管理运营页面已经完成统一发布构建及真实浏览器验收。Creator/Admin 服务器内部试用环境位于 `https://starsflow.hhh2121.xyz`。后端、Electron 运行时、Creator/Admin 前端和治理文件统一存放在私有 Monorepo `https://github.com/Hhh2178/Star-flow`。
 
 ## Project Direction
 
 - 代码基础：Toonflow-app fork。
-- fork 仓库：`https://github.com/Hhh2178/Starflow`。
+- 私有 Monorepo：`https://github.com/Hhh2178/Star-flow`。
 - 参考项目：`D:\codex\服务器\星环漫剧`。
 - 第一阶段形态：十人团队内部服务器版，浏览器访问。
 - 第二阶段形态：Electron 客户端连接云端中控。
@@ -58,7 +58,7 @@ R3 前后台分离、严格分组隔离、持久化生成队列、分层并发�
 
 需要时可以开短期 `feature/<name>` 分支，但合并后删除。官方 Toonflow 通过 `app` 仓库的 `upstream` remote 同步，不作为长期开发分支。
 
-发布时先分别验证并推送 app/web 的 `dev`，再将已验证提交合入各自 `main`，最后更新外层 gitlink。`.gitmodules` 的 app/web 发布跟踪分支统一为 `main`。
+发布时在同一功能分支完成 app/web/治理文件的配套修改，合入 `dev` 后运行统一发布门禁；只有完整验证通过的 Monorepo 提交才能快进到 `main`。
 
 ## Harness Commands
 

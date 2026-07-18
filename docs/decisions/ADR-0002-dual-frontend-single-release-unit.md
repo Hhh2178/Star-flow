@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted for R3 implementation on 2026-07-10.
+Accepted for R3 implementation on 2026-07-10. Repository-layout portions were superseded by ADR-0003 on 2026-07-18; the dual-frontend and single-release-unit decisions remain active.
 
 ## Context
 
@@ -10,7 +10,7 @@ Stars Flow needs a production-focused Creator application and an administrator-o
 
 ## Decision
 
-Keep the outer `Stars flow` repository as the governance and release harness. Track `app/` and `web/` as Git submodules with separate histories and upstream synchronization.
+Keep Creator and Admin as separate build entries and validate App/Web as one release unit. Repository ownership and source layout now follow ADR-0003.
 
 Build two independent applications from the `web/` Vite project:
 
@@ -27,10 +27,9 @@ Hosted Creator and Admin builds use same-origin `/api` and same-origin Socket.IO
 
 - Creator artifacts can be scanned for forbidden Admin modules and global configuration code.
 - Admin can evolve as a dense internal console without distorting Creator workflows.
-- Backend and frontend upstream updates remain independently traceable.
-- Parent gitlinks and unified scripts must be updated after feature branches are merged.
-- Local development and deployment need two frontend entries and history fallbacks.
-- A passing single-submodule build is insufficient evidence for release readiness.
+- Backend and frontend upstream origins remain traceable through imported history and documented subtree synchronization.
+- Local development and deployment need two frontend entries and one unified repository branch.
+- A passing App-only or Web-only build is insufficient evidence for release readiness.
 
 ## Verification
 

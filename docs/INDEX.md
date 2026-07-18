@@ -37,7 +37,8 @@ Read in order:
 | Frontend visual system | `systems/frontend/frontend-design/stars-flow-visual-system.md` | Theme token, component style, or motion rules change |
 | Toonflow/Xinghuan feature comparison | `systems/frontend/frontend-design/toonflow-xinghuan-feature-comparison.md` | Feature scope or migration priority changes |
 | Deployment shape decision | `decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md` | Deployment target or app/client boundary changes |
-| Dual frontend and release-unit decision | `decisions/ADR-0002-dual-frontend-single-release-unit.md` | Creator/Admin entry, submodule, output, or static hosting shape changes |
+| Dual frontend and release-unit decision | `decisions/ADR-0002-dual-frontend-single-release-unit.md` | Creator/Admin entry, output, or static hosting shape changes |
+| Private Monorepo structure | `decisions/ADR-0003-private-monorepo-consolidation.md` | Repository ownership, App/Web source layout, or upstream sync policy changes |
 | Server facts | `references/server-context.md` | Server host, ports, service constraints, or deploy path changes |
 | Deployment evidence | `references/deployment-assessment-2026-07-09.md`, `logbooks/validations/2026-07-12-server-staging-release.md` and later validation records | New deployment validation or incident |
 | Governance rules | `governance/*.md` | Process, documentation, branch, or safety rules change |
@@ -63,4 +64,4 @@ Run:
 npm run harness:verify:project
 ```
 
-The harness verifies root entries, required docs, submodule metadata, and branch policy anchors.
+The harness verifies root entries, required docs, Monorepo source layout, and branch policy anchors.

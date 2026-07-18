@@ -17,34 +17,35 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 3. `docs/INDEX.md`
 4. `docs/specs/2026-07-09-stars-flow-toonflow-rebase-design.md`
 5. `docs/decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md`
-6. `docs/references/server-context.md`
-7. 最新 `docs/logbooks/daily/*.md`
-8. `upstream/toonflow-notes.md`
-9. `legacy-reference/xinghuan-notes.md`
+6. `docs/decisions/ADR-0003-private-monorepo-consolidation.md`
+7. `docs/references/server-context.md`
+8. 最新 `docs/logbooks/daily/*.md`
+9. `upstream/toonflow-notes.md`
+10. `legacy-reference/xinghuan-notes.md`
 
 ## Current Direction
 
 - 以 Toonflow-app 作为代码和产品底座。
-- Toonflow fork 仓库为 `https://github.com/Hhh2178/Starflow`。
+- 私有 Monorepo 为 `https://github.com/Hhh2178/Star-flow`。
 - 保留 Toonflow 的小说/剧本、Agent、Skill、分镜、素材、视频工作台和 Electron 可封装能力。
 - 视觉风格在保留 Toonflow 功能密度的基础上，向星环漫剧的生产中台、项目工作台、后台控制台方向调整。
 - 第一阶段优先做十人团队内部服务器版，通过浏览器统一访问。
 - 第二阶段再考虑 Electron 客户端连接云端中控。
 - 旧星环漫剧只作为参考，不直接搬运其现有前后端实现。
-- 当前代码由外层治理仓库和 `app/`、`web/` 两个 Git submodule 组成；三者保留独立历史，但必须作为一个发布单元验证。
+- 当前代码是单一私有 Monorepo；`app/`、`web/` 和外层治理文件直接由同一仓库跟踪，并作为一个发布单元验证。
 - 服务器内部试用环境已发布至 `https://starsflow.hhh2121.xyz`；systemd 服务、Nginx、HTTPS、SQLite 持久化库和 OSS 目录的非敏感事实以 `docs/references/server-context.md` 为准。
-- `dev` 用于日常集成；通过完整发布门禁后才合入 `main`。外层发布 gitlink 必须同时指向 app/web 已验证的 `main` 提交，`.gitmodules` 的两个 submodule 发布跟踪分支统一为 `main`。
+- `dev` 用于日常集成；App、Web、文档和发布脚本在同一功能分支提交，通过完整发布门禁后才合入 `main`。
 - R3 已合并；当前后端开发入口恢复为 `app/` 的 `dev`，前端开发入口恢复为 `web/` 的 `dev`。旧 R3 feature worktree 仅用于追溯，后续任务应从最新 `dev` 创建新的短期分支或 worktree。
 - R3 的完成口径不是“页面可打开”，而是 Creator/Admin 双入口完成真实角色、队列、并发、额度、日志和异步生成状态的浏览器交互验证。
 
 ## Local Development Environment
 
-- 本地默认开发环境是 Windows 宿主机上的短期 Git worktree：app 与 web 从各自最新 `dev` 创建同名 `feature/<task>` 分支，外层治理仓库同步使用对应短期分支；不得把旧 `星环漫剧` 容器或其依赖目录用于 Stars Flow。
+- 本地默认开发环境是 Windows 宿主机上的短期 Git worktree：从 Monorepo 最新 `dev` 创建一个 `feature/<task>` 分支即可同时修改 app、web 和治理文件；不得把旧 `星环漫剧` 容器或其依赖目录用于 Stars Flow。
 - 宿主机当前标准运行时为 Node.js `20.20.x` 与 Yarn `1.22.x`。通过 `rtk yarn` 运行安装、测试、构建命令；`rtk` 仅优化终端输出，不会切换 Node 版本。
 - 全新 app worktree 安装依赖使用 `rtk yarn install --frozen-lockfile --ignore-engines`。这是 Electron 打包链路的传递依赖要求高于本地运行时所致；不得改动锁文件、降级依赖或把 `--ignore-engines` 用于服务器发布。
 - web worktree 使用 `rtk yarn install --frozen-lockfile`；所有本地数据库、验收数据和生成物必须留在相应 worktree 的已忽略路径中。
 - Docker 不是当前日常开发环境。除非用户明确要求容器化验证、Dockerfile/镜像维护或服务器部署，否则不得新建、启动、停止或复用任何 Docker 容器。Docker 仅作为后续可选的可复现构建/发布验证方案。
-- 本地修改完成后，先在 app/web 各自运行计划要求的定向测试与构建，再运行外层 `npm run harness:verify:project`；不得以 Docker 成功构建替代这些门禁。
+- 本地修改完成后，先在 `app/`、`web/` 运行计划要求的定向测试与构建，再在仓库根运行 `npm run harness:verify:project`；不得以 Docker 成功构建替代这些门禁。
 
 ## Current Execution Entry
 
@@ -105,7 +106,7 @@ R3 剩余实现必须遵守：
 npm run harness:verify:project
 ```
 
-在修改 Toonflow app 代码后，还需要进入 `app/` 运行对应 Toonflow 检查。
+在修改 `app/` 代码后，还需要进入 `app/` 运行对应 Toonflow 检查；修改 `web/` 时运行对应前端检查。
 
 R3 浏览器就绪检查以 `docs/superpowers/plans/2026-07-10-r3-browser-test-readiness-execution.md` 的命令矩阵为准。外层统一构建最终必须同时产出 `app/data/web/` Creator 静态文件和 `app/data/web/admin/` Admin 静态文件。
 

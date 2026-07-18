@@ -2,10 +2,7 @@
 
 ## Scope
 
-Stars Flow has two layers:
-
-- Outer harness repository at `D:\codex\服务器\Stars flow`.
-- App submodule at `D:\codex\服务器\Stars flow\app`, tracking `https://github.com/Hhh2178/Starflow`.
+Stars Flow is one private Monorepo at `D:\codex\服务器\Stars flow`. Product source lives directly in `app/` and `web/`; governance, documentation and release scripts live at the root.
 
 ## Rules
 
@@ -18,5 +15,5 @@ Stars Flow has two layers:
 
 ## Verification
 
-- Outer harness: `npm run harness:verify:project`.
+- Monorepo harness: `npm run harness:verify:project`.
 - App code: use Toonflow app scripts inside `app/`, such as `yarn lint`, after dependencies are installed.

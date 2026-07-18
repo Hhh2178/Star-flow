@@ -9,7 +9,7 @@ foreach ($requiredFile in @(
   (Join-Path $webDir "package.json")
 )) {
   if (-not (Test-Path $requiredFile)) {
-    throw "Submodule is not initialized: $requiredFile. Run npm run submodules:init first."
+    throw "Monorepo source is incomplete: $requiredFile is missing."
   }
 }
 

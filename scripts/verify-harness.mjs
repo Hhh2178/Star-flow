@@ -18,7 +18,9 @@ const requiredFiles = [
   "docs/systems/frontend/README.md",
   "docs/systems/admin/README.md",
   "docs/logbooks/daily/2026-07-09.md",
-  ".gitmodules",
+  "docs/decisions/ADR-0003-private-monorepo-consolidation.md",
+  "app/package.json",
+  "web/package.json",
   ".env.example",
 ];
 
@@ -43,20 +45,12 @@ for (const text of ["docs/INDEX.md", "main", "dev", "harness:verify:project"]) {
 }
 
 const readme = read("README.md");
-for (const text of ["Hhh2178/Starflow", "main", "dev", "harness:verify:project"]) {
+for (const text of ["Hhh2178/Star-flow", "main", "dev", "harness:verify:project"]) {
   if (!readme.includes(text)) fail(`README.md missing anchor: ${text}`);
 }
 
-const gitmodules = read(".gitmodules");
-if (!gitmodules.includes("https://github.com/Hhh2178/Starflow.git")) {
-  fail(".gitmodules must point app submodule to Hhh2178/Starflow");
-}
-if (!gitmodules.includes("https://github.com/Hhh2178/Starflow-web.git")) {
-  fail(".gitmodules must point web submodule to Hhh2178/Starflow-web");
-}
-const trackedMainBranches = gitmodules.match(/branch = main/g) ?? [];
-if (trackedMainBranches.length !== 2) {
-  fail(".gitmodules must track app and web release branches on main");
+if (fs.existsSync(path.join(root, ".gitmodules"))) {
+  fail(".gitmodules must not exist after monorepo consolidation");
 }
 
 let outerBranch = "";
@@ -65,36 +59,36 @@ try {
 } catch (error) {
   fail(`failed to read outer branch: ${error.message}`);
 }
-if (!["main", "dev"].includes(outerBranch)) {
-  fail(`outer repository should be on main or dev, got: ${outerBranch}`);
+if (!/^(main|dev|feature\/.+|hotfix\/.+|chore\/.+)$/.test(outerBranch)) {
+  fail(`repository branch violates branch policy: ${outerBranch}`);
 }
 
 const appPath = path.join(root, "app");
 if (!fs.existsSync(appPath)) {
-  fail("app submodule path is missing");
-} else {
-  const appOrigin = execFileSync("git", ["remote", "get-url", "origin"], { cwd: appPath, encoding: "utf8" }).trim();
-  const appUpstream = execFileSync("git", ["remote", "get-url", "upstream"], { cwd: appPath, encoding: "utf8" }).trim();
-  if (appOrigin !== "https://github.com/Hhh2178/Starflow.git") {
-    fail(`app origin mismatch: ${appOrigin}`);
-  }
-  if (appUpstream !== "https://github.com/HBAI-Ltd/Toonflow-app.git") {
-    fail(`app upstream mismatch: ${appUpstream}`);
-  }
+  fail("app source path is missing");
 }
 
 const webPath = path.join(root, "web");
 if (!fs.existsSync(webPath)) {
-  fail("web submodule path is missing");
-} else {
-  const webOrigin = execFileSync("git", ["remote", "get-url", "origin"], { cwd: webPath, encoding: "utf8" }).trim();
-  const webUpstream = execFileSync("git", ["remote", "get-url", "upstream"], { cwd: webPath, encoding: "utf8" }).trim();
-  if (webOrigin !== "https://github.com/Hhh2178/Starflow-web.git") {
-    fail(`web origin mismatch: ${webOrigin}`);
+  fail("web source path is missing");
+}
+
+for (const sourcePath of [appPath, webPath]) {
+  if (fs.existsSync(path.join(sourcePath, ".git"))) {
+    fail(`${path.basename(sourcePath)} must be a normal monorepo directory, not a nested repository`);
   }
-  if (webUpstream !== "https://github.com/HBAI-Ltd/Toonflow-web.git") {
-    fail(`web upstream mismatch: ${webUpstream}`);
+}
+
+try {
+  const stagedEntries = execFileSync("git", ["ls-files", "--stage", "app", "web"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  if (stagedEntries.split(/\r?\n/).some((line) => line.startsWith("160000 "))) {
+    fail("app/web must not be gitlinks");
   }
+} catch (error) {
+  fail(`failed to inspect monorepo entries: ${error.message}`);
 }
 
 if (process.exitCode) {
