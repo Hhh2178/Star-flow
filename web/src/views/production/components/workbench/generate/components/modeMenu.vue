@@ -78,6 +78,7 @@
 <script setup lang="ts">
 import "@/views/production/components/workbench/type/type";
 import axios from "@/utils/axios";
+import type { SelectProps } from "tdesign-vue-next";
 
 const props = defineProps<{
   modeOptions: VideoModel;
@@ -94,9 +95,9 @@ const modelParmas = defineModel<ModelSetting>({
   },
 });
 const emit = defineEmits(["modeChange"]);
-function handleBeforeChange(newVal: string) {
-  emit("modeChange", newVal);
-}
+const handleBeforeChange: NonNullable<SelectProps["onChange"]> = (newVal) => {
+  if (!Array.isArray(newVal)) emit("modeChange", String(newVal));
+};
 function updateDuration(newDuration: number) {
   modelParmas.value.duration = newDuration;
   if (props.trackId) axios.post("/production/workbench/updateVideoDuration", { id: props.trackId, duration: newDuration });

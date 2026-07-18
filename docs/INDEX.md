@@ -39,8 +39,10 @@ Read in order:
 | Deployment shape decision | `decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md` | Deployment target or app/client boundary changes |
 | Dual frontend and release-unit decision | `decisions/ADR-0002-dual-frontend-single-release-unit.md` | Creator/Admin entry, output, or static hosting shape changes |
 | Private Monorepo structure | `decisions/ADR-0003-private-monorepo-consolidation.md` | Repository ownership, App/Web source layout, or upstream sync policy changes |
+| GitHub and CI policy | `governance/github-and-ci-policy.md` | Required checks, branch protection, runner or dependency policy changes |
 | Server facts | `references/server-context.md` | Server host, ports, service constraints, or deploy path changes |
 | Deployment evidence | `references/deployment-assessment-2026-07-09.md`, `logbooks/validations/2026-07-12-server-staging-release.md` and later validation records | New deployment validation or incident |
+| Operations contract and release runbook | `systems/ops/README.md`, `systems/ops/monorepo-release-runbook.md` | Release, preflight, backup, restore, rollback or observability rules change |
 | Governance rules | `governance/*.md` | Process, documentation, branch, or safety rules change |
 | System contracts | `systems/*/README.md` | Runtime, interface, data, permission, or verification changes |
 | R3 browser acceptance evidence | `logbooks/validations/2026-07-10-r3-browser-readiness.md` | R3 interaction matrix, acceptance launcher, or residual risk changes |
@@ -64,4 +66,4 @@ Run:
 npm run harness:verify:project
 ```
 
-The harness verifies root entries, required docs, Monorepo source layout, and branch policy anchors.
+The harness verifies root entries, required docs, Monorepo source layout, CI entrypoints, and branch policy anchors.

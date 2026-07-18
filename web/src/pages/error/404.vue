@@ -7,13 +7,14 @@
 </template>
 
 <script setup lang="ts">
+import { shouldProbeElectronRuntime } from "@/utils/runtimeEnvironment";
 const router = useRouter();
 
 function goHome() {
   router.push("/");
 }
 const isElectron = computed(() => {
-  return window?.$electron;
+  return shouldProbeElectronRuntime(window.location.protocol, navigator.userAgent);
 });
 </script>
 

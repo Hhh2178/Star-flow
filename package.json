@@ -5,6 +5,7 @@
   "scripts": {
     "harness:verify:project": "node scripts/verify-harness.mjs",
     "test:release-layout": "node --test scripts/release-layout.test.mjs",
+    "ci:governance": "npm run harness:verify:project && npm run test:release-layout",
     "build:web": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-web-to-app.ps1",
     "build:release": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-release.ps1"
   }

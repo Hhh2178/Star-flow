@@ -16,6 +16,7 @@
     "test:product-identity": "node --test scripts/product-identity.test.mjs",
     "test:admin:unit": "vitest run src/admin src/shared",
     "test:admin": "yarn test:admin:unit && yarn build-only && node --test scripts/build-boundaries.test.mjs && yarn check:build-boundaries",
+    "test:ci": "vitest run src && yarn test:product-identity && yarn check:product-identity && node --test scripts/build-boundaries.test.mjs && yarn build && yarn check:build-boundaries",
     "type-check": "vue-tsc --build --force",
     "license": "node scripts/license.ts",
     "i18n:check": "node scripts/findUnusedI18n.ts"

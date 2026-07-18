@@ -30,6 +30,9 @@ R3 前后台分离、严格分组隔离、持久化生成队列、分层并发�
 - `docs/INDEX.md`：文档路由和权威来源。
 - `docs/specs/2026-07-09-stars-flow-toonflow-rebase-design.md`：新主线迁移设计。
 - `docs/decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md`：第一条架构决策。
+- `docs/governance/github-and-ci-policy.md`：GitHub、CI 和主分支保护规则。
+- `docs/systems/ops/README.md`：运行、备份、回滚和事故边界。
+- `docs/systems/ops/monorepo-release-runbook.md`：Monorepo 发布门禁和执行顺序。
 - `docs/references/server-context.md`：共享服务器上下文和 Stars Flow 部署注意事项。
 - `upstream/toonflow-notes.md`：Toonflow 上游分析摘要。
 - `legacy-reference/xinghuan-notes.md`：旧星环漫剧参考范围。
@@ -63,8 +66,18 @@ R3 前后台分离、严格分组隔离、持久化生成队列、分层并发�
 ## Harness Commands
 
 ```powershell
-npm run harness:verify:project
+npm run ci:governance
+
+Push-Location app
+yarn test:ci
+Pop-Location
+
+Push-Location web
+yarn test:ci
+Pop-Location
 ```
+
+GitHub Actions 在 `main`、`dev` 和面向两者的 Pull Request 上运行 `Governance`、`App`、`Web` 三个独立门禁。真实 Provider 调用和服务器发布不会由 CI 自动触发。
 
 ## Visual Development
 

@@ -29,6 +29,8 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+/vite.config.js
+/vite.config.d.ts
 
 !src/types/auto-imports.d.ts
 src/types/components.d.ts

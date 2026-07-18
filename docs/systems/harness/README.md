@@ -15,6 +15,7 @@ Stars Flow is a private Monorepo. Backend/runtime code lives in `app`; Creator/A
 | `package.json` scripts | Human/agent to harness | `harness:verify:project` runs deterministic checks | `npm run harness:verify:project` |
 | `app/`, `web/` | Monorepo to product source | Both paths are normal tracked directories, never gitlinks or nested repositories | Harness checks required manifests, nested `.git` markers and index modes |
 | `build:release` | Repository root to App/Web | Builds Creator/Admin, copies both outputs, then builds app | Release layout tests and post-build artifact scan |
+| `.github/workflows/ci.yml` | GitHub to Monorepo | Runs isolated `Governance`, `App` and `Web` checks without production secrets | Required GitHub status checks |
 | `docs/INDEX.md` | Docs router | Names canonical docs and verification | Harness script checks required files |
 
 ## Verification
@@ -24,6 +25,8 @@ Run:
 ```powershell
 npm run harness:verify:project
 ```
+
+Local CI-equivalent entrypoints are `npm run ci:governance`, `app/yarn test:ci` and `web/yarn test:ci`. The GitHub policy and required check names are canonical in `docs/governance/github-and-ci-policy.md`.
 
 ## Release Branch Gate
 

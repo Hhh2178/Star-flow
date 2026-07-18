@@ -1,5 +1,12 @@
 import settingStore from "@/stores/setting";
 
+export type ResolvedThemeMode = "light" | "dark";
+
+export const resolveThemeMode = (mode: string): ResolvedThemeMode => {
+  const prefersDark = typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  return mode === "dark" || (mode === "auto" && prefersDark) ? "dark" : "light";
+};
+
 // HEX 转 HSL
 const hexToHsl = (hex: string) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -59,7 +66,7 @@ const generateColorPalette = (hex: string) => {
 
 // 应用主题模式
 export const applyThemeMode = (mode: string) => {
-  const targetMode = mode === "auto" ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : mode;
+  const targetMode = resolveThemeMode(mode);
 
   // 方式 1：使用 theme-mode 属性
   if (targetMode === "dark") {

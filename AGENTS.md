@@ -18,10 +18,12 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 4. `docs/specs/2026-07-09-stars-flow-toonflow-rebase-design.md`
 5. `docs/decisions/ADR-0001-toonflow-rebase-and-deployment-shape.md`
 6. `docs/decisions/ADR-0003-private-monorepo-consolidation.md`
-7. `docs/references/server-context.md`
-8. 最新 `docs/logbooks/daily/*.md`
-9. `upstream/toonflow-notes.md`
-10. `legacy-reference/xinghuan-notes.md`
+7. `docs/governance/github-and-ci-policy.md`
+8. `docs/systems/ops/README.md`
+9. `docs/references/server-context.md`
+10. 最新 `docs/logbooks/daily/*.md`
+11. `upstream/toonflow-notes.md`
+12. `legacy-reference/xinghuan-notes.md`
 
 ## Current Direction
 
@@ -35,28 +37,30 @@ Stars Flow 是基于 Toonflow 改造的新 AI 漫剧/短剧生产工具主线。
 - 当前代码是单一私有 Monorepo；`app/`、`web/` 和外层治理文件直接由同一仓库跟踪，并作为一个发布单元验证。
 - 服务器内部试用环境已发布至 `https://starsflow.hhh2121.xyz`；systemd 服务、Nginx、HTTPS、SQLite 持久化库和 OSS 目录的非敏感事实以 `docs/references/server-context.md` 为准。
 - `dev` 用于日常集成；App、Web、文档和发布脚本在同一功能分支提交，通过完整发布门禁后才合入 `main`。
-- R3 已合并；当前后端开发入口恢复为 `app/` 的 `dev`，前端开发入口恢复为 `web/` 的 `dev`。旧 R3 feature worktree 仅用于追溯，后续任务应从最新 `dev` 创建新的短期分支或 worktree。
+- R0-R5 已完成；当前开发入口是 Monorepo `dev`。后续任务从最新 `dev` 创建一个短期分支或 worktree，并在同一提交链中协调 App、Web、文档和发布脚本。
 - R3 的完成口径不是“页面可打开”，而是 Creator/Admin 双入口完成真实角色、队列、并发、额度、日志和异步生成状态的浏览器交互验证。
 
 ## Local Development Environment
 
 - 本地默认开发环境是 Windows 宿主机上的短期 Git worktree：从 Monorepo 最新 `dev` 创建一个 `feature/<task>` 分支即可同时修改 app、web 和治理文件；不得把旧 `星环漫剧` 容器或其依赖目录用于 Stars Flow。
 - 宿主机当前标准运行时为 Node.js `20.20.x` 与 Yarn `1.22.x`。通过 `rtk yarn` 运行安装、测试、构建命令；`rtk` 仅优化终端输出，不会切换 Node 版本。
-- 全新 app worktree 安装依赖使用 `rtk yarn install --frozen-lockfile --ignore-engines`。这是 Electron 打包链路的传递依赖要求高于本地运行时所致；不得改动锁文件、降级依赖或把 `--ignore-engines` 用于服务器发布。
-- web worktree 使用 `rtk yarn install --frozen-lockfile`；所有本地数据库、验收数据和生成物必须留在相应 worktree 的已忽略路径中。
+- 全新 Monorepo worktree 的 `app/` 安装依赖使用 `rtk yarn install --frozen-lockfile --ignore-engines`。这是 Electron 打包链路的传递依赖要求高于本地运行时所致；不得改动锁文件、降级依赖或把 `--ignore-engines` 用于服务器发布。
+- 同一 worktree 的 `web/` 使用 `rtk yarn install --frozen-lockfile`；所有本地数据库、验收数据和生成物必须留在相应 worktree 的已忽略路径中。
 - Docker 不是当前日常开发环境。除非用户明确要求容器化验证、Dockerfile/镜像维护或服务器部署，否则不得新建、启动、停止或复用任何 Docker 容器。Docker 仅作为后续可选的可复现构建/发布验证方案。
 - 本地修改完成后，先在 `app/`、`web/` 运行计划要求的定向测试与构建，再在仓库根运行 `npm run harness:verify:project`；不得以 Docker 成功构建替代这些门禁。
 
 ## Current Execution Entry
 
-继续 R3 时按以下顺序读取和执行：
+R0-R5 已完成。新增工作先读取 `docs/logbooks/progress/functional-reform-status.md` 和最新 daily/validation，再从 `dev` 建立短期分支。生产稳定化优先于继续堆叠功能。
+
+回归 Creator/Admin 或 R3 能力时按以下顺序读取：
 
 1. `docs/specs/2026-07-10-stars-flow-separated-admin-console-design.md`
 2. `docs/superpowers/plans/2026-07-10-r3-browser-test-readiness-execution.md`
 3. `docs/logbooks/progress/functional-reform-status.md`
 4. `docs/logbooks/daily/2026-07-10.md`
 
-R3 剩余实现必须遵守：
+后续生产改动必须继续遵守：
 
 - 先补测试并确认失败，再实现行为。
 - 当前产品只面向电脑端：不设计、不实现、不修复、不验收移动端或平板端适配，也不测试移动端/平板端视口；前端与浏览器验收统一使用桌面分辨率。
@@ -69,7 +73,15 @@ R3 剩余实现必须遵守：
 
 1. `docs/logbooks/validations/2026-07-12-server-staging-release.md`
 2. `docs/references/server-context.md`
-3. `docs/systems/harness/README.md`
+3. `docs/systems/ops/README.md`
+4. `docs/systems/ops/monorepo-release-runbook.md`
+5. `docs/systems/harness/README.md`
+
+## CodeGraph
+
+- 首次进入新的 Monorepo 工作副本时运行 `rtk codegraph status`；未初始化时运行一次 `rtk codegraph init -i`。
+- 理解符号、调用链和影响范围时先使用 CodeGraph query/context/callers/callees/impact，再回退到文本搜索。
+- 代码或结构变化后运行 `rtk codegraph sync`。`.codegraph` 数据库只保存在本机，不提交到 Git。
 
 ## Server Context
 
@@ -96,17 +108,17 @@ R3 剩余实现必须遵守：
 - `dev` 是日常集成分支。
 - 短期任务可以使用 `feature/<name>`，合并后删除。
 - 不创建长期模块分支。
-- 官方 Toonflow 只作为 `app` 仓库的 `upstream` remote，不直接作为 Stars Flow 开发主线。
+- 官方 Toonflow App/Web 只作为 subtree 上游来源，不直接作为 Stars Flow 开发主线，也不得重新引入嵌套仓库。
 
 ## Verification Commands
 
-在提交 Stars Flow 外层治理仓库前运行：
+在提交 Stars Flow Monorepo 前运行：
 
 ```powershell
 npm run harness:verify:project
 ```
 
-在修改 `app/` 代码后，还需要进入 `app/` 运行对应 Toonflow 检查；修改 `web/` 时运行对应前端检查。
+CI 等价入口为根目录 `npm run ci:governance`、`app/` 的 `yarn test:ci` 和 `web/` 的 `yarn test:ci`。小改动可先运行定向检查，但进入 `main` 前必须通过完整门禁。
 
 R3 浏览器就绪检查以 `docs/superpowers/plans/2026-07-10-r3-browser-test-readiness-execution.md` 的命令矩阵为准。外层统一构建最终必须同时产出 `app/data/web/` Creator 静态文件和 `app/data/web/admin/` Admin 静态文件。
 

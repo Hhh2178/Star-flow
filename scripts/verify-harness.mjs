@@ -10,6 +10,7 @@ const requiredFiles = [
   "docs/governance/root-entry-responsibility-matrix.md",
   "docs/governance/documentation-governance-standard.md",
   "docs/governance/engineering-guardrails.md",
+  "docs/governance/github-and-ci-policy.md",
   "docs/governance/worktree-and-branch-policy.md",
   "docs/governance/secrets-and-access-policy.md",
   "docs/systems/README.md",
@@ -17,10 +18,14 @@ const requiredFiles = [
   "docs/systems/app/README.md",
   "docs/systems/frontend/README.md",
   "docs/systems/admin/README.md",
+  "docs/systems/ops/README.md",
+  "docs/systems/ops/monorepo-release-runbook.md",
   "docs/logbooks/daily/2026-07-09.md",
   "docs/decisions/ADR-0003-private-monorepo-consolidation.md",
   "app/package.json",
   "web/package.json",
+  ".github/workflows/ci.yml",
+  ".codegraph/.gitignore",
   ".env.example",
 ];
 
@@ -45,8 +50,25 @@ for (const text of ["docs/INDEX.md", "main", "dev", "harness:verify:project"]) {
 }
 
 const readme = read("README.md");
-for (const text of ["Hhh2178/Star-flow", "main", "dev", "harness:verify:project"]) {
+for (const text of ["Hhh2178/Star-flow", "main", "dev", "ci:governance"]) {
   if (!readme.includes(text)) fail(`README.md missing anchor: ${text}`);
+}
+
+const rootPackage = JSON.parse(read("package.json"));
+if (!rootPackage.scripts?.["ci:governance"]) {
+  fail("package.json must define ci:governance");
+}
+
+for (const packagePath of ["app/package.json", "web/package.json"]) {
+  const packageJson = JSON.parse(read(packagePath));
+  if (!packageJson.scripts?.["test:ci"]) {
+    fail(`${packagePath} must define test:ci`);
+  }
+}
+
+const ciWorkflow = read(".github/workflows/ci.yml");
+for (const text of ["name: Governance", "name: App", "name: Web", "npm run ci:governance", "yarn test:ci"]) {
+  if (!ciWorkflow.includes(text)) fail(`CI workflow missing anchor: ${text}`);
 }
 
 if (fs.existsSync(path.join(root, ".gitmodules"))) {
