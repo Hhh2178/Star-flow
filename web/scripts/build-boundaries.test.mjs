@@ -78,6 +78,13 @@ test("test:admin 会先运行单测再重建双端产物和检查边界", async 
   );
 });
 
+test("test:ci 会先构建双端产物再检查产品身份", async () => {
+  const packageJson = JSON.parse(await readFile(join(projectRoot, "package.json"), "utf8"));
+  const command = packageJson.scripts["test:ci"];
+  assert.ok(command.indexOf("yarn build") < command.indexOf("yarn test:product-identity"));
+  assert.ok(command.indexOf("yarn build") < command.indexOf("yarn check:product-identity"));
+});
+
 test("CodeGraph 本地索引被 Git 忽略", async () => {
   const gitignore = await readFile(join(projectRoot, ".gitignore"), "utf8");
   assert.match(gitignore, /^\.codegraph\/$/m);
