@@ -26,7 +26,7 @@ CI must never load production environment files, Provider credentials, real user
 
 ## Main Branch Protection
 
-`main` must:
+The target enforced rule for `main` is:
 
 - require `Governance`, `App` and `Web` to pass;
 - require the branch to be current before integration;
@@ -34,7 +34,16 @@ CI must never load production environment files, Provider credentials, real user
 - require conversation resolution;
 - preserve linear history.
 
-`dev` remains the integration branch. A complete, locally verified `dev` commit may advance `main` only after CI passes and any required staging gate is recorded.
+The repository is currently private under a GitHub Free personal account. GitHub does not make branch protection or repository rulesets available for private repositories on that plan, and the protection API returns `403 Upgrade to GitHub Pro or make this repository public`. Keeping the source private takes precedence, so this limitation must not be bypassed by changing repository visibility.
+
+Until the account is upgraded to GitHub Pro, the same rules are process-enforced:
+
+- `dev` remains the integration branch and direct feature work never starts from `main`;
+- advance `main` only from a complete, locally verified `dev` commit after `Governance`, `App` and `Web` pass on that commit;
+- never force-push or delete `main`;
+- record any GitHub Actions outage that prevents remote verification and wait for recovery instead of treating it as a pass.
+
+After a GitHub Pro upgrade, enable the target rule above immediately and verify it through the branch-protection API. A complete, locally verified `dev` commit may advance `main` only after CI passes and any required staging gate is recorded.
 
 ## Dependency Policy
 

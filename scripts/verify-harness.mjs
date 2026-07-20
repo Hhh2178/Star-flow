@@ -75,11 +75,13 @@ if (fs.existsSync(path.join(root, ".gitmodules"))) {
   fail(".gitmodules must not exist after monorepo consolidation");
 }
 
-let outerBranch = "";
-try {
-  outerBranch = execFileSync("git", ["branch", "--show-current"], { cwd: root, encoding: "utf8" }).trim();
-} catch (error) {
-  fail(`failed to read outer branch: ${error.message}`);
+let outerBranch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
+if (!outerBranch) {
+  try {
+    outerBranch = execFileSync("git", ["branch", "--show-current"], { cwd: root, encoding: "utf8" }).trim();
+  } catch (error) {
+    fail(`failed to read outer branch: ${error.message}`);
+  }
 }
 if (!/^(main|dev|feature\/.+|hotfix\/.+|chore\/.+)$/.test(outerBranch)) {
   fail(`repository branch violates branch policy: ${outerBranch}`);
